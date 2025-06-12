@@ -10,8 +10,10 @@ nav_order: 1
 {{ site.description }}
 {: .fs-6 .fw-300 }
 
-
-{{ site.staffersnobio }}
+{% assign instructors = site.staffersnobio | where: 'role', 'Instructor' %}
+{% for staffer in instructors %}
+  {% include staffer.html staffer=staffer %}
+{% endfor %}
 
 <!-- Below, you can open "static" versions of each lecture by clicking the ✏️ emojis and watch podcasts by clicking the 🎥 emojis. -->
 
