@@ -1,6 +1,6 @@
 ---
 layout: page
-title: 📚 Resources
+title: Resources
 description: Useful links and resources.
 nav_order: 4
 ---
@@ -14,7 +14,8 @@ nav_order: 4
 1. TOC
 {:toc}
 
-
+## UNDER CONSTRUCTION 
+<!-- 
 ## Supplemental Resources
 
 ### Diagrams
@@ -93,4 +94,4 @@ Past exams and detailed solutions can be found at [practice.dsc10.com](https://p
 - [Counseling and Psychological Services (CAPS)](https://caps.ucsd.edu)
 
 ## Other
-- [Where to find datasets](https://rampure.org/find-datasets)
+- [Where to find datasets](https://rampure.org/find-datasets) -->

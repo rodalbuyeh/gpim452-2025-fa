@@ -1,6 +1,6 @@
 ---
 layout: page
-title: 📖 Syllabus
+title: Syllabus
 description: >-
   Course policies and information.
 nav_order: 2
@@ -18,8 +18,8 @@ nav_order: 2
 
 ---
 
-## 🧐 About
-
+## UNDER CONSTRUCTION
+<!-- 
 Welcome to DSC 10 at UC San Diego! This course aims to teach you how to draw
 conclusions about data. We will learn how to explore data and make predictions
 using data. Programming is a useful tool to help us analyze large datasets,
@@ -38,10 +38,10 @@ its specific content.
 
 ### Acknowledgements
 
-The contents of this course come from UC Berkeley's Data 8 course, created by Ani Adhikari, John DeNero, and many others. This offering builds off of earlier offerings of DSC 10 by Justin Eldridge, Suraj Rampure, Janine Tiefenbruck, and many others. Thanks to all those who have a played a role in shaping this amazing course!
+The contents of this course come from UC Berkeley's Data 8 course, created by Ani Adhikari, John DeNero, and many others. This offering builds off of earlier offerings of DSC 10 by Justin Eldridge, Suraj Rampure, Janine Tiefenbruck, and many others. Thanks to all those who have a played a role in shaping this amazing course! -->
 
 ---
-
+<!-- 
 ## 👨‍🏫 Course Meetings
 
 ### Lecture
@@ -56,10 +56,10 @@ Lecture is meant to introduce you to the main concepts of the course. In-person 
 
 You can attend any lecture section, but if space fills up, priority will be given to students officially enrolled in that section. For the Midterm Exam, you must attend the lecture section in which you are officially enrolled.
 
-**Lectures will be podcasted (UCSD's term for "recorded").** Podcast recordings will be available online at [podcast.ucsd.edu](https://podcast.ucsd.edu) within a few hours.
+**Lectures will be podcasted (UCSD's term for "recorded").** Podcast recordings will be available online at [podcast.ucsd.edu](https://podcast.ucsd.edu) within a few hours. -->
 
 <!-- We will also link recordings directly on the course homepage; you can access these by clicking the 🎥 emoji. -->
-
+<!-- 
 ### Discussion
 
 There are three discussion sections:
@@ -107,10 +107,10 @@ Questions that you should never ask a tutor:
 - What’s going to be on the exam?
 
 Your primary motivation when interacting with course staff should be
-**learning**.
+**learning**. -->
 
 ---
-
+<!-- 
 ## 🚦 Getting Started
 
 ### Technology
@@ -148,10 +148,10 @@ Please fill out this short [Welcome Survey](https://forms.gle/X2kMh9HAZ42b3ySZ9)
 
 ### Pretest
 
-DSC 10’s only prerequisite is high school algebra. In order to gauge your preparedness for the type of math you’ll see in this class, you should work through the practice problems on this [pretest](https://practice.dsc10.com/pretest/). You will not submit this pretest, and it will not be graded, but it will help you identify any gaps in your background knowledge and it will teach you some useful test-taking skills. We'll release solutions to the pretest on Monday of Week 1.
+DSC 10’s only prerequisite is high school algebra. In order to gauge your preparedness for the type of math you’ll see in this class, you should work through the practice problems on this [pretest](https://practice.dsc10.com/pretest/). You will not submit this pretest, and it will not be graded, but it will help you identify any gaps in your background knowledge and it will teach you some useful test-taking skills. We'll release solutions to the pretest on Monday of Week 1. -->
 
 ---
-
+<!-- 
 ## 💬 Communication
 
 This quarter, we’ll be using Ed as our course message board.
@@ -168,10 +168,10 @@ student if you feel that you know the answer – this is a great way to
 strengthen your understanding of the material.
 
 Please use Ed **instead of email**, as this helps us keep all course-related
-communication in one place. In particular, don't send course staff questions about course content over email/social media – Ed is the place for that.
+communication in one place. In particular, don't send course staff questions about course content over email/social media – Ed is the place for that. -->
 
 ---
-
+<!-- 
 ## 📕 Readings
 
 Our readings will come from two free online sources.
@@ -179,10 +179,10 @@ Our readings will come from two free online sources.
 - [Computational and Inferential Thinking
   ("CIT")](https://inferentialthinking.com) is the main textbook for the course, written to support UC Berkeley's version of this course, from which DSC 10 was adapted. This book uses slightly different Python commands (it does not use the `babypandas` module), but the underlying concepts are the same.
 - [Notes on (Baby)Pandas ("BPD")](https://notes.dsc10.com) are a set of notes
-  about the `babypandas` module, written specifically for DSC 10 students.
+  about the `babypandas` module, written specifically for DSC 10 students. -->
 
 ---
-
+<!-- 
 ## 🧪 Assignments
 
 ### Lab Assignments
@@ -345,10 +345,10 @@ all public test cases passed.
 If you happen to make one of the above mistakes and you notice it yourself 
 within 48 hours of the deadline, please resubmit your assignment. If it is more than 48 hours since the deadline,
 please reach out to a staff member and we may resubmit for you, which will cost you 2 slip days.
-It is your responsibility to ensure that all assignments are submitted correctly.
+It is your responsibility to ensure that all assignments are submitted correctly. -->
 
 ---
-
+<!-- 
 ## 📝 Assessments
 
 We will assess your knowledge of course material frequently through quizzes and exams. Quizzes and exams will be administered on paper, without the use of computers or calculators. You'll have access to a large collection of [Practice Problems](https://practice.dsc10.com/) to help you prepare. You'll see some of these problems in discussion section and during in-class exam reviews, but the more you practice, the better prepared you'll be for the assessments.
@@ -613,4 +613,4 @@ this mean I am off the waitlist?**
 No. Students on the waitlist were also added to all course tools, so they can
 complete assignments while they are on the waitlist. Check
 [WebReg](https://act.ucsd.edu/webreg2) if you are not sure of your enrollment
-status.
+status. -->

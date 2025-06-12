@@ -1,10 +1,12 @@
 ---
 layout: page
-title: 🐞 Debugging
+title: Debugging
 description: Pointers on how to solve common technical issues.
 nav_order: 5
 ---
 
+# UNDER CONSTRUCTION
+<!-- 
 # 🐞 Debugging
 {:.no_toc}
 
@@ -150,4 +152,4 @@ Sometimes DataHub does have availability issues. Usually it is back up and runni
 
 ### What if I don't have access to DataHub and I still want to access DSC 10 materials?
 
-We welcome the general public to use our materials. If you're not enrolled in the class, you can access all lectures and assignments in our [public GitHub repository](https://github.com/dsc-courses/dsc10-2023-fa).
+We welcome the general public to use our materials. If you're not enrolled in the class, you can access all lectures and assignments in our [public GitHub repository](https://github.com/dsc-courses/dsc10-2023-fa). -->
