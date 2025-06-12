@@ -1,0 +1,45 @@
+<div class="staffer">
+  {% if staffer.photo %}
+  <img class="staffer-image" src="{{ staffer.photo | relative_url }}" alt="">
+  {% endif %}
+  <div>
+    <h3 class="staffer-name">
+      {% if staffer.role %}
+      {% if staffer.role == 'TA' %}
+      <span class="badge-ta">{{ staffer.role }}</span><br>
+      {% elsif staffer.role == 'Tutor' %}
+      <span class="badge-tutor">{{ staffer.role }}</span><br>
+      {% elsif staffer.role == 'Mascot' %}
+      <span class="badge-mascot">{{ staffer.role }}</span><br>
+      {% else %} 
+      {% endif %}
+      {% if staffer.website %}
+      <a href="{{ staffer.website }}">{{ staffer.name }}</a>
+      {% else %}
+      {{ staffer.name }}
+      {% endif %}
+      {% if staffer.pronouns %}
+      <div class="staffer-pronouns"><b>{{ staffer.pronouns }}</b></div>
+      {% endif %}
+    </h3>
+    <p>
+    {% if staffer.email %}
+    <a href="mailto:{{ staffer.email }}">{{ staffer.email }}</a>
+    {% endif %}
+
+    {% endif %}
+    {% if staffer.lecture %}
+    <p><b>Lecture(s)</b>: {{ staffer.lecture }}</p>
+    {% endif %}
+
+    </p>
+
+    <p title="Description">🎓 {{ staffer.description }}</p>
+    <p title="Hometown">🏠 {{ staffer.hometown }}</p>
+    <p title="In office hours, ask me about...">🙋 {{ staffer.askabout }}</p>
+    <p title="Favorite food in San Diego">{{ staffer.foodemoji }} {{ staffer.food }}</p>
+
+    {{ staffer.content }}
+    
+  </div>
+</div> 

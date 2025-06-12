@@ -11,7 +11,7 @@ nav_order: 7
 
 {% assign instructors = site.staffers | where: 'role', 'Instructor' %}
 {% for staffer in instructors %}
-{{ staffer }}
+  {% include staffer.html staffer=staffer %}
 {% endfor %}
 
 <!-- ## Course Staff
