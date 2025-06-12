@@ -4,7 +4,7 @@ This repository contains the source code for the course website. The site is bui
 
 ## Recommended Development Workflow
 
-### Option 1: Hybrid Workflow (Recommended) 🚀
+### Option 1: Hybrid Workflow (Recommended)
 
 **Best for:** Editing with AI assistance locally + reliable testing in the cloud
 
@@ -24,11 +24,11 @@ This repository contains the source code for the course website. The site is bui
    - Click the popup to view your site in the browser
 
 **Benefits:**
-- ✅ No local dependency management headaches
-- ✅ Always works in clean Linux environment
-- ✅ Free tier available (120 core-hours/month)
-- ✅ Easy port forwarding and sharing
-- ✅ Best of both worlds: local editing + cloud testing
+- No local dependency management headaches
+- Always works in clean Linux environment
+- Free tier available (120 core-hours/month)
+- Easy port forwarding and sharing
+- Best of both worlds: local editing + cloud testing
 
 ### Option 2: Local Development Environment
 
