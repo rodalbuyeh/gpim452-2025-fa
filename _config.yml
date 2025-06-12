@@ -13,12 +13,12 @@
 # you will see them accessed via {{ site.title }}, {{ site.github_repo }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: DSC 10
-description: DSC 10, Fall 2023 at UC San Diego
-tagline: Principles of Data Science
+title: GPIM 452
+description: GPIM 452, Fall 2025 at UC San Diego
+tagline: Big Data for Policy, Government, and Management
 baseurl: '/' # the subpath of your site, e.g. /blog
-url: 'https://dsc10.com' # the base hostname & protocol for your site, e.g. http://example.com
-author: DSC 10 Instructors and Course Staff
+url: 'https://rodalbuyeh.github.io/gpim452-2025-fa/' # the base hostname & protocol for your site, e.g. http://example.com
+author: GPIM 452 Instructors and Course Staff
 exclude: ["Gemfile", "Gemfile.lock", "LICENSE", "README.md"]
 
 # Theme settings
@@ -28,16 +28,8 @@ search_enabled: true
 heading_anchors: true
 permalink: pretty
 aux_links:
-  🙋 Ed:
-    - 'https://edstem.org/us/courses/48101/discussion/'
-  💯 Gradescope:
-    - 'https://www.gradescope.com/courses/633671'
-  📌 Reference:
-    - 'https://drive.google.com/file/d/1ky0Np67HS2O4LO913P-ing97SJG0j27n/view?usp=sharing'
-  💪 Practice:
-    - 'https://practice.dsc10.com/'
-  ✅ CC:
-    - 'http://cc.dsc10.com/'
+  💯 Canvas:
+    - 'https://canvas.ucsd.edu'
   🎥 Podcasts:
     - 'https://podcast.ucsd.edu/'
 footer_content:
