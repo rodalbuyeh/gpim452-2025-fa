@@ -37,8 +37,9 @@
 
     <p title="Description">🎓 {{ staffer.description }}</p>
     <p title="Hometown">🏠 {{ staffer.hometown }}</p>
-    <p title="In office hours, ask me about...">🙋 {{ staffer.askabout }}</p>
-    <p title="Favorite food in San Diego">{{ staffer.foodemoji }} {{ staffer.food }}</p>
+    {% if staffer.about %}
+    <p>{{ staffer.about }}</p>
+    {% endif %}
 
     {{ staffer.content }}
     
