@@ -35,10 +35,10 @@
 
     </p>
 
-    <p title="Description">🎓 {{ staffer.description }}</p>
-    <p title="Hometown">🏠 {{ staffer.hometown }}</p>
+    <p>{{ staffer.description }}</p>
+    <p>{{ staffer.hometown }}</p>
     {% if staffer.about %}
-    <p>{{ staffer.about }}</p>
+    <div>{{ staffer.about | markdownify }}</div>
     {% endif %}
 
     {{ staffer.content }}
