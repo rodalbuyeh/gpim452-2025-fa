@@ -45,10 +45,17 @@ footer_content:
 # Collections for website data
 collections:
   staffers:
+    output: true
+    permalink: /staff/:name/
   staffersnobio:
+    output: true
+    permalink: /staff/:name/
   modules:
+    output: true
   schedules:
+    output: true
   announcements:
+    output: true
 # Default layouts for each collection type
 defaults:
   - scope:
