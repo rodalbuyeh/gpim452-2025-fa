@@ -16,7 +16,7 @@ _Hover over an emoji to see a description._
 {{ staffer }}
 {% endfor %}
 
-## Course Staff
+<!-- ## Course Staff
 
 {% assign staff = site.staffers | where: 'role', 'TA' %}
 {% for staffer in staff %}
@@ -28,7 +28,3 @@ _Hover over an emoji to see a description._
 {{ staffer }}
 {% endfor %}
 
-{% assign staff = site.staffers | where: 'role', 'Mascot' %}
-{% for staffer in staff %}
-{{ staffer }}
-{% endfor %}
