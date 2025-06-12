@@ -1,13 +1,11 @@
 ---
 layout: page
-title: 👩‍🏫 Staff
+title: Staff
 description: A listing of all the course staff members.
 nav_order: 7
 ---
 
-# 👩‍🏫 Staff
-
-_Hover over an emoji to see a description._
+# Staff
 
 ## Instructors
 
@@ -26,5 +24,5 @@ _Hover over an emoji to see a description._
 {% assign staff = site.staffers | where: 'role', 'Tutor' %}
 {% for staffer in staff %}
 {{ staffer }}
-{% endfor %}
+{% endfor %} -->
 
