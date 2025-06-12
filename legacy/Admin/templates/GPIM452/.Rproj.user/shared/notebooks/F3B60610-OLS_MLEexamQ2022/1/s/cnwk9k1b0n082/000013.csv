@@ -1,4 +1,0 @@
-"0","thd$race_fac <- as.factor(as.numeric(as.factor(Q6.3)))
-"
-"2","Error in is.factor(x) : object 'Q6.3' not found
-"
