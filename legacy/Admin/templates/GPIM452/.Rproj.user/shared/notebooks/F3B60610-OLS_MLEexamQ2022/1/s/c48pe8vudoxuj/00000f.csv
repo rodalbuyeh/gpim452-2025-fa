@@ -1,0 +1,7 @@
+"0","probit1<-glm(union_vote == ""For the union"" ~
+                  male*tenure_num + as.factor(Q6.3) + rk_age,
+                family = binomial(link=""probit""),
+                data = thd)
+"
+"2","Error in is.data.frame(data) : object 'thd' not found
+"

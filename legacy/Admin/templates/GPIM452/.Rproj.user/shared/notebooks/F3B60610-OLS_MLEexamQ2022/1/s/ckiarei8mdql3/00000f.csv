@@ -1,0 +1,9 @@
+"0","ols <- lm(union_vote ~ male*tenure_num + as.factor(Q6.3) 
+          + rk_age, data=thd)
+"
+"2","Warning in storage.mode(v) <- ""double"" :"
+"2"," NAs introduced by coercion
+"
+"2","Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) : 
+  NA/NaN/Inf in 'y'
+"

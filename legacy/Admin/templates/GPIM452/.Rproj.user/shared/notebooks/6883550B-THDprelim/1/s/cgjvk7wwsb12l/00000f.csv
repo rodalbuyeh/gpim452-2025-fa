@@ -1,0 +1,16 @@
+"0","rownames(out.tab) <- c(""(Intercept):For"", ""(Intercept):Against"",
+                       ""TRT:txt:For"", ""TRT:txt:Against"",
+                       ""TRT:vid:For"", ""TRT:vid:Against"",
+                       ""age:"", ""age:Against"", ""male:For"", ""male:Against"",
+                       ""main job:For"", ""main job:Against"",
+                       ""tenure: 6-12mos:For"", ""tenure: 6-12mos:Against"",
+                       ""1-2 yrs.:For"",""1-2 yrs.:Against"", ""2-3 yrs.:For"", ""2-3 yrs.:Against"",
+                       ""3+ yrs.:For"",""3+ yrs.:Against"",
+                       ""nonwhite:For"", ""nonwhite:Against"",
+                       ""fulltime:For"", ""fulltime:Against"",
+                       ""hourly:For"", ""hourly:Against"",
+                       ""college:For"", ""college:Against"")
+"
+"2","Error in `rownames<-`(`*tmp*`, value = c(""(Intercept):For"", ""(Intercept):Against"",  : 
+  attempt to set 'rownames' on an object with no dimensions
+"
