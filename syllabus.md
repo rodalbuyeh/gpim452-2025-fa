@@ -18,8 +18,7 @@ nav_order: 2
 
 ---
 
-## UNDER CONSTRUCTION
-<!-- 
+
 Welcome to DSC 10 at UC San Diego! This course aims to teach you how to draw
 conclusions about data. We will learn how to explore data and make predictions
 using data. Programming is a useful tool to help us analyze large datasets,
@@ -38,10 +37,9 @@ its specific content.
 
 ### Acknowledgements
 
-The contents of this course come from UC Berkeley's Data 8 course, created by Ani Adhikari, John DeNero, and many others. This offering builds off of earlier offerings of DSC 10 by Justin Eldridge, Suraj Rampure, Janine Tiefenbruck, and many others. Thanks to all those who have a played a role in shaping this amazing course! -->
+The contents of this course come from UC Berkeley's Data 8 course, created by Ani Adhikari, John DeNero, and many others. This offering builds off of earlier offerings of DSC 10 by Justin Eldridge, Suraj Rampure, Janine Tiefenbruck, and many others. Thanks to all those who have a played a role in shaping this amazing course!
 
 ---
-<!-- 
 ## 👨‍🏫 Course Meetings
 
 ### Lecture
@@ -52,11 +50,11 @@ There are four lecture sections:
 - Section C (Suraj): MWF 1-1:50PM in [Mandeville B-210](https://map.concept3d.com/?id=1005#!m/237200)
 - Section D (Rod): MWF 8-8:50AM in [Peterson Hall 104](https://map.concept3d.com/?id=1005#!m/237174)
 
-Lecture is meant to introduce you to the main concepts of the course. In-person attendance is never required, but is strongly encouraged when possible, as you’ll get the opportunity to ask questions, answer ungraded concept-check polls, and participate in discussion.
+Lecture is meant to introduce you to the main concepts of the course. In-person attendance is never required, but is strongly encouraged when possible, as you'll get the opportunity to ask questions, answer ungraded concept-check polls, and participate in discussion.
 
 You can attend any lecture section, but if space fills up, priority will be given to students officially enrolled in that section. For the Midterm Exam, you must attend the lecture section in which you are officially enrolled.
 
-**Lectures will be podcasted (UCSD's term for "recorded").** Podcast recordings will be available online at [podcast.ucsd.edu](https://podcast.ucsd.edu) within a few hours. -->
+**Lectures will be podcasted (UCSD's term for "recorded").** Podcast recordings will be available online at [podcast.ucsd.edu](https://podcast.ucsd.edu) within a few hours.
 
 <!-- We will also link recordings directly on the course homepage; you can access these by clicking the 🎥 emoji. -->
 <!-- 
@@ -70,7 +68,7 @@ There are three discussion sections:
 You must attend the discussion section that corresponds to the lecture section you are enrolled in. Students in Section D will be assigned to one of the other sections. On the [Welcome Survey](https://forms.gle/X2kMh9HAZ42b3ySZ9), you will be able to let us know of any conflicts with your assigned discussion section, and we will do our best to reassign you to a different section.
  
 {: .warning }
-**In the Schedule of Classes, this course is listed as having both a discussion section (DI) and a lab section (LA), but we will only have one weekly meeting outside of lecture, which we’ll refer to as a discussion section, scheduled at the time listed above. You should ignore what you see as DI or LA on WebReg and just use the schedule above instead.**
+**In the Schedule of Classes, this course is listed as having both a discussion section (DI) and a lab section (LA), but we will only have one weekly meeting outside of lecture, which we'll refer to as a discussion section, scheduled at the time listed above. You should ignore what you see as DI or LA on WebReg and just use the schedule above instead.**
 
 Discussion section is focused on exam preparation. Students will work through problems from past DSC 10 exams and go over solutions with course staff. Attending discussion section and working through practice problems in discussion gives you direct experience with the types of questions you will see on the exams. We will also administer four quizzes throughout the quarter during discussion section, so it is important that you be able to attend in-person at your assigned time.
 
@@ -94,7 +92,7 @@ Here are some really good questions to ask instead:
 - I got confused about a concept in class. Can you explain it?
 - When the assignment says X, does it mean A or B?
 - My code is giving a weird error - can you help me understand why?
-- I can’t get this test to pass, so I must be doing something wrong. Can you
+- I can't get this test to pass, so I must be doing something wrong. Can you
   help me figure it out?
 - My code is doing something different than what I expected. Can you explain
   what is happening?
@@ -104,13 +102,12 @@ Questions that you should never ask a tutor:
 - Is this the right answer?
 - Can you check my code and make sure it is right?
 - What is the answer?
-- What’s going to be on the exam?
+- What's going to be on the exam?
 
 Your primary motivation when interacting with course staff should be
 **learning**. -->
 
 ---
-<!-- 
 ## 🚦 Getting Started
 
 ### Technology
@@ -129,7 +126,7 @@ additional platforms that you'll need to access:
 
 - **Gradescope:** You'll submit all assignments and exams to
   [Gradescope](https://www.gradescope.com/courses/633671). This is where all of
-  your grades will live as well. If you didn’t already get an invitation to our Gradescope course, reach out to the instructional staff on Ed.
+  your grades will live as well. If you didn't already get an invitation to our Gradescope course, reach out to the instructional staff on Ed.
 
 - **DataHub:** Assignments in this course will involve programming in Python.
   DataHub ([datahub.ucsd.edu](https://datahub.ucsd.edu)) is UCSD's online data
@@ -148,30 +145,28 @@ Please fill out this short [Welcome Survey](https://forms.gle/X2kMh9HAZ42b3ySZ9)
 
 ### Pretest
 
-DSC 10’s only prerequisite is high school algebra. In order to gauge your preparedness for the type of math you’ll see in this class, you should work through the practice problems on this [pretest](https://practice.dsc10.com/pretest/). You will not submit this pretest, and it will not be graded, but it will help you identify any gaps in your background knowledge and it will teach you some useful test-taking skills. We'll release solutions to the pretest on Monday of Week 1. -->
+DSC 10's only prerequisite is high school algebra. In order to gauge your preparedness for the type of math you'll see in this class, you should work through the practice problems on this [pretest](https://practice.dsc10.com/pretest/). You will not submit this pretest, and it will not be graded, but it will help you identify any gaps in your background knowledge and it will teach you some useful test-taking skills. We'll release solutions to the pretest on Monday of Week 1.
 
 ---
-<!-- 
 ## 💬 Communication
 
-This quarter, we’ll be using Ed as our course message board.
+This quarter, we'll be using Ed as our course message board.
 
-If you have a question about anything to do with the course — if you’re stuck
+If you have a question about anything to do with the course — if you're stuck
 on a problem, want clarification on the logistics, or just have a general
 question about data science — you can make a post on Ed. If your post
 includes any part of your solution to a problem (e.g. code), please make your
 post private; otherwise, please make your post public so that other students
 can benefit from the interaction. You can also post anonymously if you prefer.
 Course staff will regularly check Ed and try to answer any questions
-that you have. You’re also encouraged to answer a question asked by another
+that you have. You're also encouraged to answer a question asked by another
 student if you feel that you know the answer – this is a great way to
 strengthen your understanding of the material.
 
 Please use Ed **instead of email**, as this helps us keep all course-related
-communication in one place. In particular, don't send course staff questions about course content over email/social media – Ed is the place for that. -->
+communication in one place. In particular, don't send course staff questions about course content over email/social media – Ed is the place for that.
 
 ---
-<!-- 
 ## 📕 Readings
 
 Our readings will come from two free online sources.
@@ -179,10 +174,9 @@ Our readings will come from two free online sources.
 - [Computational and Inferential Thinking
   ("CIT")](https://inferentialthinking.com) is the main textbook for the course, written to support UC Berkeley's version of this course, from which DSC 10 was adapted. This book uses slightly different Python commands (it does not use the `babypandas` module), but the underlying concepts are the same.
 - [Notes on (Baby)Pandas ("BPD")](https://notes.dsc10.com) are a set of notes
-  about the `babypandas` module, written specifically for DSC 10 students. -->
+  about the `babypandas` module, written specifically for DSC 10 students.
 
 ---
-<!-- 
 ## 🧪 Assignments
 
 ### Lab Assignments
@@ -339,16 +333,15 @@ When submitting your work, there are two potential errors to watch out for:
 
 To prevent these issues, it is important that you (1) double-check that you are
 submitting the right notebook in the right format to Gradescope, and (2) let
-the autograder run on Gradescope until it shows you under “Public Tests” that
+the autograder run on Gradescope until it shows you under "Public Tests" that
 all public test cases passed.
 
 If you happen to make one of the above mistakes and you notice it yourself 
 within 48 hours of the deadline, please resubmit your assignment. If it is more than 48 hours since the deadline,
 please reach out to a staff member and we may resubmit for you, which will cost you 2 slip days.
-It is your responsibility to ensure that all assignments are submitted correctly. -->
+It is your responsibility to ensure that all assignments are submitted correctly.
 
 ---
-<!-- 
 ## 📝 Assessments
 
 We will assess your knowledge of course material frequently through quizzes and exams. Quizzes and exams will be administered on paper, without the use of computers or calculators. You'll have access to a large collection of [Practice Problems](https://practice.dsc10.com/) to help you prepare. You'll see some of these problems in discussion section and during in-class exam reviews, but the more you practice, the better prepared you'll be for the assessments.
@@ -613,4 +606,4 @@ this mean I am off the waitlist?**
 No. Students on the waitlist were also added to all course tools, so they can
 complete assignments while they are on the waitlist. Check
 [WebReg](https://act.ucsd.edu/webreg2) if you are not sure of your enrollment
-status. -->
+status.
