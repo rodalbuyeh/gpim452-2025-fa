@@ -84,11 +84,12 @@ All additional required readings will be posted to the course site.
 * **Data Science for Policy**: Harrell's *A Civic Technologist’s Practice Guide*; Kim's *Computational Thinking for Social Scientists*; Lane's *Democratizing our Data*; Salganick's [*Bit by Bit*](https://www.bitbybitbook.com/en/1st-ed/preface/); Weidmann's *Data Management for Social Sciences*; Pahlka's *Recoding America*
 
 ### Computation in R
-All computation in this class will use the **R** statistical computing language. Any homework requiring R should be submitted using **Quarto** or **RMarkdown**. We strongly recommend using **RStudio**, an IDE for R.
+All computation in this class will use the **R** statistical computing language. Any homework requiring R should be submitted using **Quarto** or **RMarkdown**. We strongly recommend using **RStudio**, an IDE for R. Advanced users or hybrid R/Python developers should look into Positron.
 * To download/install R: <https://cran.r-project.org/>
-* To download/install RStudio: <https://posit.co/>
+* To download/install RStudio: <https://posit.co/downloads/>
 * To download/install Quarto: <https://quarto.org/docs/download/>
 * To download/install TinyTeX (for PDF rendering): <https://yihui.org/tinytex/r/>
+* To download/install Positron (for advanced users): <https://positron.posit.co/download.html>
 
 ---
 ## 🏛️ Course Structure
@@ -105,8 +106,8 @@ This course will follow a “flipped” and hybrid format with analog, video, re
 ### Expectations
 I expect that you will come to class **ON TIME** and prepared. In return, you can expect that I have selected the materials for a reason, will come prepared with a clear agenda, and will return all on-time assignments within a week.
 
-### Email & Website (Canvas) policy
-I will use email and the course website (Canvas) regularly. I will do my best to respond to emails within 12 hours during the week and 24 hours on weekends. **I will NOT respond to email on Sundays.**
+### Email & Ed Forum policy
+I will use email and the [Ed forum](https://edstem.org/us/courses/81870/discussion) regularly. I will do my best to respond to emails within 12 hours during the week and 24 hours on weekends. **I will NOT respond to email on Sundays.**
 
 ---
 ## 📝 Assignments & Grading
