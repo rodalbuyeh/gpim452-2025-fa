@@ -132,15 +132,15 @@ Each lab session has an associated set of R exercises, due by **11:59 PM on the 
 ### Class Project and Assignments
 The core group assignment uses data from the Labor Action Tracker (LAT) to build a predictive model for labor actions in the USA. You will either predict if an action is a "strike" or predict *where* an action will happen. We will randomly assign groups of 4-5 people.
 
-* **Assignment #1: Ideal data and team plan.** Due 11:59 PM on January 27.
+* **Assignment #1: Ideal data and team plan.** Due 11:59 PM on October 3.
     * Describe your ideal dataset, compare it to the LAT data, and provide an explicit team plan for the quarter.
-* **Assignment #2: Locating labor actions.** Due 11:59 PM on February 17.
+* **Assignment #2: Locating labor actions.** Due 11:59 PM on October 31.
     * Decide how to handle actions with multiple locations, use an LLM to help assign lat/long coordinates to counties, and create a new county variable in the LAT data.
-* **Assignment #3: A data analysis report.** Due 8:00 AM on March 17.
+* **Assignment #3: A data analysis report.** Due 8:00 AM on December 6.
     * A short report (max 4 pages/1500 words) summarizing your model, data adjustments, and conclusions. The report must be a cohesive `.pdf` produced with Quarto/RMarkdown, with all code embedded. An external party must be able to reproduce your report from your code.
 
 ### Final Exam
-The final exam will be in class on **March 13**. It will cover conceptual, practical, and ethical issues from the course. The exam is closed-book, but you may use one 3”x5” card of hand-written notes.
+The final exam will be in class on **December 3**. It will cover conceptual, practical, and ethical issues from the course. The exam is closed-book, but you may use one 3”x5” card of hand-written notes.
 
 ---
 ## ⚖️ Course Rules
