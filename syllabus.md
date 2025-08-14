@@ -142,11 +142,97 @@ The core group assignment uses data from the Labor Action Tracker (LAT) to build
 ### Final Exam
 The final exam will be in class on **December 3**. It will cover conceptual, practical, and ethical issues from the course. The exam is closed-book, but you may use one 3”x5” card of hand-written notes.
 
+## 📝 Assignments — Full Detail
+
+Several lab assignments, as well as one group assignment, will build up to the final group report.  
+**Starting in Week 4:** there will be a group check-in (written outcome from a scrum) due **every other week**.
+
+---
+
+### Assignment #1: Ideal Data and Team Plan  
+**Due:** 11:59 PM on **October 3** (end of Week 3)
+
+**Part I:** What would the ideal dataset for answering the research question look like? (≤ 300 words)  
+**Part II:** How does the actual LAT data compare with your ideal? How will you proceed? (≤ 500 words)  
+**Part III:** Provide an explicit plan for the quarter, including:
+- Proposed division of labor or specialized roles
+- Communication methods (e.g., Slack, Discord, Google Docs)
+- Meeting frequency and type
+- Where you will store your team’s work
+- How you will ensure clean workflow and version control
+
+---
+
+### Assignment #2: Locating Labor Actions  
+**Due:** 11:59 PM on **October 31** (end of Week 6)
+
+1. Decide as a group how to handle LAT dataset entries with multiple locations.  
+   - Report your decision and rationale (1 paragraph).  
+   - State, in one sentence, the **unit of analysis** of the LAT data after wrangling.
+2. Assign latitude/longitude coordinates to US counties.  
+   - Use ChatGPT or Claude as a starting point.  
+   - Submit the LLM transcript and a 1-paragraph reflection on whether it was helpful, including challenges or errors.
+3. Using what you learned in (2), create a `county` variable in the LAT data.  
+   - Submit your code and a screenshot of the `head()` of the LAT dataframe including the new county variable.  
+   - Verify the accuracy of your county assignments.
+
+---
+
+### Assignment #3: Data Analysis Report  
+**Due:** 8:00 AM on **December 6**
+
+Produce a short report (≤ 4 pages / 1500 words) that reads as a cohesive document, not an FAQ.  
+It should address:
+
+**Introduction**
+- Outcome you modeled
+- Model you chose and why (e.g., logistic regression, random forest)
+- Main takeaways and conclusions
+
+**Data**
+- Adjustments made to the provided data (new variables, treatment of outliers, transformations)
+- External or supplementary data used
+- How missing/incomplete data was handled
+
+**Model**
+- Models you investigated and compared
+- Training process (feature selection, parameter tuning)
+- Model performance on validation and test sets
+- Model(s) you rely on for conclusions, and why
+
+**Conclusions**
+- Weaknesses or unanswered questions
+- Usefulness of your chosen model in context
+- Any policy implications
+
+**Figures/Tables**
+- Include 1–2 data-driven figures or graphics your group produced
+- All tables/figures must be labeled, captioned, and discussed
+
+**Important Notes**
+- Submit as a `.pdf` produced with Quarto/RMarkdown, with **all code embedded** in the `.qmd`/`.Rmd` file.
+- No code in the compiled report — only in the source.
+- All work must be reproducible by an external reviewer with no extra setup.
+- All analysis in R only (no Excel/Stata).
+
+---
+
+### Groups
+- Groups assigned by end of Week 2.
+- Groups submit one response per assignment; all members receive the same grade.
+- End-of-quarter peer evaluation: if a majority of your teammates indicate you did not contribute fairly, your group assignment grade will be reduced by **one full letter grade**.
+
 ---
 ## ⚖️ Course Rules
 
 ### Maintaining Academic Integrity
 I take academic honesty seriously. You may discuss work with others, but all analytic work is expected to be your own. You must appropriately cite all sources. All suspected cases of academic dishonesty will be referred to the office of academic integrity.
+
+All analytic work is expected to be your own, and all sources (data, code, text) must be properly cited.  
+UCSD’s academic honesty policy: <http://academicintegrity.ucsd.edu/>  
+
+Suspected violations will be referred to the Office of Academic Integrity (OAI). If you are unsure about proper citation, acceptable collaboration, or what constitutes plagiarism, ask before submitting work.
+
 
 ### Use of ChatGPT and other generative AI tools
 Generative AI can be a helpful tool, but it poses challenges. Some assignments will require you to use it. When using AI, you are responsible for the accuracy, logic, and clarity of all content.
@@ -156,16 +242,38 @@ Generative AI can be a helpful tool, but it poses challenges. Some assignments w
 1. "I/we certify that we did not use any LLM or generative AI tool in this assignment"
 2. "I/we used \_\_\_\_\_\_\_\_\_\_ LLM/AI tool in this assignment."
 
-If you disclose AI use, you must also state *why* you used it, reflect on whether it was helpful, and provide a link to the entire exchange. Failure to include this disclosure will be treated as using an AI tool without disclosure and reported. **AI tools are forbidden during in-class exams.**
+If you disclose AI use, you must also state *why* you used it, reflect on whether it was helpful, and provide a link to the entire exchange. If disclosure is missing, it will be treated as undeclared AI use and reported to OAI. **AI tools are forbidden during in-class exams.**
 
-### Submitting written work
-All written work must be submitted as a `.pdf` file produced using Quarto/RMarkdown via Turnitin.com. You must also submit your `.qmd` or `.rmd` source file and any associated `.R` scripts.
 
-### Late assignments & make up exam policy
-Late assignments will be penalized one percentage point for every hour late. No assignments will be accepted more than 48 hours after the due date without a University-approved and documented excuse. There will be no make-up exams without a documented excuse (e.g., illness, family emergency).
+
+## Submitting Written Work
+- All written work must be `.pdf` files produced with Quarto or RMarkdown, **with all code embedded** in your `.qmd`/`.rmd` source file.
+- **Do not** submit Google Docs, Word files, Excel sheets, or Stata output.
+- All submissions will be checked via Turnitin.com for similarity detection; papers are included in Turnitin’s reference database for plagiarism prevention.
+
+## Reproducibility Requirement
+All group project work must be fully reproducible:
+- An external reviewer should be able to run your code and produce your report without any extra setup.
+- All analysis must be done in R (no Excel/Stata).
+- No code should appear in the compiled `.pdf` report — only in the source file.
+
+
+## Late Work & Make-Up Exams
+- Late assignments lose **1 percentage point per hour** after the deadline.
+- No work accepted more than 48 hours late without documented, university-approved excuse (e.g., illness, family emergency).
+- University-sanctioned employment travel may be accepted **only with prior approval** at least two weeks in advance.
+
 
 ### Grade disputes
 To dispute a grade, you must submit a written memo of no more than 400 words explaining the error within seven calendar days of the assignment being returned.
 
-### Students with Disabilities
-Students requesting accommodations must provide a current Authorization for Accommodation (AFA) letter from the Office for Students with Disabilities (OSD). Please present your AFA letter to me privately at least two weeks before an exam so accommodations can be arranged.
+## Group Work & Peer Evaluation
+At the end of the quarter, you will evaluate your group members’ contributions.  
+If a majority of your teammates indicate that you failed to contribute fairly, your group project grade will be reduced by **one full letter grade**.
+
+
+## Students with Disabilities
+Students requesting accommodations must provide a current Authorization for Accommodation (AFA) letter from the Office for Students with Disabilities (OSD).  
+- OSD website: <http://disabilities.ucsd.edu>  
+- Office: University Center 202 (behind Center Hall)  
+Present your AFA letter privately **at least two weeks before an exam** so arrangements can be made.
