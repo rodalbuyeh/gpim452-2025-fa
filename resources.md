@@ -1,11 +1,11 @@
 ---
 layout: page
 title: Resources
-description: Useful links and resources.
+description: Useful links and resources for R, RStudio, and Quarto.
 nav_order: 4
 ---
 
-# 📚 Resources 
+# 📚 Resources (R / RStudio / Quarto)
 {:.no_toc}
 
 ## Table of contents
@@ -14,84 +14,100 @@ nav_order: 4
 1. TOC
 {:toc}
 
-## UNDER CONSTRUCTION 
-<!-- 
+---
+
 ## Supplemental Resources
 
-### Diagrams
+### Diagrams & Visualizations
 
-We've compiled all of the interactive diagrams that are found in lecture, like the one below, and put them in a separate [**Diagrams**](../diagrams) page. Check it out!
+We’ve compiled helpful conceptual diagrams, including statistical workflow maps and model selection trees, in the [**Diagrams**](../diagrams) page.
 
-<center><img src="../assets/images/animation-gif.gif" width=700></center>
+---
 
 ### Course-Specific Resources
 
-These resources will directly complement the content from lectures and assignments in this course. Use them often!
+These resources directly complement the lectures, labs, and assignments in this course.
 
-- [Textbook: Computational and Inferential Thinking](https://inferentialthinking.com)
-- [DSC 10 Reference Sheet (handy summary)](https://drive.google.com/file/d/1ky0Np67HS2O4LO913P-ing97SJG0j27n/view?usp=sharing)
-- [`babypandas` notes](https://notes.dsc10.com)
-- [`babypandas` Documentation](https://babypandas.readthedocs.io/en/latest/index.html)
-- [PandasTutor, a DataFrame visualization tool](https://pandastutor.com/vis.html)
+- **Textbook**: Baumer, Kaplan, Horton. *Modern Data Science with R* (MDSR3) → [Free online version](https://mdsr-book.github.io/mdsr3e/)
+- [R for Data Science (2e)](https://r4ds.hadley.nz/) — comprehensive introduction to R, tidyverse, and workflows
+- [Data Visualization: A Practical Introduction](https://socviz.co/) — Kieran Healy’s excellent free book
+- [Quarto Documentation](https://quarto.org/docs/) — for `.qmd` report authoring
+- [Posit Cloud](https://posit.cloud) — cloud-hosted RStudio for browser-based coding
+- [Cheat Sheets (RStudio)](https://posit.co/resources/cheatsheets/) — official R cheat sheets
+- [R Graph Gallery](https://r-graph-gallery.com/) — visual inspiration for data plots
 
-### Python Extra Practice
+---
 
-If you're looking for additional Python practice, these resources are generally helpful for Python learners, but are not specific to our course. Use them for futher explanations and practice exercises. 
+### R Extra Practice
 
-- [PythonTutor, a Python visualization tool](https://pythontutor.com/visualize.html#mode=edit)
-- [Software Carpentry](https://swcarpentry.github.io/python-novice-inflammation/)
-- [Code Academy](https://www.codecademy.com/learn/learn-python)
-- [Coding Bat](https://codingbat.com/python)
-- [Introduction to Computational Thinking with Data](http://data94.org)
+General resources for improving your R skills.
 
-### Probability Extra Practice
+- [swirl](https://swirlstats.com/) — interactive R learning in your console
+- [Learn R Tidyverse](https://r4ds.hadley.nz/) — interactive examples & exercises
+- [DataCamp R Courses](https://www.datacamp.com/courses/tech:r) *(some free)*
+- [Software Carpentry R Lessons](https://swcarpentry.github.io/r-novice-gapminder/)
+- [Exercism R Track](https://exercism.org/tracks/r)
 
-These are some additional resources to complement our lecture and assignments on probability. Use them for extra problem-solving practice.
+---
 
-- [Theory Meets Data, Chapters 1 and 2](http://stat88.org/textbook/content/Chapter_01/00_The_Basics.html)
-- [Khan Academy's unit on Probability](https://www.khanacademy.org/math/probability/xa88397b6:probability)
+### Probability & Statistics Practice
 
-### Permutation Testing Visualization
+For extra practice beyond our course lectures and assignments:
 
-This article and visualization intuitively decribes permutation testing. It's very helpful for thinking about how permutation testing works and why it is useful.
+- [Khan Academy Probability & Statistics](https://www.khanacademy.org/math/statistics-probability)
+- [Seeing Theory](https://seeing-theory.brown.edu/) — interactive probability and statistics concepts
+- [Introduction to Modern Statistics (IMS)](https://openintro-ims.netlify.app/) — free, open-source statistics text in R
 
-- [Permutation testing visualization](https://www.jwilber.me/permutationtest/)
+---
+
+### Interactive Tools
+
+- [esquisse](https://dreamrs.github.io/esquisse/) — RStudio add-in for drag-and-drop ggplot2 creation
+- [DataExplorer](https://cran.r-project.org/web/packages/DataExplorer/index.html) — quick EDA reports
+- [Shiny Gallery](https://shiny.posit.co/gallery/) — interactive dashboards built in R
+
+---
 
 ### Instructional Videos
 
-These are some videos we made to address common questions of DSC 10 students. Definitely watch them!
+These videos walk through common R and Quarto tasks you’ll encounter.
 
-- [Navigating DataHub and Jupyter Notebooks](https://youtu.be/Hq8VaNirDRQ)
-- [For Loops (and when **not** to use them)](https://youtu.be/BlczSBT80fU)
+- [Intro to R and RStudio](https://youtu.be/_V8eKsto3Ug)
+- [R Markdown / Quarto Basics](https://youtu.be/rhEJMJ_Cn7w)
+- [Data Wrangling with dplyr](https://youtu.be/jmDnD-Z0y94)
+- [Data Visualization with ggplot2](https://youtu.be/HeqHMM4ziXA)
 
-### Lecture-Specific Videos 
-
-These are some videos we made to supplement a previous iteration of the course. They cover information that we'll also cover this quarter.
-
-- [Lottery Problem Walkthrough](https://www.youtube.com/watch?v=w_witptT6Ts)
-- [Introduction to DataFrames](https://youtu.be/t_bjtBJ0gGc)
-- [Grouping](https://youtu.be/xg7rnjWnZ48)
-- [Bar Charts and `.str.contains`](https://youtu.be/OVTroiHby3g)
-    - [`.str.contains` only](https://www.youtube.com/watch?v=TCcEhVA6Euw&list=PLDNbnocpJUhbczUw2Rw6bqreEECMvZ8gN&index=1)
-- [Line Plots and Sorting](https://www.youtube.com/watch?v=glzZ04D1kDg)
+---
 
 ### Review Videos
 
-- [For-loops](https://www.youtube.com/watch?v=DRxRvsVxACs&ab_channel=AbelSeyoum)
-- [Functions and `.apply`](https://www.youtube.com/watch?v=U99Cs78uMVg&ab_channel=AbelSeyoum)
+- [Tidyverse join functions explained](https://youtu.be/tWnJt5h6gkM)
+- [Apply functions in R](https://youtu.be/MX7YlCFt_Hg)
 
-## Practice Exams
+---
 
-Past exams and detailed solutions can be found at [practice.dsc10.com](https://practice.dsc10.com). Use this site to help you prepare for the midterm and final exam.
+## Practice & Exam Prep
 
+While our course assessments are unique, practicing R coding and analysis with open datasets is the best preparation.
+
+- [TidyTuesday](https://github.com/rfordatascience/tidytuesday) — weekly data challenges
+- [OpenIntro Datasets](https://openintrostat.github.io/openintro/) — clean, public datasets in an R package
+- [RStudio Primers](https://posit.cloud/learn/primers) — interactive tutorials
+
+---
 
 ## UC San Diego Links
+
 - [Data Science Undergraduate Program](https://datascience.ucsd.edu/undergraduate/)
-- [DSC 10 Waitlist and Enrollment](https://datascience.ucsd.edu/current-students/enrolling-in-classes/)
 - [Data Science Advising](https://datascience.ucsd.edu/current-students/academic-advising/)
 - [Library Guide to Data and Statistics](https://ucsd.libguides.com/data-statistics)
 - [Academic Integrity Homepage](https://academicintegrity.ucsd.edu)
 - [Counseling and Psychological Services (CAPS)](https://caps.ucsd.edu)
 
-## Other
-- [Where to find datasets](https://rampure.org/find-datasets) -->
+---
+
+## Other Useful Links
+
+- [Awesome R](https://awesome-r.com/) — curated list of R resources
+- [Where to find datasets](https://rampure.org/find-datasets)
+- [CRAN Task Views](https://cran.r-project.org/web/views/) — organized list of R packages by topic

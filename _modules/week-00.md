@@ -1,5 +1,5 @@
 ---
-    title: Week 0 – Welcome to GPIM 452!
+    title: Week 0 – Welcome to DSC 10!
     weekNumber: 0
     days:
       - date: 2023-9-29
