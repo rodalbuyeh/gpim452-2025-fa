@@ -64,7 +64,7 @@ Office hours are your chance to ask for clarification on assignments and concept
 
 * **Prof. Rod Albuyeh** (ralbuyeh@ucsd.edu)
     * **Hours**: Tuesdays & Thursdays, 4:00 PM - 5:30 PM
-    * **Location**: [RBC 1411](https://map.concept3d.com/?id=1005#!m/431289?s/) & Zoom
+    * **Location**: [TBD](https://map.concept3d.com/?id=1005#!ct/18312?m/237145?s/RBC_Main) & Zoom
     * **Sign-up**: [Sign up for slots here](https://calendly.com/ralbuyeh-sandiego/30min)
 
 
@@ -74,9 +74,8 @@ Office hours are your chance to ask for clarification on assignments and concept
 ### Required Text
 * Baumer, Kaplan, and Horton. 2023. *Modern Data Science with R.* 3rd Edition. (MDSR3)
     * Online version at <https://mdsr-book.github.io/mdsr3e/>
-    * 2nd edition E-version available through the library
 
-All additional required readings will be on the Canvas system.
+All additional required readings will be posted to the course site.
 
 ### Optional/Recommended Texts
 * **Causal Inference**: Angrist & Pischke's *Mostly Harmless Econometrics* or *Mastering ‘Metrics*; Morgan & Winship's *Counterfactuals and Causal Inference*
