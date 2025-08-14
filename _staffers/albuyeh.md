@@ -14,7 +14,7 @@ about: |
 
   In industry, I've led machine learning efforts across domains including healthcare, finance, and consumer tech--most recently as Principal Data Scientist at Labcorp. My work spans from deep learning and time-series forecasting to MLOps and generative AI, with an emphasis on deploying models in complex, real-world systems.
 
-  At GPS, I aim to bridge technical depth with policy relevance. My teaching is rooted in practical implementation--helping students develop a rigorous understanding of data systems, while cultivating the judgment to apply them responsibly in global and institutional contexts.
+  At GPS, I aim to bridge technical depth with policy relevance. My teaching is rooted in practical implementation. I aim to help students develop a rigorous understanding of data systems, while cultivating the judgment to apply them responsibly in global and institutional contexts.
 
   Outside the classroom, I am in the early stages of founding an AI SaaS startup, train mixed martial arts, and explore San Diego with my family.
 ---
