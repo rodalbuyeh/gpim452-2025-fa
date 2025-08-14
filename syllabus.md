@@ -57,25 +57,16 @@ If these requirements do not apply to you, please contact the instructor immedia
 * **Location**: [RBC 3203](https://map.concept3d.com/?id=1005#!ct/18312?m/237145?s/RBC_Main)
 
 ### Office Hours
-Office hours are your chance to ask for clarification on assignments and concepts. As part of the course grade you are **REQUIRED** to come to office hours with either the instructor or the TA at least twice during the quarter.
+Office hours are your chance to ask for clarification on assignments and concepts. As part of the course grade you are **REQUIRED** to come to office hours at least twice during the quarter.
 
 {: .note }
 **You must sign up for a 15-minute office hours slot at least 2 hours prior to the beginning of a session.** You may sign up for one slot per session. If coming as a small group (2-4 people), you may sign up for two consecutive 15-minute slots.
 
-* **Prof. John Ahlquist** (jahlquist@ucsd.edu)
+* **Prof. Rod Albuyeh** (ralbuyeh@ucsd.edu)
     * **Hours**: Tuesdays & Thursdays, 4:00 PM - 5:30 PM
     * **Location**: [RBC 1411](https://map.concept3d.com/?id=1005#!m/431289?s/) & Zoom
-    * **Sign-up**: [Sign up for slots here](https://ucsd.edu/)
+    * **Sign-up**: [Sign up for slots here](https://calendly.com/ralbuyeh-sandiego/30min)
 
-* **TA: Joyce Hu** (joh011@ucsd.edu)
-    * **Hours**: Wednesdays, 12:30 PM - 1:30 PM (In-person) & Fridays, 10:00 AM - 11:00 AM (Zoom)
-    * **Location**: [RBC 3132](https://map.concept3d.com/?id=1005#!m/431289?s/) & Zoom
-    * **Sign-up**: [Sign up for slots here](https://ucsd.edu/)
-
-* **Writing Tutor: Lyric Grief** (lgreif@ucsd.edu)
-    * **Monday**: 1:00 PM - 5:00 PM, Room 3132
-    * **Thursday**: 1:00 PM - 5:00 PM, Student Services Area, 1st Floor, Back Area
-    * **Friday**: 4:00 PM - 6:00 PM, over Zoom
 
 ---
 ## 📚 Books and Related Materials
