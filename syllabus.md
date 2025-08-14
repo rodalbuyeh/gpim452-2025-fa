@@ -22,6 +22,15 @@ This course provides an introduction to the logic and practice of data science a
 
 This course will not magically make you a data scientist, an expert in “big data”, or a professional-grade programmer in 10 weeks. Rather, we aim to provide the conceptual background, ethical framework, and computational experience that will turn someone with policy expertise and social science training into a valuable member of a data science team.
 
+{: .note }
+This course also serves as a **gateway for further study** in advanced areas of data science for policy and social science, including:
+- Text-as-data analysis
+- Network science
+- Geospatial data analysis
+- Tools and workflows for managing very large datasets
+
+Students who complete this course will be well-prepared to pursue specialized electives or research in these domains.
+
 ### Learning Objectives
 * Familiarity with the vocabulary and key concepts in data science
 * Understand the difference between big data and high-dimensional data and how one enables the exploitation of the other
@@ -31,12 +40,25 @@ This course will not magically make you a data scientist, an expert in “big da
 * Develop an appreciation for ethical concerns that big data present, especially for governments
 
 ### Skills Objectives
-* Good computing and workflow practices
-* Recognizing potential problems or red flags in data
-* Develop data science programming abilities in R
-* Train ML models, use them in predictive modeling tasks, and evaluate their performance
-* Produce compelling reports using Quarto/RMarkdown
-* Develop skills for working in data-driven policy teams
+By the end of the course, you should be able to:
+
+- Practice **good computing and workflow management**, including version control and clean project organization
+- Recognize potential problems or “red flags” in data or analysis before they cause errors
+- Ingest data from multiple sources, including:
+  - Reading from local files
+  - Pulling from APIs
+  - Web scraping
+- Clean and summarize data effectively
+- Merge and join datasets from multiple tables or sources
+- Summarize and visualize **high-dimensional data**
+- Apply **dimensionality reduction** techniques where appropriate
+- Troubleshoot code and workflow issues in R
+- Train, validate, and evaluate predictive models
+- Produce compelling, reproducible reports using **Quarto** or **RMarkdown**
+- Work effectively in **data-driven policy teams**, including:
+  - Remote and asynchronous collaboration
+  - Bringing a social science/policy perspective to heterogeneous teams
+  - Producing effective, decision-maker-friendly reports
 
 ### Assumed knowledge
 This class is an advanced data-intensive elective. We assume the following:
@@ -129,6 +151,14 @@ There will be no extra credit or supplemental assignments.
 ### Lab Exercises
 Each lab session has an associated set of R exercises, due by **11:59 PM on the Monday** following the lab. A good faith attempt will receive an acceptable grade. No late exercises will be accepted. Lab exercises should be your individual work.
 
+### Project Data Context
+The **Labor Action Tracker (LAT)** is maintained by Cornell University’s School of Industrial and Labor Relations.  
+Since 2021, the LAT project has combined **public data sources** and **crowdsourced reports** to track strikes, protests, and other labor actions across the United States.
+
+For this project, you will use LAT data **up to December 5, 2023** to train and validate your predictive models.  
+You will then test your models on **new data from December 4, 2023 through February 1, 2025**.
+
+
 ### Class Project and Assignments
 The core group assignment uses data from the Labor Action Tracker (LAT) to build a predictive model for labor actions in the USA. You will either predict if an action is a "strike" or predict *where* an action will happen. We will randomly assign groups of 4-5 people.
 
@@ -210,7 +240,7 @@ It should address:
 - All tables/figures must be labeled, captioned, and discussed
 
 **Important Notes**
-- Submit as a `.pdf` produced with Quarto/RMarkdown, with **all code embedded** in the `.qmd`/`.Rmd` file.
+- Submit as a `.pdf` produced with Quarto/RMarkdown, with **all code embedded** in the `.qmd`/`.Rmd` file. We expect both the pdf and `.qmd`/`.Rmd` submissions separately. 
 - No code in the compiled report — only in the source.
 - All work must be reproducible by an external reviewer with no extra setup.
 - All analysis in R only (no Excel/Stata).
@@ -244,6 +274,16 @@ Generative AI can be a helpful tool, but it poses challenges. Some assignments w
 
 If you disclose AI use, you must also state *why* you used it, reflect on whether it was helpful, and provide a link to the entire exchange. If disclosure is missing, it will be treated as undeclared AI use and reported to OAI. **AI tools are forbidden during in-class exams.**
 
+When using generative AI tools, you may treat them as:
+
+- **Collaborators** — interact with the AI conversationally, iteratively refining prompts and using the tool to help shape analysis or prose.
+- **Sources** — use the AI to retrieve specific code snippets, summaries, or text that you adapt or integrate into your work.
+
+Regardless of approach, **you bear full ethical responsibility** for:
+- The **accuracy**, **relevance**, and **logical soundness** of all outputs you use
+- The clarity and correctness of arguments, code, and interpretations
+- **Accurate attribution** of ideas, quotations, and code to their original sources
+- Ensuring that AI-generated content does not introduce plagiarism or violate academic integrity standards
 
 
 ## Submitting Written Work
@@ -259,9 +299,24 @@ All group project work must be fully reproducible:
 
 
 ## Late Work & Make-Up Exams
+
 - Late assignments lose **1 percentage point per hour** after the deadline.
-- No work accepted more than 48 hours late without documented, university-approved excuse (e.g., illness, family emergency).
-- University-sanctioned employment travel may be accepted **only with prior approval** at least two weeks in advance.
+- No work will be accepted more than **48 hours** after the deadline without a documented, university-approved excuse.
+
+### Acceptable Excuses
+Acceptable documented excuses include:
+- Illness documented by **UCSD Health Services** or a licensed physician
+- Death or serious illness in the immediate family
+- Other circumstances recognized by **standing University policy**
+
+### Employment-Related Travel
+In **exceptional cases**, university-sanctioned employment-related travel may be accepted as a valid reason for late work or a missed exam.  
+This exception applies **only** if:
+- It is approved by the instructor **at least two weeks in advance**
+- Documentation is provided verifying the official nature of the travel
+
+### Make-Up Exams
+There will be **no make-up exams** without an approved excuse as defined above.
 
 
 ### Grade disputes
