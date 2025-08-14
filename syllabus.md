@@ -159,7 +159,7 @@ Generative AI can be a helpful tool, but it poses challenges. Some assignments w
 If you disclose AI use, you must also state *why* you used it, reflect on whether it was helpful, and provide a link to the entire exchange. Failure to include this disclosure will be treated as using an AI tool without disclosure and reported. **AI tools are forbidden during in-class exams.**
 
 ### Submitting written work
-All written work must be submitted as a `.pdf` file produced using Quarto/RMarkdown via Turnitin.com. You must also submit your `.qmd` or `.rmd` source file.
+All written work must be submitted as a `.pdf` file produced using Quarto/RMarkdown via Turnitin.com. You must also submit your `.qmd` or `.rmd` source file and any associated `.R` scripts.
 
 ### Late assignments & make up exam policy
 Late assignments will be penalized one percentage point for every hour late. No assignments will be accepted more than 48 hours after the due date without a University-approved and documented excuse. There will be no make-up exams without a documented excuse (e.g., illness, family emergency).
