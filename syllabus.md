@@ -18,11 +18,11 @@ nav_order: 2
 
 ---
 
-This course provides an introduction to the logic and practice of data science as used in policy making, program evaluation, and business enterprises. We do this with extensive, hands-on work with real data using the R statistical computing environment. This course emphasizes the opportunities and challenges of working with high dimensional data, as opposed to the memory and algorithmic challenges associated with big data. The course emphasizes the process of data production, wrangling, and visualization. We then turn to the logic of machine learning and the process of parameter tuning and model selection for some frequently used machine learning tools.
+This course provides an introduction to the logic and practice of data science as used in policy making, program evaluation, and corporate enterprise. We do this with extensive, hands-on work with real data using the R statistical computing environment. This course emphasizes the opportunities and challenges of working with high dimensional data, as opposed to the memory and algorithmic challenges associated with big data. The course emphasizes the process of data gathering, pre-processing, and visualization. We then turn to the logic of machine learning, including model selection and hyperparameter tuning.
 
-This course will not magically make you a data scientist, an expert in “big data”, or a professional-grade programmer in 10 weeks. Rather, this course aims to provide the conceptual background, ethical framework, and computational experience that will turn someone with policy expertise and social science training into a valuable member of a data science team.
+This course will not magically make you a data scientist, an expert in “big data”, or a professional-grade programmer in 10 weeks. Rather, we aim to provide the conceptual background, ethical framework, and computational experience that will turn someone with policy expertise and social science training into a valuable member of a data science team.
 
-### Learning Objectives:
+### Learning Objectives
 * Familiarity with the vocabulary and key concepts in data science
 * Understand the difference between big data and high-dimensional data and how one enables the exploitation of the other
 * Understand the logic of predictive machine learning
@@ -30,11 +30,11 @@ This course will not magically make you a data scientist, an expert in “big da
 * See how policymakers and governments apply data science in real world situations
 * Develop an appreciation for ethical concerns that big data present, especially for governments
 
-### Skills Objectives:
+### Skills Objectives
 * Good computing and workflow practices
-* Recognizing potential problems or red flags in data or data analysis
+* Recognizing potential problems or red flags in data
 * Develop data science programming abilities in R
-* Train an ML model, use it in a predictive modeling task, and evaluate its performance
+* Train ML models, use them in predictive modeling tasks, and evaluate their performance
 * Produce compelling reports using Quarto/RMarkdown
 * Develop skills for working in data-driven policy teams
 
@@ -53,8 +53,8 @@ If these requirements do not apply to you, please contact the instructor immedia
 ## 👨‍🏫 Course Staff and Meetings
 
 ### Class Meetings
-* **Time**: Tuesdays & Thursdays, 2:00 PM - 3:20 PM
-* **Location**: [RBC 3203](https://map.concept3d.com/?id=1005#!m/431289?s/)
+* **Time**: Mondays & Wednesdays, 8:00 AM - 9:20 AM
+* **Location**: [RBC 3203](https://map.concept3d.com/?id=1005#!ct/18312?m/237145?s/RBC_Main)
 
 ### Office Hours
 Office hours are your chance to ask for clarification on assignments and concepts. As part of the course grade you are **REQUIRED** to come to office hours with either the instructor or the TA at least twice during the quarter.
