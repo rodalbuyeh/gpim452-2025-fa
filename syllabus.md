@@ -150,7 +150,7 @@ Several lab assignments, as well as one group assignment, will build up to the f
 ---
 
 ### Assignment #1: Ideal Data and Team Plan  
-**Due:** 11:59 PM on **October 3** (end of Week 3)
+**Due:** 11:59 PM on **October 3**
 
 **Part I:** What would the ideal dataset for answering the research question look like? (≤ 300 words)  
 **Part II:** How does the actual LAT data compare with your ideal? How will you proceed? (≤ 500 words)  
@@ -164,7 +164,7 @@ Several lab assignments, as well as one group assignment, will build up to the f
 ---
 
 ### Assignment #2: Locating Labor Actions  
-**Due:** 11:59 PM on **October 31** (end of Week 6)
+**Due:** 11:59 PM on **October 31**
 
 1. Decide as a group how to handle LAT dataset entries with multiple locations.  
    - Report your decision and rationale (1 paragraph).  
