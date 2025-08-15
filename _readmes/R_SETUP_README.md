@@ -143,3 +143,27 @@ jupyter lab
 2. Start **R from that same terminal** (`R` or full CRAN path).  
 3. In R: `install.packages("IRkernel"); IRkernel::installspec(user=TRUE)`  
 4. Run `jupyter lab` and pick the **R** kernel.
+
+
+### To run rise plugin...
+1. Install requirements.txt
+2. Use the rise magic stuff
+3. Output the files to share, as follows: 
+
+For regular html
+```bash
+jupyter nbconvert Untitled.ipynb \     
+  --to html --template=lab \
+  --output notebook \
+  --HTMLExporter.embed_images=True
+```
+
+For fancy slides
+```bash
+jupyter nbconvert Untitled.ipynb \
+  --to slides \
+  --output slides.html \
+  --template=lab \
+  --SlidesExporter.reveal_url_prefix=https://unpkg.com/reveal.js@4 \
+  --SlidesExporter.reveal_theme=white
+```
