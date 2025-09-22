@@ -5,10 +5,10 @@ description: Google Calendar containing all course events.
 nav_order: 3
 ---
 
-# UNDER CONSTRUCTION
 
 # 📆 Calendar
 
-Weekday office hours will be held in the [HDSI Building](https://map.concept3d.com/?id=1005#!m/246301) in Room 155. Saturday office hours will be held in the [CSE Building](https://map.concept3d.com/?id=1005#!m/164780) in Room 3109.
+Office hour location is TBD, likely a coffee shop near class.
 
-<iframe src="https://calendar.google.com/calendar/u/4?cid=Y182ODRkNmExNTc5NjcyMmI1YjkwY2IwMDZlMDQ1NTMzMzUzNmIwOGExNGY0YTgzOTlkMTExZjEzOGIwY2Q2NzI3QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+
+<iframe src="https://calendar.google.com/calendar/embed?src=c_684d6a15796722b5b90cb006e0455333536b08a14f4a8399d111f138b0cd6727%40group.calendar.google.com&ctz=America%2FLos_Angeles" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
