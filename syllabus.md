@@ -24,12 +24,12 @@ This course will not magically make you a data scientist, an expert in “big da
 
 {: .note }
 This course also serves as a **gateway for further study** in advanced areas of data science for policy and social science, including:
-- Text-as-data analysis
-- Network science
-- Geospatial data analysis
-- Tools and workflows for managing very large datasets
+- Natural language processing
+- Network and graph analysis
+- Geographic information systems
+- Tools and workflows for managing massive datasets
 
-Students who complete this course will be well-prepared to pursue specialized electives or research in these domains.
+Students who complete this course will emerge better prepared to pursue specialized electives or research in these domains.
 
 ### Learning Objectives
 * Familiarity with the vocabulary and key concepts in data science
@@ -63,7 +63,7 @@ By the end of the course, you should be able to:
 ### Assumed knowledge
 This class is an advanced data-intensive elective. We assume the following:
 * Completion of QM I and II or equivalent.
-* Understanding of basic mathematical concepts and notation such as percent change, exponents and exponentiation, logarithms, summation ($\sum$). Familiarity with linear algebra and differential calculus will be helpful but not assumed.
+* Understanding of basic mathematical concepts and notation such as percent change, exponents and exponentiation, logarithms, summation. Familiarity with linear algebra and differential calculus will be helpful but not assumed.
 * Understanding of basic statistical concepts such as probability, frequency, and sampling distributions; central tendency (mean, median, mode); variation (variance, standard deviation, quantile); and conditional probability.
 * Familiarity with linear regression, its calculation and interpretation.
 * Familiarity with basic statistical graphics (histogram, scatterplot).
@@ -85,9 +85,9 @@ Office hours are your chance to ask for clarification on assignments and concept
 **You must sign up for a 15-minute office hours slot at least 2 hours prior to the beginning of a session.** You may sign up for one slot per session. If coming as a small group (2-4 people), you may sign up for two consecutive 15-minute slots.
 
 * **Prof. Rod Albuyeh** (ralbuyeh@ucsd.edu)
-    * **Hours**: Tuesdays & Thursdays, 4:00 PM - 5:30 PM
-    * **Location**: [TBD](https://map.concept3d.com/?id=1005#!ct/18312?m/237145?s/RBC_Main) & Zoom
-    * **Sign-up**: [Sign up for slots here](https://calendly.com/ralbuyeh-sandiego/30min)
+    * **Hours**: Mondays & Wednesdays, 9:30 AM - 10:30 AM
+    * **Location**: [TBD](https://map.concept3d.com/?id=1005#!ct/18312?m/237145?s/RBC_Main)
+    * **Sign-up**: [Sign up for slots here](https://calendly.com/ralbuyeh-sandiego/15min)
 
 
 ---
@@ -129,7 +129,7 @@ This course will follow a “flipped” and hybrid format with analog, video, re
 I expect that you will come to class **ON TIME** and prepared. In return, you can expect that I have selected the materials for a reason, will come prepared with a clear agenda, and will return all on-time assignments within a week.
 
 ### Email & Ed Forum policy
-I will use email and the [Ed forum](https://edstem.org/us/courses/81870/discussion) regularly. I will do my best to respond to emails within 12 hours during the week and 24 hours on weekends. **I will NOT respond to email on Sundays.**
+I will use email and the [Ed forum](https://edstem.org/us/courses/81870/discussion) regularly. I will do my best to respond to emails and messages within 24 hours. **I will NOT respond to correspondence during holidays or weekends.**
 
 ---
 ## 📝 Assignments & Grading
