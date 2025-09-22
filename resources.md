@@ -18,12 +18,6 @@ nav_order: 4
 
 ## Supplemental Resources
 
-### Diagrams & Visualizations
-
-We’ve compiled helpful conceptual diagrams, including statistical workflow maps and model selection trees, in the [**Diagrams**](../diagrams) page.
-
----
-
 ### Course-Specific Resources
 
 These resources directly complement the lectures, labs, and assignments in this course.
@@ -31,7 +25,7 @@ These resources directly complement the lectures, labs, and assignments in this 
 - **Textbook**: Baumer, Kaplan, Horton. *Modern Data Science with R* (MDSR3) → [Free online version](https://mdsr-book.github.io/mdsr3e/)
 - [R for Data Science (2e)](https://r4ds.hadley.nz/) — comprehensive introduction to R, tidyverse, and workflows
 - [Data Visualization: A Practical Introduction](https://socviz.co/) — Kieran Healy’s excellent free book
-- [Quarto Documentation](https://quarto.org/docs/) — for `.qmd` report authoring
+- [Quarto Documentation](https://quarto.org/docs/reference/) — for `.qmd` report authoring
 - [Posit Cloud](https://posit.cloud) — cloud-hosted RStudio for browser-based coding
 - [Cheat Sheets (RStudio)](https://posit.co/resources/cheatsheets/) — official R cheat sheets
 - [R Graph Gallery](https://r-graph-gallery.com/) — visual inspiration for data plots
@@ -44,7 +38,7 @@ General resources for improving your R skills.
 
 - [swirl](https://swirlstats.com/) — interactive R learning in your console
 - [Learn R Tidyverse](https://r4ds.hadley.nz/) — interactive examples & exercises
-- [DataCamp R Courses](https://www.datacamp.com/courses/tech:r) *(some free)*
+- [DataCamp R Courses](https://www.datacamp.com/category/r?page=1) *(some free)*
 - [Software Carpentry R Lessons](https://swcarpentry.github.io/r-novice-gapminder/)
 - [Exercism R Track](https://exercism.org/tracks/r)
 
@@ -73,16 +67,16 @@ For extra practice beyond our course lectures and assignments:
 These videos walk through common R and Quarto tasks you’ll encounter.
 
 - [Intro to R and RStudio](https://youtu.be/_V8eKsto3Ug)
-- [R Markdown / Quarto Basics](https://youtu.be/rhEJMJ_Cn7w)
-- [Data Wrangling with dplyr](https://youtu.be/jmDnD-Z0y94)
-- [Data Visualization with ggplot2](https://youtu.be/HeqHMM4ziXA)
+- [R Markdown / Quarto Basics](https://youtu.be/_f3latmOhew?si=4KimsUc_Q3MOxlnc)
+- [Data Wrangling with dplyr](https://youtu.be/Gvhkp-Yw65U?si=6WqJZagk3ek-EbIJ)
+- [Data Visualization with ggplot2](https://www.youtube.com/live/h29g21z0a68?si=3-4HU8ahwlr9t81T)
 
 ---
 
 ### Review Videos
 
-- [Tidyverse join functions explained](https://youtu.be/tWnJt5h6gkM)
-- [Apply functions in R](https://youtu.be/MX7YlCFt_Hg)
+- [Tidyverse join functions explained](https://youtu.be/v9GMXGpj2K0?si=WHSrcgI4-a6DYlA3)
+- [Apply functions in R](https://youtu.be/7sJ8r6Lb7-o?si=ppZlfZKN_54myB7_)
 
 ---
 
@@ -98,16 +92,7 @@ While our course assessments are unique, practicing R coding and analysis with o
 
 ## UC San Diego Links
 
-- [Data Science Undergraduate Program](https://datascience.ucsd.edu/undergraduate/)
-- [Data Science Advising](https://datascience.ucsd.edu/current-students/academic-advising/)
 - [Library Guide to Data and Statistics](https://ucsd.libguides.com/data-statistics)
 - [Academic Integrity Homepage](https://academicintegrity.ucsd.edu)
 - [Counseling and Psychological Services (CAPS)](https://caps.ucsd.edu)
 
----
-
-## Other Useful Links
-
-- [Awesome R](https://awesome-r.com/) — curated list of R resources
-- [Where to find datasets](https://rampure.org/find-datasets)
-- [CRAN Task Views](https://cran.r-project.org/web/views/) — organized list of R packages by topic
