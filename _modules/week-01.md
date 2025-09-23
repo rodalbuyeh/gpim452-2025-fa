@@ -9,5 +9,6 @@
           "<small><i><span style='display: inline-block; padding-left: 80px'><b>Keywords:</b> Dimensionality, policy, introduction, syllabus</span></i></small>":
       - date: 2025-10-1
         events:
-          "**Lab 0**{: .label .label-lab } **[Expressions and Data Types](http://datahub.ucsd.edu/user-redirect/git-sync?repo=https://github.com/dsc-courses/dsc10-2023-fa&subPath=labs/lab00/lab00.ipynb)**":               
+          "**Lab 1**{: .label .label-lab } **R best practices, Quarto and Markdown**":
+            "[MDSR3 Chapter 6](https://mdsr-book.github.io/mdsr3e/06-dataII.html), [MDSR3 Appendix B](https://mdsr-book.github.io/mdsr3e/B-appR.html)"
 ---
