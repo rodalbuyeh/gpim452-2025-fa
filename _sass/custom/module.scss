@@ -97,35 +97,24 @@
 
   }
 
-  // Hide the readings label but keep the structure
-  .readings-label {
-    display: none;
-  }
-  
   // Style individual reading items
   .reading-item {
-    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
     text-align: right;
-    margin-bottom: 0.25rem;
     font-size: 0.9em;
     line-height: 1.2;
+    max-width: 50%;
   }
   
-  // Position readings container to the right
-  .module-event:has(.readings-label) {
-    position: relative;
-    
-    ul, ol {
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: auto;
-      max-width: 50%;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      text-align: right;
-    }
+  // Stack multiple reading items vertically
+  .module-event:nth-child(2) .reading-item {
+    top: 0;
+  }
+  
+  .module-event:nth-child(3) .reading-item {
+    top: 1.5em;
   }
   
   // Ensure the module-event has relative positioning for absolute positioning to work
