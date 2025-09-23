@@ -10,5 +10,5 @@
       - date: 2025-10-1
         events:
           "**Lab 1**{: .label .label-lab } R and Markdown Principles":
-            "[MDSR 6](https://mdsr-book.github.io/mdsr3e/06-dataII.html), [Appendix B](https://mdsr-book.github.io/mdsr3e/B-appR.html)"
+            "[MDSR 6](https://mdsr-book.github.io/mdsr3e/06-dataII.html), [Appendix B](https://mdsr-book.github.io/mdsr3e/B-appR.html), [Style Guide](http://adv-r.had.co.nz/Style.html)"
 ---
