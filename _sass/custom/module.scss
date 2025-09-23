@@ -100,8 +100,16 @@
   // Right-justify readings
   .readings-right {
     text-align: right;
-    display: block;
-    width: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+    max-width: 50%;
+  }
+  
+  // Ensure the module-event has relative positioning for absolute positioning to work
+  .module-event {
+    position: relative;
   }
 
 }
