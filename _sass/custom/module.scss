@@ -97,6 +97,13 @@
 
   }
 
+  // Right-justify readings
+  .readings-right {
+    text-align: right;
+    float: right;
+    clear: both;
+  }
+
 }
 
 .text-grey-dk-100, .label-lecture {
