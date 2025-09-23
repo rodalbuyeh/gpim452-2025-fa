@@ -97,17 +97,35 @@
 
   }
 
-  // Right-justify readings
-  .readings-right {
+  // Hide the readings label but keep the structure
+  .readings-label {
+    display: none;
+  }
+  
+  // Style individual reading items
+  .reading-item {
+    display: block;
     text-align: right;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: auto;
-    max-width: 55%;
-    padding-left: 1rem;
-    line-height: 1.3;
-    font-size: 0.95em;
+    margin-bottom: 0.25rem;
+    font-size: 0.9em;
+    line-height: 1.2;
+  }
+  
+  // Position readings container to the right
+  .module-event:has(.readings-label) {
+    position: relative;
+    
+    ul, ol {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: auto;
+      max-width: 50%;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      text-align: right;
+    }
   }
   
   // Ensure the module-event has relative positioning for absolute positioning to work
