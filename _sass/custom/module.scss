@@ -99,9 +99,9 @@
 
   // Right-justify readings
   .readings-right {
+    display: block;
     text-align: right;
-    float: right;
-    clear: both;
+    margin-top: 0.5rem;
   }
 
 }
