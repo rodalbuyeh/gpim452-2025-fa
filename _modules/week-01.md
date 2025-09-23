@@ -4,8 +4,8 @@
     days:
       - date: 2025-09-29
         events:
-          "**LEC 1**{: .label .label-lecture } Intro <div class='readings-right'>[Engler 2020](https://www.brookings.edu/articles/what-all-policy-analysts-need-to-know-about-data-science/), [Peixoto 2025](https://www.techpolicy.press/why-generative-ai-isnt-transforming-government-yet-and-what-we-can-do-about-it/)</div>":
-            ""
+          "**LEC 1**{: .label .label-lecture } Intro":
+            "[Engler 2020](https://www.brookings.edu/articles/what-all-policy-analysts-need-to-know-about-data-science/), [Peixoto 2025](https://www.techpolicy.press/why-generative-ai-isnt-transforming-government-yet-and-what-we-can-do-about-it/){: .readings-right }"
           "<small><i><span style='display: inline-block; padding-left: 80px'><b>Keywords:</b> Dimensionality, policy, introduction, syllabus</span></i></small>":
       - date: 2025-10-1
         events:
