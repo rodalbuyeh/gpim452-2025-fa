@@ -20,7 +20,7 @@ nav_order: 1
 {: .success }
 **This course site is under construction.**
 
-[Jump to the current week](#week-10-review){: .btn }
+[Jump to the current week](#week-1-foundations-and-motivation){: .btn }
 
 
 {% for module in site.modules %}
