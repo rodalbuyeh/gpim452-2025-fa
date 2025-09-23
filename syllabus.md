@@ -72,7 +72,7 @@ This class is an advanced data-intensive elective. We assume the following:
 If these requirements do not apply to you, please contact the instructor immediately.
 
 ---
-## 👨‍🏫 Course Staff and Meetings
+## Course Staff and Meetings
 
 ### Class Meetings
 * **Time**: Mondays & Wednesdays, 8:00 AM - 9:20 AM
@@ -91,7 +91,7 @@ Office hours are your chance to ask for clarification on assignments and concept
 
 
 ---
-## 📚 Books and Related Materials
+## Books and Related Materials
 
 ### Required Text
 * Baumer, Kaplan, and Horton. 2023. *Modern Data Science with R.* 3rd Edition. (MDSR3)
@@ -114,7 +114,7 @@ All computation in this class will use the **R** statistical computing language.
 * To download/install Positron (for advanced users): <https://positron.posit.co/download.html>
 
 ---
-## 🏛️ Course Structure
+## Course Structure
 
 This course will follow a “flipped” and hybrid format with analog, video, remote/online, and in-person components.
 
@@ -132,7 +132,7 @@ I expect that you will come to class **ON TIME** and prepared. In return, you ca
 I will use email and the [Ed forum](https://edstem.org/us/courses/81870/discussion) regularly. I will do my best to respond to emails and messages within 24 hours. **I will NOT respond to correspondence during holidays or weekends.**
 
 ---
-## 📝 Assignments & Grading
+## Assignments & Grading
 
 Your score is a weighted average of the following:
 
@@ -174,7 +174,7 @@ The final exam will be in class on **December 3**. It will cover conceptual, pra
 - End-of-quarter peer evaluation: if a majority of your teammates indicate you did not contribute fairly, your group assignment grade will be reduced by **one full letter grade**.
 
 ---
-## ⚖️ Course Rules
+## Course Rules
 
 ### Maintaining Academic Integrity
 I take academic honesty seriously. You may discuss work with others, but all analytic work is expected to be your own. You must appropriately cite all sources. All suspected cases of academic dishonesty will be referred to the office of academic integrity.

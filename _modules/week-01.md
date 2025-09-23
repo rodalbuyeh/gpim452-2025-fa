@@ -9,6 +9,6 @@
           "<small><i><span style='display: inline-block; padding-left: 80px'><b>Keywords:</b> Dimensionality, policy, introduction, syllabus</span></i></small>":
       - date: 2025-10-1
         events:
-          "**Lab 1**{: .label .label-lab } **R best practices, Quarto and Markdown**":
-            "[MDSR3 Chapter 6](https://mdsr-book.github.io/mdsr3e/06-dataII.html), [MDSR3 Appendix B](https://mdsr-book.github.io/mdsr3e/B-appR.html)"
+          "**Lab 1**{: .label .label-lab } R and Markdown Principles":
+            "[MDSR 6](https://mdsr-book.github.io/mdsr3e/06-dataII.html), [Appendix B](https://mdsr-book.github.io/mdsr3e/B-appR.html)"
 ---
