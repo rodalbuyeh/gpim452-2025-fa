@@ -28,11 +28,11 @@ search_enabled: true
 heading_anchors: true
 permalink: pretty
 aux_links:
-  💯 Canvas:
-    - 'https://canvas.ucsd.edu'
-  🎥 Podcasts:
-    - 'https://podcast.ucsd.edu/'
-  🏢 Office Hours Signup:
+  💯 Gradescope:
+    - 'https://www.gradescope.com/courses/1142622'
+  💬 Campuswire:
+    - 'https://campuswire.com/c/GF3DD0D98/feed'
+  ☕️ Office Hours Signup:
     - 'https://calendly.com/ralbuyeh-sandiego/15min'
 footer_content:
 

@@ -96,3 +96,8 @@ While our course assessments are unique, practicing R coding and analysis with o
 - [Academic Integrity Homepage](https://academicintegrity.ucsd.edu)
 - [Counseling and Psychological Services (CAPS)](https://caps.ucsd.edu)
 
+---
+
+## Highly Recommended for Power Users
+- [The Missing Semester of Your CS Education](https://missing.csail.mit.edu/)
+- [Google's Rules of ML](https://developers.google.com/machine-learning/guides/rules-of-ml)

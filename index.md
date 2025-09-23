@@ -17,10 +17,10 @@ nav_order: 1
 
 <!-- Below, you can open "static" versions of each lecture by clicking the ✏️ emojis and watch podcasts by clicking the 🎥 emojis. -->
 
-{: .success }
-**This course site is under construction.**
+<!-- {: .success }
+**This course site is under construction.** -->
 
-[Jump to the current week](#week-10-review){: .btn }
+[Jump to the current week](#week-1-foundations-and-motivation){: .btn }
 
 
 {% for module in site.modules %}

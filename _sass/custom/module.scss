@@ -97,6 +97,21 @@
 
   }
 
+  // Right-align readings that come after lecture labels
+  .module-event {
+    position: relative;
+    
+    // Target paragraphs that contain readings (second paragraph in the event)
+    p:nth-of-type(2) {
+      text-align: right;
+      position: absolute;
+      right: 1rem;
+      top: 0;
+      max-width: 50%;
+      margin: 0;
+    }
+  }
+
 }
 
 .text-grey-dk-100, .label-lecture {
