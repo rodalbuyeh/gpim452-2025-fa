@@ -1,0 +1,297 @@
+---
+title: "GPIM 452 - Introduction"
+subtitle: "Big Data for Policy, Government, and Management"
+author: "Prof. Rod Albuyeh"
+date: "09/29/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: false
+  warning: false
+  message: false
+editor: source
+---
+
+## Agenda
+
+- What this course *is* and *isn’t*
+- High-dimensional data vs. "big data"
+- A case study: mapping poverty from phone metadata
+- Ethics and governance
+- How we’ll work (tools, expectations, office hours)
+- What to do **before Wednesday’s lab**
+
+
+## Why this course exists
+
+::: {.fragment}
+Policy problems are increasingly **data-mediated**. We need people who can:
+:::
+
+
+- Reason with uncertainty and causality
+- Build and critique applied ML systems
+- Move comfortably between **domain knowledge** and **computational practice**
+- Communicate clearly to decision makers
+
+
+## Our goal
+
+::: {.fragment}
+Help you become a **high-functioning member of a data science team** in policy settings—not to turn you into a production ML engineer in 10 weeks.
+:::
+
+::: {.fragment}
+**Your role:** The **practitioner** who can move fluidly through the data science workflow. 
+:::
+
+::: {.fragment}
+We'll learn:
+:::
+
+::: {.fragment}
+- `Raw Data` → `Features` → `Models` → `Evaluation` → `Policy Recommendations`
+:::
+
+::: {.fragment}
+...while keeping ethics, feasibility, and stakeholder needs front-of-mind.
+:::
+
+## What we mean by key terms {.smaller}
+
+- **Data science**: a multidisciplinary process for turning data into insight and action through computing, statistics, and domain expertise
+- **Big data**: massive volume/velocity/variety; *systems* problems (storage, parallelism)
+- **High-dimensional data**: many features \(p\) relative to samples \(n\); *statistical* problems (overfitting, sparsity, selection)
+- **Machine learning**: algorithms that learn patterns from data to make decisions or predictions
+- **Supervised learning**: algorithms that generalize from labeled data to predict/label new cases; evaluation is central
+- **AI**: systems that perform tasks associated with human intelligence; ML is a major subfield, and deep learning is a major sub-subfield
+
+::: {.fragment}
+::: callout-tip
+**Course emphasis**: We focus on *high dimensionality* and the **workflow** that makes data science useful in policy—collection → cleaning → visualization → modeling → evaluation → communication.
+:::
+:::
+
+## Two faces of “big”
+
+::: {layout-ncol=2}
+### Large *n*
+- Millions of rows
+- Systems concerns (I/O, distributed compute)
+- Examples: clickstreams, sensor logs, customer transactions
+
+### Large *p*
+- Thousands of features/variables
+- Statistical concerns (feature selection, regularization)
+- Examples: survey responses, social media text, genomics, satellite imagery features
+:::
+
+## Case study set-up
+
+**Blumenstock et al. (Science, 2015):** Can call-detail records and ancillary data predict *wealth* at fine geographic scales?
+
+- Inputs: mobile phone metadata (calls, texts, top-up behavior), remote sensing
+- Output: poverty/wealth estimates by area
+- Policy use: targeting aid, infrastructure planning
+
+::: notes
+We’re not reproducing the paper—just using it to motivate the workflow and the ethical stakes.
+:::
+
+## Feature signals from phone metadata
+
+![](images/fe1.jpg){fig-alt="Top-up and usage patterns as wealth signals" width="90%"}
+
+## Behavioral signatures
+
+![](images/fe2.jpg){fig-alt="Temporal usage patterns and mobility" width="90%"}
+
+## Social network structure
+
+![](images/fe3.jpg){fig-alt="Ego-network features" width="90%"}
+
+## Model training and validation
+
+![](images/fe4.jpg){fig-alt="Training predictive models" width="90%"}
+
+## Out-of-sample performance
+
+![](images/fe5.jpg){fig-alt="Holdout evaluation" width="90%"}
+
+## Geographic predictions
+
+![](images/fe6.jpg){fig-alt="Spatial prediction surfaces" width="90%"}
+
+## Mapping poverty
+
+![Blumenstock et al. 2015](images/PovertyMap.jpg){fig-alt="Poverty map from predictive model" width="90%"}
+
+## Validation attempt
+
+![Blumenstock et al. 2015](images/PovertyValidation.jpg){fig-alt="Correlation with survey-based estimates" width="90%"}
+
+## What’s the transferable workflow?
+
+**Data → Features → Models → Evaluation → Communication**
+
+- **Gather**: APIs, scraping, admin data, surveys
+- **Pre-process**: tidy, validate, document
+- **Engineer**: create informative features; reduce dimensionality when needed
+- **Model**: start simple; prefer transparent baselines
+- **Validate**: train/validate/test; fit-for-purpose metrics
+- **Communicate**: visual, concise, reproducible; decision-focused
+
+::: callout-important
+**You’ll practice this repeatedly** in labs and a project-like sequence. We care *how* you work as much as *what* you produce.
+:::
+
+## Ethics, privacy, governance
+
+- **Re-identification risk**: seemingly anonymous metadata can be deanonymized
+- **Consent & legitimacy**: why would/should a telecom share data? Under what governance?
+- **Bias & representativeness**: who has phones? whose patterns look “normal”?
+- **Use vs. abuse**: allocative benefits vs. surveillance harms
+- **Accountability**: audit trails, reproducibility, policy transparency
+
+::: notes
+Invite students to name one risk and one mitigation. Capture on the board.
+:::
+
+## How this course runs {.smaller}
+
+- **Meetings**: Mon/Wed 8:00–9:20 AM (RBC 3203)
+- **Office Hours (Required ≥2 visits)**: Mon/Wed 9:30–10:30 AM (Location: TBD). Sign up for a 15‑min slot ≥2 hours in advance.
+- **Modality**: live lectures + hands-on labs
+- **Toolchain**: R, RStudio, tidyverse, Quarto, Git/GitHub, parquet/arrow
+- **Deliverables**: reproducible notebooks/reports; short write-ups; an in-class final
+
+::: {.fragment}
+::: callout-note
+**Required text**: Baumer, Kaplan, & Horton (2023), *Modern Data Science with R* (3e). Free online: <https://mdsr-book.github.io/mdsr3e/>
+:::
+:::
+
+## What you should already know (assumed) {.smaller}
+
+- QM I/II (or equivalent)
+- Math: percent change, logs, exponents, summation; some linear algebra/calculus helpful
+- Stats: probability, sampling, distributions, central tendency & variation, conditional probability
+- Regression: interpretation and basic implementation
+- Graphics: histograms, scatterplots
+- **Some** prior R exposure
+
+::: {.fragment}
+::: callout-warning
+If these don’t apply to you, **contact me immediately** so we can make a plan.
+:::
+:::
+
+## Collaboration & workflow norms
+
+- **Version control**: every lab/report in a clean, structured repo; meaningful commits
+- **Quarto**: literate analysis; results must be reproducible from raw inputs
+- **Style**: follow tidyverse style guide; readable code is a deliverable
+- **Teamwork**: remote/asynchronous collaboration etiquette; leave a trail others can follow
+- **Red flags to catch early**: unit mismatches, silent coercions, data leakage, target leakage, mislabeled factors
+
+## Evaluation philosophy
+
+- Reward **process quality** (clean repos, documentation, tests) and **communication**
+- Transparent rubrics: correctness, clarity, reproducibility, insight
+- Growth mindset: iterate based on feedback; ask early, ask often
+
+## Week 1 targets
+
+- Install and verify the toolchain
+- Refresh: tidy data, R & RStudio basics, Quarto
+- Practice: building and rendering a simple report
+- Reading/viewing:
+  - Engler, *What All Policy Analysts Need to Know About Data Science*
+  - Peixoto, *Why Gen AI Isn’t Transforming Government (Yet)*
+  - Saghafian video: *Machine Learning and Public Policy*
+  - MDSR Ch. 6 & Appendix B; Wickham’s Style Guide; Quarto overview video
+
+## Pre-lab setup checklist (do **before Wed Oct 1**)
+
+1. Install **R (≥ 4.3)** and **RStudio**
+2. Install **Quarto**
+3. Create a **GitHub** account and configure **Git** locally
+4. `install.packages(c("tidyverse","arrow","janitor","here","skimr","tidymodels"))`
+5. Verify you can render a Quarto document and push to GitHub
+
+::: callout-tip
+Bring your laptop and a power adapter to lab.
+:::
+
+## Quick in-class activity (5 min)
+
+Pair up. Discuss:
+
+- One policy question you care about this quarter
+- What data might exist? What *features* might be predictive?
+- One ethical pitfall to watch for
+
+Be ready to share one sentence per pair.
+
+## Looking ahead
+
+- Next week: EDA and visualization
+- Then: high-d vs. large-n; data access & wrangling; ethics; algorithms; ML and evaluation; supervised & unsupervised learning; feature engineering
+
+## Exit ticket
+
+Open a note and write (1–2 min):
+
+- One thing you’re excited to learn
+- One concern or question you have
+
+Turn it in as instructed.
+
+## Contact & support
+
+- **Email**: ralbuyeh@ucsd.edu
+- **Office Hours**: Mon/Wed 9:30–10:30 AM (TBD). Sign up at least 2 hours in advance.
+- **Accommodations**: Please reach out early. We’ll work with you.
+
+---
+
+## Appendix: Ready vs. custom data {.smaller}
+
+::: {layout-ncol="2"}
+![](images/DJ.jpeg){fig-alt="Ready-made data sources (APIs, open data)" width="80%"} ![](images/orchestra.jpg){fig-alt="Custom-built datasets (surveys, scraping, linkage)" width="80%"}
+:::
+
+<small><em>Caption:</em> Combining ready-made with custom-built data often unlocks the best performance and insight.</small>
+
+## Appendix: Workflow at a glance
+
+Big Data → <span style="color:#c0392b">feature engineering</span> → <span style="color:#c0392b">traditional social-science data</span> → <span style="color:#c0392b">predictive modeling</span> → <span style="color:#c0392b">validation</span> → <span style="color:#c0392b">presentation & dissemination</span> → governance & iteration
+
+## Appendix: Lab-ready snippets
+
+```r
+# project setup
+usethis::create_project("gpim452-labs")
+usethis::use_git()
+usethis::use_github()
+
+# quarto skeleton
+quarto::quarto_render("report.qmd")
+```
+
+```r
+# sanity checks
+d <- readr::read_csv("data/input.csv")
+janitor::compare_df_cols_same(d)
+skimr::skim(d)
