@@ -8,6 +8,7 @@ _site/
 
 # Quarto build artifacts
 *_files/
+!_lectures/*_files/  # keep lecture slide assets
 revealjs/
 quarto-html/
 quarto-*/
