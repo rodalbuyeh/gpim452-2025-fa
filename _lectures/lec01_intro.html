@@ -29,72 +29,6 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      { color: #003b4f; background-color: #f1f3f5; }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span { color: #003b4f; } /* Normal */
-    code span.al { color: #ad0000; } /* Alert */
-    code span.an { color: #5e5e5e; } /* Annotation */
-    code span.at { color: #657422; } /* Attribute */
-    code span.bn { color: #ad0000; } /* BaseN */
-    code span.bu { } /* BuiltIn */
-    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #20794d; } /* Char */
-    code span.cn { color: #8f5902; } /* Constant */
-    code span.co { color: #5e5e5e; } /* Comment */
-    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
-    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
-    code span.dt { color: #ad0000; } /* DataType */
-    code span.dv { color: #ad0000; } /* DecVal */
-    code span.er { color: #ad0000; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #ad0000; } /* Float */
-    code span.fu { color: #4758ab; } /* Function */
-    code span.im { color: #00769e; } /* Import */
-    code span.in { color: #5e5e5e; } /* Information */
-    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
-    code span.op { color: #5e5e5e; } /* Operator */
-    code span.ot { color: #003b4f; } /* Other */
-    code span.pp { color: #ad0000; } /* Preprocessor */
-    code span.sc { color: #5e5e5e; } /* SpecialChar */
-    code span.ss { color: #20794d; } /* SpecialString */
-    code span.st { color: #20794d; } /* String */
-    code span.va { color: #111111; } /* Variable */
-    code span.vs { color: #20794d; } /* VerbatimString */
-    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="lec01_intro_files/libs/revealjs/dist/theme/quarto-7262fb28817f0fdf3c802d565bf43787.css">
   <link rel="stylesheet" href="styles.css">
@@ -219,17 +153,74 @@ Prof.&nbsp;Rod Albuyeh
 <li class="fragment">What to do <strong>before Wednesday’s lab</strong></li>
 </ul>
 </section>
-<section id="why-this-course-exists" class="slide level2">
+<section id="about-me" class="slide level2 smaller" style="font-size: 0.8em;">
+<h2>About Me</h2>
+<div class="quarto-layout-panel" style="font-size: 0.65em;" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Industry</strong></p>
+<ul>
+<li class="fragment">Senior Data Scientist @ <strong>Intuit</strong> (2016–2019)<br>
+</li>
+<li class="fragment">Senior Manager, Data Science @ <strong>Oportun</strong> (IPO 2019) (2019–2020)<br>
+</li>
+<li class="fragment">Principal Data Scientist @ <strong>Figure</strong> (IPO 2025) (2020–2022)<br>
+</li>
+<li class="fragment">Machine Learning Architect @ <strong>ResMed</strong> (2022–2023)<br>
+</li>
+<li class="fragment">Principal Data Scientist, AI Group @ <strong>Labcorp</strong> (2023–2025)<br>
+</li>
+<li class="fragment">Founder @ <strong>CoreBrief</strong> (2025–Present)</li>
+</ul>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Academia</strong></p>
+<ul>
+<li class="fragment">Adjunct Professor, Applied AI @ <strong>USD</strong> (2023–Present)<br>
+</li>
+<li class="fragment">Lecturer @ <strong>UCSD Halıcıoğlu Data Science Institute</strong> (2021–Present)</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>My PhD is in Political Science, and I remain a social scientist at heart. In this class, I bridge <strong>industry</strong> and <strong>academia</strong>, bringing real-world ML and data science workflows into policy and social science settings.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><img data-src="images/rod_aws.png" class="absolute" style="transform: translate(-50%, -50%);top: 48%; left: 63%; width: 200px; " alt="Rod at robocar rally"></p>
+</div>
+<div class="fragment">
+<p><img data-src="images/rod_jjwl.png" class="absolute" style="transform: translate(-50%, -50%);top: 48%; left: 93%; width: 250px; " alt="Rod at JJWL"></p>
+</div>
+</section>
+<section id="why-this-course-exists" class="slide level2 smaller">
 <h2>Why this course exists</h2>
 <div class="fragment">
 <p>Policy problems are increasingly <strong>data-mediated</strong>. We need people who can:</p>
 </div>
+<div class="absolute" style="top: 30%; left: 5%; width: 45%; ">
 <ul>
 <li class="fragment">Reason with uncertainty and causality</li>
 <li class="fragment">Build and critique applied ML systems</li>
 <li class="fragment">Move comfortably between <strong>domain knowledge</strong> and <strong>computational practice</strong></li>
 <li class="fragment">Communicate clearly to decision makers</li>
 </ul>
+</div>
+<div class="fragment">
+<p><img data-src="images/data_to_policy.png" class="absolute" style="transform: translate(-50%, -50%);top: 50%; left: 75%; width: 500px; " alt="Data science in policy"></p>
+</div>
 </section>
 <section id="our-goal" class="slide level2">
 <h2>Our goal</h2>
@@ -242,21 +233,19 @@ Prof.&nbsp;Rod Albuyeh
 <div class="fragment">
 <p>We’ll learn:</p>
 </div>
-<div class="fragment">
 <ul>
 <li class="fragment"><code>Raw Data</code> → <code>Features</code> → <code>Models</code> → <code>Evaluation</code> → <code>Policy Recommendations</code></li>
 </ul>
-</div>
 <div class="fragment">
 <p>…while keeping ethics, feasibility, and stakeholder needs front-of-mind.</p>
 </div>
 </section>
-<section id="what-we-mean-by-key-terms" class="slide level2 smaller">
-<h2>What we mean by key terms</h2>
+<section id="key-terms" class="slide level2 smaller">
+<h2>Key terms</h2>
 <ul>
 <li class="fragment"><strong>Data science</strong>: a multidisciplinary process for turning data into insight and action through computing, statistics, and domain expertise</li>
 <li class="fragment"><strong>Big data</strong>: massive volume/velocity/variety; <em>systems</em> problems (storage, parallelism)</li>
-<li class="fragment"><strong>High-dimensional data</strong>: many features (p) relative to samples (n); <em>statistical</em> problems (overfitting, sparsity, selection)</li>
+<li class="fragment"><strong>High-dimensional data</strong>: many features (p) relative to samples (n); <em>statistical</em> problems (overfitting, sparsity, selection); a primary focus of this course</li>
 <li class="fragment"><strong>Machine learning</strong>: algorithms that learn patterns from data to make decisions or predictions</li>
 <li class="fragment"><strong>Supervised learning</strong>: algorithms that generalize from labeled data to predict/label new cases; evaluation is central</li>
 <li class="fragment"><strong>AI</strong>: systems that perform tasks associated with human intelligence; ML is a major subfield, and deep learning is a major sub-subfield</li>
@@ -300,14 +289,21 @@ Prof.&nbsp;Rod Albuyeh
 </div>
 </div>
 </section>
-<section id="case-study-set-up" class="slide level2">
+<section id="case-study-set-up" class="slide level2 smaller">
 <h2>Case study set-up</h2>
 <p><strong>Blumenstock et al.&nbsp;(Science, 2015):</strong> Can call-detail records and ancillary data predict <em>wealth</em> at fine geographic scales?</p>
-<ul>
-<li class="fragment">Inputs: mobile phone metadata (calls, texts, top-up behavior), remote sensing</li>
-<li class="fragment">Output: poverty/wealth estimates by area</li>
-<li class="fragment">Policy use: targeting aid, infrastructure planning</li>
-</ul>
+<div class="fragment">
+<p><strong>The approach:</strong> - Survey 856 Rwandans on assets/wealth, link to their phone records - Engineer thousands of features from call patterns, mobility, social networks - Use machine learning (elastic net) to predict wealth from phone behavior - Scale predictions to 1.5M subscribers across Rwanda</p>
+</div>
+<div class="fragment">
+<p><strong>Key results:</strong> - Strong correlation (r=0.68) between predicted and actual individual wealth - District-level predictions highly accurate (r=0.92) vs.&nbsp;government surveys - Cost: $12K and 4 weeks vs.&nbsp;traditional surveys at $1M+ and 12-18 months</p>
+</div>
+<div class="fragment">
+<p><strong>Policy implications:</strong> Real-time poverty mapping, targeted aid, rapid policy evaluation</p>
+</div>
+<div class="fragment">
+<p><strong>Ethical concerns:</strong> Privacy, consent, algorithmic bias, data governance</p>
+</div>
 <aside class="notes">
 <p>We’re not reproducing the paper—just using it to motivate the workflow and the ethical stakes.</p>
 <style type="text/css">
@@ -350,21 +346,29 @@ Prof.&nbsp;Rod Albuyeh
 <h2>Mapping poverty</h2>
 
 <img data-src="images/PovertyMap.jpg" style="width:90.0%" alt="Poverty map from predictive model" class="r-stretch quarto-figure-center"><p class="caption">Blumenstock et al.&nbsp;2015</p></section>
-<section id="validation-attempt" class="slide level2">
-<h2>Validation attempt</h2>
-
-<img data-src="images/PovertyValidation.jpg" style="width:90.0%" alt="Correlation with survey-based estimates" class="r-stretch quarto-figure-center"><p class="caption">Blumenstock et al.&nbsp;2015</p></section>
-<section id="whats-the-transferable-workflow" class="slide level2">
+<section id="validation-attempt-predicted-vs.-actual-wealth" class="slide level2">
+<h2>Validation attempt (predicted vs.&nbsp;actual wealth)</h2>
+<div class="fragment">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/PovertyValidation.jpg" style="width:90.0%" alt="Correlation with survey-based estimates"></p>
+<figcaption>Blumenstock et al.&nbsp;2015</figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="whats-the-transferable-workflow" class="slide level2 smaller">
 <h2>What’s the transferable workflow?</h2>
 <p><strong>Data → Features → Models → Evaluation → Communication</strong></p>
 <ul>
-<li class="fragment"><strong>Gather</strong>: APIs, scraping, admin data, surveys</li>
+<li class="fragment"><strong>Gather</strong>: APIs, databases, scraping, provided data, surveys</li>
 <li class="fragment"><strong>Pre-process</strong>: tidy, validate, document</li>
-<li class="fragment"><strong>Engineer</strong>: create informative features; reduce dimensionality when needed</li>
+<li class="fragment"><strong>Engineer</strong>: create informative features; reduce or increase dimensionality when needed</li>
 <li class="fragment"><strong>Model</strong>: start simple; prefer transparent baselines</li>
 <li class="fragment"><strong>Validate</strong>: train/validate/test; fit-for-purpose metrics</li>
 <li class="fragment"><strong>Communicate</strong>: visual, concise, reproducible; decision-focused</li>
 </ul>
+<div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -375,6 +379,7 @@ Prof.&nbsp;Rod Albuyeh
 </div>
 <div class="callout-content">
 <p><strong>You’ll practice this repeatedly</strong> in labs and a project-like sequence. We care <em>how</em> you work as much as <em>what</em> you produce.</p>
+</div>
 </div>
 </div>
 </div>
@@ -408,8 +413,9 @@ Prof.&nbsp;Rod Albuyeh
 <li class="fragment"><strong>Meetings</strong>: Mon/Wed 8:00–9:20 AM (RBC 3203)</li>
 <li class="fragment"><strong>Office Hours (Required ≥2 visits)</strong>: Mon/Wed 9:30–10:30 AM (Location: TBD). Sign up for a 15‑min slot ≥2 hours in advance.</li>
 <li class="fragment"><strong>Modality</strong>: live lectures + hands-on labs</li>
-<li class="fragment"><strong>Toolchain</strong>: R, RStudio, tidyverse, Quarto, Git/GitHub, parquet/arrow</li>
-<li class="fragment"><strong>Deliverables</strong>: reproducible notebooks/reports; short write-ups; an in-class final</li>
+<li class="fragment"><strong>Toolchain</strong>: R, RStudio, tidyverse, Quarto</li>
+<li class="fragment"><strong>Recommended</strong>: Git/GitHub for version control, parquet/arrow for data storage</li>
+<li class="fragment"><strong>Deliverables</strong>: reproducible reports; scripted code; short write-ups; an in-class final</li>
 </ul>
 <div class="fragment">
 <div class="callout callout-note callout-titled callout-style-default">
@@ -456,22 +462,238 @@ Prof.&nbsp;Rod Albuyeh
 <section id="collaboration-workflow-norms" class="slide level2">
 <h2>Collaboration &amp; workflow norms</h2>
 <ul>
-<li class="fragment"><strong>Version control</strong>: every lab/report in a clean, structured repo; meaningful commits</li>
-<li class="fragment"><strong>Quarto</strong>: literate analysis; results must be reproducible from raw inputs</li>
+<li class="fragment"><strong>Quarto/RMarkdown</strong>: literate analysis; results must be reproducible from raw inputs; quarto is preferred</li>
 <li class="fragment"><strong>Style</strong>: follow tidyverse style guide; readable code is a deliverable</li>
 <li class="fragment"><strong>Teamwork</strong>: remote/asynchronous collaboration etiquette; leave a trail others can follow</li>
 <li class="fragment"><strong>Red flags to catch early</strong>: unit mismatches, silent coercions, data leakage, target leakage, mislabeled factors</li>
+<li class="fragment"><strong>(Recommended) Version control</strong>: every lab/report in a clean, structured repo; meaningful commits</li>
 </ul>
 </section>
 <section id="evaluation-philosophy" class="slide level2">
 <h2>Evaluation philosophy</h2>
 <ul>
-<li class="fragment">Reward <strong>process quality</strong> (clean repos, documentation, tests) and <strong>communication</strong></li>
+<li class="fragment">Reward <strong>process quality</strong> (clean code, documentation, tests) and <strong>communication</strong></li>
 <li class="fragment">Transparent rubrics: correctness, clarity, reproducibility, insight</li>
 <li class="fragment">Growth mindset: iterate based on feedback; ask early, ask often</li>
 </ul>
 </section>
-<section id="week-1-targets" class="slide level2">
+<section id="how-youll-be-graded" class="slide level2 smaller">
+<h2>How you’ll be graded</h2>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th style="text-align: right;">Weight</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Participation</td>
+<td style="text-align: right;">10%</td>
+<td>Individual</td>
+</tr>
+<tr class="even">
+<td>Lab exercises</td>
+<td style="text-align: right;">19%</td>
+<td>Individual</td>
+</tr>
+<tr class="odd">
+<td>Assignment #1</td>
+<td style="text-align: right;">5%</td>
+<td>Group</td>
+</tr>
+<tr class="even">
+<td>Assignment #2</td>
+<td style="text-align: right;">10%</td>
+<td>Group</td>
+</tr>
+<tr class="odd">
+<td>Assignment #3</td>
+<td style="text-align: right;">25%</td>
+<td>Group</td>
+</tr>
+<tr class="even">
+<td>Final Exam</td>
+<td style="text-align: right;">30%</td>
+<td>Individual</td>
+</tr>
+<tr class="odd">
+<td>Office hours visits (≥ 2 required)</td>
+<td style="text-align: right;">1%</td>
+<td>Individual</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p><strong>Late policy:</strong> −1 percentage point <strong>per hour</strong> after deadline; nothing accepted &gt;48 hours late without a documented, university-approved excuse.</p>
+</div>
+</section>
+<section id="the-core-group-project" class="slide level2 smaller">
+<h2>The core group project</h2>
+<div class="fragment">
+<p><strong>Data</strong>: Labor Action Tracker (LAT) from Cornell’s School of Industrial and Labor Relations<br>
+<strong>Context</strong>: Strikes, protests, and labor actions across the US (2021–2023)<br>
+<strong>Goal</strong>: Build predictive models for labor actions<br>
+<strong>Teams</strong>: 4–5 students, assigned by end of Week 2</p>
+</div>
+<div class="fragment">
+<p><strong>Training data</strong>: LAT records through December 5, 2023<br>
+<strong>Test data</strong>: New actions from December 4, 2023 – February 1, 2025</p>
+</div>
+<div class="fragment">
+<p><strong>Research options</strong>: - Classify “strike” vs.&nbsp;other action types - Predict geographic location of actions - Or propose your own research question</p>
+</div>
+</section>
+<section id="project-timeline-assignments" class="slide level2 smaller">
+<h2>Project timeline &amp; assignments</h2>
+<div class="fragment">
+<p><strong>Assignment 1: Team Plan &amp; Ideal Data</strong> — <em>Due Fri Oct 3, 11:59 PM</em></p>
+<ul>
+<li class="fragment">What would ideal data look like? (≤300 words)</li>
+<li class="fragment">How does LAT data compare? How will you proceed? (≤500 words)<br>
+</li>
+<li class="fragment">Explicit team plan: roles, communication, meetings, version control</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Assignment 2: Geocoding &amp; Counties</strong> — <em>Due Fri Oct 31, 11:59 PM</em></p>
+<ul>
+<li class="fragment">Handle multiple locations in LAT data</li>
+<li class="fragment">Assign lat/long coordinates to US counties (use LLM as starting point)</li>
+<li class="fragment">Create county variable in LAT data, verify accuracy</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Assignment 3: Final Report</strong> — <em>Due Sat Dec 6, 8:00 AM</em></p>
+<ul>
+<li class="fragment">≤4 pages/1500 words, cohesive document</li>
+<li class="fragment">Model choice, data adjustments, performance, policy implications</li>
+<li class="fragment">1–2 original figures/tables</li>
+</ul>
+</div>
+</section>
+<section id="project-requirements-expectations" class="slide level2">
+<h2>Project requirements &amp; expectations</h2>
+<div class="fragment">
+<p><strong>Reproducibility</strong>: External reviewer must be able to run your code and rebuild your PDF from scratch</p>
+</div>
+<div class="fragment">
+<p><strong>Tools</strong>: R + Quarto/RMarkdown only (no Excel/Stata)</p>
+</div>
+<div class="fragment">
+<p><strong>Ongoing</strong>: Group check-ins (scrum outcomes) due every other week starting Week 4</p>
+</div>
+<div class="fragment">
+<p><strong>Process matters</strong>: Clean workflow, documentation, clear communication, version control recommended</p>
+</div>
+</section>
+<section id="using-generative-ai-read-this-carefully" class="slide level2 smaller">
+<h2>Using Generative AI (read this carefully)</h2>
+<div class="fragment">
+<p>You <strong>may</strong> use LLMs (e.g., ChatGPT, Claude, RTutor.ai) on assignments <strong>with disclosure</strong> and reflection.</p>
+</div>
+<div class="fragment">
+<p>You <strong>may not</strong> use AI on in-class exams. <strong>one 3”×5” hand-written card</strong> allowed.</p>
+</div>
+<div class="fragment">
+<h3 id="what-disclosure-looks-like">What disclosure looks like</h3>
+<p>Include an appendix stating <strong>exactly one</strong> of:</p>
+<ol type="1">
+<li class="fragment">“I/we certify that we did not use any LLM or generative AI tool in this assignment.”<br>
+</li>
+<li class="fragment">“I/we used ________ LLM/AI tool in this assignment.”
+<ul>
+<li class="fragment"><em>Also include:</em> why you used it, whether it helped, and a <strong>link to the entire exchange</strong>.</li>
+</ul></li>
+</ol>
+</div>
+<div class="fragment">
+<h3 id="your-responsibilities-even-if-ai-is-used">Your responsibilities (even if AI is used)</h3>
+<ul>
+<li class="fragment"><strong>Accuracy &amp; logic</strong> of content and code</li>
+<li class="fragment"><strong>Attribution</strong> of ideas/quotations/code</li>
+<li class="fragment"><strong>No plagiarism</strong>; uphold UCSD integrity standards</li>
+</ul>
+</div>
+</section>
+<section id="how-to-succeed-in-gpim-452" class="slide level2 smaller">
+<h2>How to succeed in GPIM 452</h2>
+<ul>
+<li class="fragment"><strong>Do the pre-work</strong> before class; bring questions.</li>
+<li class="fragment"><strong>Write literate analyses</strong> (Quarto; code embedded in source, not the .pdf).</li>
+<li class="fragment"><strong>Catch red flags early</strong>: units, leakage, coerced types, mislabeled factors.</li>
+<li class="fragment"><strong>Talk to us early</strong>: required ≥2 office-hour visits help you calibrate.</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Communication norms:</strong> I use <strong>email</strong> and <strong>Ed Forum</strong> regularly. I aim to reply within <strong>24 hours</strong> on weekdays; I do <strong>not</strong> reply on weekends/holidays.</p>
+</div>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Invite students to schedule their first OH today; show sign-up link in class.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ready-check-tools-integrity" class="slide level2 smaller">
+<h2>Ready check (tools &amp; integrity)</h2>
+<ul>
+<li class="fragment"><strong>Toolchain</strong> (by Wed Oct 1): R (≥ 4.3), RStudio, Quarto, required R packages</li>
+<li class="fragment"><strong>Submissions</strong>: .pdf via Quarto/RMarkdown; code embedded in .qmd/.rmd source</li>
+<li class="fragment"><strong>Academic integrity</strong>: your analysis must be your own; cite data/code/text</li>
+<li class="fragment"><strong>Accessibility</strong>: contact me early for OSD accommodations</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Final Exam:</strong> <em>Wed Dec 3 (in class).</em> Conceptual, practical, and ethical topics from the course.</p>
+</div>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Point students to links for installs (CRAN, Posit, Quarto) in the syllabus.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="week-1-targets" class="slide level2 smaller">
 <h2>Week 1 targets</h2>
 <ul>
 <li class="fragment">Install and verify the toolchain</li>
@@ -491,10 +713,10 @@ Prof.&nbsp;Rod Albuyeh
 <ol type="1">
 <li class="fragment">Install <strong>R (≥ 4.3)</strong> and <strong>RStudio</strong></li>
 <li class="fragment">Install <strong>Quarto</strong></li>
-<li class="fragment">Create a <strong>GitHub</strong> account and configure <strong>Git</strong> locally</li>
-<li class="fragment"><code>install.packages(c("tidyverse","arrow","janitor","here","skimr","tidymodels"))</code></li>
-<li class="fragment">Verify you can render a Quarto document and push to GitHub</li>
+<li class="fragment"><code>install.packages(c("tidyverse","here","skimr"))</code></li>
+<li class="fragment">Verify you can render a Quarto/RMarkdown document</li>
 </ol>
+<div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -508,16 +730,21 @@ Prof.&nbsp;Rod Albuyeh
 </div>
 </div>
 </div>
+</div>
 </section>
 <section id="quick-in-class-activity-5-min" class="slide level2">
 <h2>Quick in-class activity (5 min)</h2>
+<div class="fragment">
 <p>Pair up. Discuss:</p>
 <ul>
 <li class="fragment">One policy question you care about this quarter</li>
 <li class="fragment">What data might exist? What <em>features</em> might be predictive?</li>
 <li class="fragment">One ethical pitfall to watch for</li>
 </ul>
+</div>
+<div class="fragment">
 <p>Be ready to share one sentence per pair.</p>
+</div>
 </section>
 <section id="looking-ahead" class="slide level2">
 <h2>Looking ahead</h2>
@@ -528,46 +755,28 @@ Prof.&nbsp;Rod Albuyeh
 </section>
 <section id="exit-ticket" class="slide level2">
 <h2>Exit ticket</h2>
+<div class="fragment">
 <p>Open a note and write (1–2 min):</p>
 <ul>
+<li class="fragment">Why you’re taking this course</li>
 <li class="fragment">One thing you’re excited to learn</li>
 <li class="fragment">One concern or question you have</li>
 </ul>
-<p>Turn it in as instructed.</p>
+</div>
+<div class="fragment">
+<p>Turn it in.</p>
+</div>
 </section>
 <section id="contact-support" class="slide level2">
 <h2>Contact &amp; support</h2>
 <ul>
 <li class="fragment"><strong>Email</strong>: ralbuyeh@ucsd.edu</li>
 <li class="fragment"><strong>Office Hours</strong>: Mon/Wed 9:30–10:30 AM (TBD). Sign up at least 2 hours in advance.</li>
-<li class="fragment"><strong>Accommodations</strong>: Please reach out early. We’ll work with you.</li>
+<li class="fragment"><strong>Accommodations</strong>: Please reach out early.</li>
 </ul>
 </section>
-<section id="appendix-ready-vs.-custom-data" class="slide level2 smaller">
-<h2>Appendix: Ready vs.&nbsp;custom data</h2>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><img data-src="images/DJ.jpeg" style="width:80.0%" alt="Ready-made data sources (APIs, open data)"> <img data-src="images/orchestra.jpg" style="width:80.0%" alt="Custom-built datasets (surveys, scraping, linkage)"></p>
-</div>
-</div>
-</div>
-<p><small><em>Caption:</em> Combining ready-made with custom-built data often unlocks the best performance and insight.</small></p>
-</section>
-<section id="appendix-workflow-at-a-glance" class="slide level2">
-<h2>Appendix: Workflow at a glance</h2>
-<p>Big Data → <span style="color:#c0392b">feature engineering</span> → <span style="color:#c0392b">traditional social-science data</span> → <span style="color:#c0392b">predictive modeling</span> → <span style="color:#c0392b">validation</span> → <span style="color:#c0392b">presentation &amp; dissemination</span> → governance &amp; iteration</p>
-</section>
-<section id="appendix-lab-ready-snippets" class="slide level2">
-<h2>Appendix: Lab-ready snippets</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># project setup</span></span>
-<span id="cb1-2"><a href="" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_project</span>(<span class="st">"gpim452-labs"</span>)</span>
-<span id="cb1-3"><a href="" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_git</span>()</span>
-<span id="cb1-4"><a href="" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_github</span>()</span>
-<span id="cb1-5"><a href="" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># quarto skeleton</span></span>
-<span id="cb1-7"><a href="" aria-hidden="true" tabindex="-1"></a>quarto<span class="sc">::</span><span class="fu">quarto_render</span>(<span class="st">"report.qmd"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>```r # sanity checks d &lt;- readr::read_csv(“data/input.csv”) janitor::compare_df_cols_same(d) skimr::skim(d)</p>
+<section class="slide level2">
+
 
 </section>
     </div>

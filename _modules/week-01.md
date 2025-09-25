@@ -4,9 +4,9 @@
     days:
       - date: 2025-09-29
         events:
-          "**LEC 1**{: .label .label-lecture } Intro":
+          "**LEC 1**{: .label .label-lecture } [Introduction](_lectures/lec01_intro.html)":
           "**Read**{: .label .label-read } [Engler: What All Policy Analysts Need to Know About Data Science](https://www.brookings.edu/articles/what-all-policy-analysts-need-to-know-about-data-science/)":
-          "**Read**{: .label .label-read } [Peixoto: Why Gen AI Isn't Transforming Govermnet (Yet)](https://www.techpolicy.press/why-generative-ai-isnt-transforming-government-yet-and-what-we-can-do-about-it/)":
+          "**Read**{: .label .label-read } [Peixoto: Why Gen AI Isn't Transforming Government (Yet)](https://www.techpolicy.press/why-generative-ai-isnt-transforming-government-yet-and-what-we-can-do-about-it/)":
           "**Video**{: .label .label-watch } [Saghafian: Machine Learning and Public Policy](https://www.youtube.com/watch?v=s0JuIprYBxg)":
 
       - date: 2025-10-1

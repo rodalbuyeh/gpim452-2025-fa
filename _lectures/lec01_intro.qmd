@@ -33,17 +33,55 @@ editor: source
 - What to do **before Wednesday’s lab**
 
 
-## Why this course exists
+## About Me {.smaller style="font-size: 0.8em;"}
+
+::: {layout-ncol=2 style="font-size: 0.65em;"}
+
+### Industry
+- Senior Data Scientist @ **Intuit** (2016–2019)  
+- Senior Manager, Data Science @ **Oportun** (IPO 2019) (2019–2020)  
+- Principal Data Scientist @ **Figure** (IPO 2025) (2020–2022)  
+- Machine Learning Architect @ **ResMed** (2022–2023)  
+- Principal Data Scientist, AI Group @ **Labcorp** (2023–2025)  
+- Founder @ **CoreBrief** (2025–Present)  
+
+### Academia
+- Adjunct Professor, Applied AI @ **USD** (2023–Present)  
+- Lecturer @ **UCSD Halıcıoğlu Data Science Institute** (2021–Present)  
+
+:::
+
+::: {.fragment}
+::: callout-note
+My PhD is in Political Science, and I remain a social scientist at heart. In this class, I bridge **industry** and **academia**, bringing real-world ML and data science workflows into policy and social science settings.
+:::
+:::
+
+::: {.fragment}
+![](images/rod_aws.png){fig-alt="Rod at robocar rally" .absolute top="48%" left="63%" width="200" style="transform: translate(-50%, -50%);"}
+:::
+::: {.fragment}
+![](images/rod_jjwl.png){fig-alt="Rod at JJWL" .absolute top="48%" left="93%" width="250" style="transform: translate(-50%, -50%);"}
+:::
+
+
+## Why this course exists {.smaller}
 
 ::: {.fragment}
 Policy problems are increasingly **data-mediated**. We need people who can:
 :::
 
 
+::: {.absolute top="30%" left="5%" width="45%"}
 - Reason with uncertainty and causality
 - Build and critique applied ML systems
 - Move comfortably between **domain knowledge** and **computational practice**
 - Communicate clearly to decision makers
+:::
+
+::: {.fragment}
+![](images/data_to_policy.png){fig-alt="Data science in policy" .absolute top="50%" left="75%" width="500" style="transform: translate(-50%, -50%);"}
+:::
 
 
 ## Our goal
@@ -60,19 +98,17 @@ Help you become a **high-functioning member of a data science team** in policy s
 We'll learn:
 :::
 
-::: {.fragment}
 - `Raw Data` → `Features` → `Models` → `Evaluation` → `Policy Recommendations`
-:::
 
 ::: {.fragment}
 ...while keeping ethics, feasibility, and stakeholder needs front-of-mind.
 :::
 
-## What we mean by key terms {.smaller}
+## Key terms {.smaller}
 
 - **Data science**: a multidisciplinary process for turning data into insight and action through computing, statistics, and domain expertise
 - **Big data**: massive volume/velocity/variety; *systems* problems (storage, parallelism)
-- **High-dimensional data**: many features \(p\) relative to samples \(n\); *statistical* problems (overfitting, sparsity, selection)
+- **High-dimensional data**: many features \(p\) relative to samples \(n\); *statistical* problems (overfitting, sparsity, selection); a primary focus of this course
 - **Machine learning**: algorithms that learn patterns from data to make decisions or predictions
 - **Supervised learning**: algorithms that generalize from labeled data to predict/label new cases; evaluation is central
 - **AI**: systems that perform tasks associated with human intelligence; ML is a major subfield, and deep learning is a major sub-subfield
@@ -97,13 +133,32 @@ We'll learn:
 - Examples: survey responses, social media text, genomics, satellite imagery features
 :::
 
-## Case study set-up
+## Case study set-up {.smaller}
 
 **Blumenstock et al. (Science, 2015):** Can call-detail records and ancillary data predict *wealth* at fine geographic scales?
 
-- Inputs: mobile phone metadata (calls, texts, top-up behavior), remote sensing
-- Output: poverty/wealth estimates by area
-- Policy use: targeting aid, infrastructure planning
+::: {.fragment}
+**The approach:**
+- Survey 856 Rwandans on assets/wealth, link to their phone records
+- Engineer thousands of features from call patterns, mobility, social networks
+- Use machine learning (elastic net) to predict wealth from phone behavior
+- Scale predictions to 1.5M subscribers across Rwanda
+:::
+
+::: {.fragment}
+**Key results:**
+- Strong correlation (r=0.68) between predicted and actual individual wealth
+- District-level predictions highly accurate (r=0.92) vs. government surveys
+- Cost: $12K and 4 weeks vs. traditional surveys at $1M+ and 12-18 months
+:::
+
+::: {.fragment}
+**Policy implications:** Real-time poverty mapping, targeted aid, rapid policy evaluation
+:::
+
+::: {.fragment}
+**Ethical concerns:** Privacy, consent, algorithmic bias, data governance
+:::
 
 ::: notes
 We’re not reproducing the paper—just using it to motivate the workflow and the ethical stakes.
@@ -137,23 +192,27 @@ We’re not reproducing the paper—just using it to motivate the workflow and t
 
 ![Blumenstock et al. 2015](images/PovertyMap.jpg){fig-alt="Poverty map from predictive model" width="90%"}
 
-## Validation attempt
+## Validation attempt (predicted vs. actual wealth)
 
+::: {.fragment}
 ![Blumenstock et al. 2015](images/PovertyValidation.jpg){fig-alt="Correlation with survey-based estimates" width="90%"}
+:::
 
-## What’s the transferable workflow?
+## What’s the transferable workflow? {.smaller}
 
 **Data → Features → Models → Evaluation → Communication**
 
-- **Gather**: APIs, scraping, admin data, surveys
+- **Gather**: APIs, databases, scraping, provided data, surveys
 - **Pre-process**: tidy, validate, document
-- **Engineer**: create informative features; reduce dimensionality when needed
+- **Engineer**: create informative features; reduce or increase dimensionality when needed
 - **Model**: start simple; prefer transparent baselines
 - **Validate**: train/validate/test; fit-for-purpose metrics
 - **Communicate**: visual, concise, reproducible; decision-focused
 
+::: {.fragment}
 ::: callout-important
 **You’ll practice this repeatedly** in labs and a project-like sequence. We care *how* you work as much as *what* you produce.
+:::
 :::
 
 ## Ethics, privacy, governance
@@ -173,8 +232,9 @@ Invite students to name one risk and one mitigation. Capture on the board.
 - **Meetings**: Mon/Wed 8:00–9:20 AM (RBC 3203)
 - **Office Hours (Required ≥2 visits)**: Mon/Wed 9:30–10:30 AM (Location: TBD). Sign up for a 15‑min slot ≥2 hours in advance.
 - **Modality**: live lectures + hands-on labs
-- **Toolchain**: R, RStudio, tidyverse, Quarto, Git/GitHub, parquet/arrow
-- **Deliverables**: reproducible notebooks/reports; short write-ups; an in-class final
+- **Toolchain**: R, RStudio, tidyverse, Quarto
+- **Recommended**: Git/GitHub for version control, parquet/arrow for data storage
+- **Deliverables**: reproducible reports; scripted code; short write-ups; an in-class final
 
 ::: {.fragment}
 ::: callout-note
@@ -199,19 +259,164 @@ If these don’t apply to you, **contact me immediately** so we can make a plan.
 
 ## Collaboration & workflow norms
 
-- **Version control**: every lab/report in a clean, structured repo; meaningful commits
-- **Quarto**: literate analysis; results must be reproducible from raw inputs
+- **Quarto/RMarkdown**: literate analysis; results must be reproducible from raw inputs; quarto is preferred
 - **Style**: follow tidyverse style guide; readable code is a deliverable
 - **Teamwork**: remote/asynchronous collaboration etiquette; leave a trail others can follow
 - **Red flags to catch early**: unit mismatches, silent coercions, data leakage, target leakage, mislabeled factors
+- **(Recommended) Version control**: every lab/report in a clean, structured repo; meaningful commits
+
 
 ## Evaluation philosophy
 
-- Reward **process quality** (clean repos, documentation, tests) and **communication**
+- Reward **process quality** (clean code, documentation, tests) and **communication**
 - Transparent rubrics: correctness, clarity, reproducibility, insight
 - Growth mindset: iterate based on feedback; ask early, ask often
 
-## Week 1 targets
+## How you’ll be graded {.smaller}
+
+::: {.fragment}
+| Component | Weight | Type |
+|---|---:|---|
+| Participation | 10% | Individual |
+| Lab exercises | 19% | Individual |
+| Assignment #1 | 5% | Group |
+| Assignment #2 | 10% | Group |
+| Assignment #3 | 25% | Group |
+| Final Exam | 30% | Individual |
+| Office hours visits (≥ 2 required) | 1% | Individual |
+:::
+
+::: {.fragment}
+**Late policy:** −1 percentage point **per hour** after deadline; nothing accepted >48 hours late without a documented, university-approved excuse.
+:::
+
+## The core group project {.smaller}
+
+::: {.fragment}
+**Data**: Labor Action Tracker (LAT) from Cornell's School of Industrial and Labor Relations  
+**Context**: Strikes, protests, and labor actions across the US (2021–2023)  
+**Goal**: Build predictive models for labor actions  
+**Teams**: 4–5 students, assigned by end of Week 2
+:::
+
+::: {.fragment}
+**Training data**: LAT records through December 5, 2023  
+**Test data**: New actions from December 4, 2023 – February 1, 2025
+:::
+
+::: {.fragment}
+**Research options**: 
+- Classify "strike" vs. other action types
+- Predict geographic location of actions
+- Or propose your own research question
+:::
+
+## Project timeline & assignments {.smaller}
+
+
+::: {.fragment}
+**Assignment 1: Team Plan & Ideal Data** — *Due Fri Oct 3, 11:59 PM*
+
+- What would ideal data look like? (≤300 words)
+- How does LAT data compare? How will you proceed? (≤500 words)  
+- Explicit team plan: roles, communication, meetings, version control
+:::
+
+::: {.fragment}
+**Assignment 2: Geocoding & Counties** — *Due Fri Oct 31, 11:59 PM*
+
+- Handle multiple locations in LAT data
+- Assign lat/long coordinates to US counties (use LLM as starting point)
+- Create county variable in LAT data, verify accuracy
+:::
+
+::: {.fragment}
+**Assignment 3: Final Report** — *Due Sat Dec 6, 8:00 AM*
+
+- ≤4 pages/1500 words, cohesive document
+- Model choice, data adjustments, performance, policy implications
+- 1–2 original figures/tables
+:::
+
+## Project requirements & expectations
+
+::: {.fragment}
+**Reproducibility**: External reviewer must be able to run your code and rebuild your PDF from scratch
+:::
+
+::: {.fragment}
+**Tools**: R + Quarto/RMarkdown only (no Excel/Stata)
+:::
+
+::: {.fragment}
+**Ongoing**: Group check-ins (scrum outcomes) due every other week starting Week 4
+:::
+
+::: {.fragment}
+**Process matters**: Clean workflow, documentation, clear communication, version control recommended
+:::
+
+## Using Generative AI (read this carefully) {.smaller}
+
+::: {.fragment}
+You **may** use LLMs (e.g., ChatGPT, Claude, RTutor.ai) on assignments **with disclosure** and reflection.  
+:::
+
+::: {.fragment}
+You **may not** use AI on in-class exams. **one 3”×5” hand-written card** allowed.
+:::
+::: {.fragment}
+### What disclosure looks like
+Include an appendix stating **exactly one** of:
+
+1. “I/we certify that we did not use any LLM or generative AI tool in this assignment.”  
+2. “I/we used ________ LLM/AI tool in this assignment.”  
+   - *Also include:* why you used it, whether it helped, and a **link to the entire exchange**.
+:::
+
+::: {.fragment}
+### Your responsibilities (even if AI is used)
+- **Accuracy & logic** of content and code
+- **Attribution** of ideas/quotations/code
+- **No plagiarism**; uphold UCSD integrity standards
+:::
+
+
+## How to succeed in GPIM 452 {.smaller}
+
+- **Do the pre-work** before class; bring questions.
+- **Write literate analyses** (Quarto; code embedded in source, not the .pdf).
+- **Catch red flags early**: units, leakage, coerced types, mislabeled factors.
+- **Talk to us early**: required ≥2 office-hour visits help you calibrate.
+
+::: {.fragment}
+::: callout-note
+**Communication norms:** I use **email** and **Ed Forum** regularly. I aim to reply within **24 hours** on weekdays; I do **not** reply on weekends/holidays.
+:::
+:::
+
+::: notes
+Invite students to schedule their first OH today; show sign-up link in class.
+:::
+
+## Ready check (tools & integrity) {.smaller}
+
+- **Toolchain** (by Wed Oct 1): R (≥ 4.3), RStudio, Quarto, required R packages
+- **Submissions**: .pdf via Quarto/RMarkdown; code embedded in .qmd/.rmd source
+- **Academic integrity**: your analysis must be your own; cite data/code/text
+- **Accessibility**: contact me early for OSD accommodations
+
+::: {.fragment}
+::: callout-important
+**Final Exam:** *Wed Dec 3 (in class).* Conceptual, practical, and ethical topics from the course.
+:::
+:::
+
+::: notes
+Point students to links for installs (CRAN, Posit, Quarto) in the syllabus.
+:::
+
+## Week 1 targets {.smaller}
 
 - Install and verify the toolchain
 - Refresh: tidy data, R & RStudio basics, Quarto
@@ -226,23 +431,27 @@ If these don’t apply to you, **contact me immediately** so we can make a plan.
 
 1. Install **R (≥ 4.3)** and **RStudio**
 2. Install **Quarto**
-3. Create a **GitHub** account and configure **Git** locally
-4. `install.packages(c("tidyverse","arrow","janitor","here","skimr","tidymodels"))`
-5. Verify you can render a Quarto document and push to GitHub
+4. `install.packages(c("tidyverse","here","skimr"))`
+5. Verify you can render a Quarto/RMarkdown document
 
+::: {.fragment}
 ::: callout-tip
 Bring your laptop and a power adapter to lab.
+:::
 :::
 
 ## Quick in-class activity (5 min)
 
+::: {.fragment} 
 Pair up. Discuss:
 
 - One policy question you care about this quarter
 - What data might exist? What *features* might be predictive?
 - One ethical pitfall to watch for
-
+:::
+::: {.fragment}
 Be ready to share one sentence per pair.
+:::
 
 ## Looking ahead
 
@@ -251,47 +460,23 @@ Be ready to share one sentence per pair.
 
 ## Exit ticket
 
+::: {.fragment}
 Open a note and write (1–2 min):
 
+- Why you're taking this course
 - One thing you’re excited to learn
 - One concern or question you have
+:::
 
-Turn it in as instructed.
+::: {.fragment}
+Turn it in.
+:::
 
 ## Contact & support
 
 - **Email**: ralbuyeh@ucsd.edu
 - **Office Hours**: Mon/Wed 9:30–10:30 AM (TBD). Sign up at least 2 hours in advance.
-- **Accommodations**: Please reach out early. We’ll work with you.
+- **Accommodations**: Please reach out early.
 
 ---
 
-## Appendix: Ready vs. custom data {.smaller}
-
-::: {layout-ncol="2"}
-![](images/DJ.jpeg){fig-alt="Ready-made data sources (APIs, open data)" width="80%"} ![](images/orchestra.jpg){fig-alt="Custom-built datasets (surveys, scraping, linkage)" width="80%"}
-:::
-
-<small><em>Caption:</em> Combining ready-made with custom-built data often unlocks the best performance and insight.</small>
-
-## Appendix: Workflow at a glance
-
-Big Data → <span style="color:#c0392b">feature engineering</span> → <span style="color:#c0392b">traditional social-science data</span> → <span style="color:#c0392b">predictive modeling</span> → <span style="color:#c0392b">validation</span> → <span style="color:#c0392b">presentation & dissemination</span> → governance & iteration
-
-## Appendix: Lab-ready snippets
-
-```r
-# project setup
-usethis::create_project("gpim452-labs")
-usethis::use_git()
-usethis::use_github()
-
-# quarto skeleton
-quarto::quarto_render("report.qmd")
-```
-
-```r
-# sanity checks
-d <- readr::read_csv("data/input.csv")
-janitor::compare_df_cols_same(d)
-skimr::skim(d)

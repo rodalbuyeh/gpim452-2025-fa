@@ -5,3 +5,14 @@ _site/
 **/.DS_Store
 .DS_Store
 .ipynb_checkpoints/
+
+# Quarto build artifacts
+*_files/
+revealjs/
+quarto-html/
+quarto-*/
+!_extensions/        # keep extensions
+_site/
+docs/
+_freeze/
+.quarto/
