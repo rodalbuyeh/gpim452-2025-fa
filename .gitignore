@@ -7,9 +7,7 @@ _site/
 .ipynb_checkpoints/
 
 # Quarto build artifacts
-revealjs/
-quarto-html/
-quarto-*/
+
 !_extensions/        # keep extensions
 _site/
 docs/
