@@ -5,3 +5,11 @@ _site/
 **/.DS_Store
 .DS_Store
 .ipynb_checkpoints/
+
+# Quarto build artifacts
+
+!_extensions/        # keep extensions
+_site/
+docs/
+_freeze/
+.quarto/

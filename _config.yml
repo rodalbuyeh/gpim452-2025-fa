@@ -20,7 +20,8 @@ baseurl: '/' # the subpath of your site, e.g. /blog
 url: 'https://rodalbuyeh.github.io/gpim452-2025-fa/' # the base hostname & protocol for your site, e.g. http://example.com
 author: GPIM 452 Instructors and Course Staff
 exclude: ["Gemfile", "Gemfile.lock", "LICENSE", "README.md"]
-
+include:
+  - "_lectures"
 # Theme settings
 remote_theme: just-the-docs/just-the-docs@v0.4.0.rc3
 color_scheme: bluecsd
