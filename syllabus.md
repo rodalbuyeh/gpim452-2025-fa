@@ -42,7 +42,7 @@ Students who complete this course will emerge better prepared to pursue speciali
 ### Skills Objectives
 By the end of the course, you should be able to:
 
-- Practice **good computing and workflow management**, including version control and clean project organization
+- Practice **good computing and workflow management**, including clean project organization
 - Recognize potential problems or “red flags” in data or analysis before they cause errors
 - Ingest data from multiple sources, including:
   - Reading from local files
@@ -59,6 +59,7 @@ By the end of the course, you should be able to:
   - Remote and asynchronous collaboration
   - Bringing a social science/policy perspective to heterogeneous teams
   - Producing effective, decision-maker-friendly reports
+- Integrate basic version control as part of workflow
 
 ### Assumed knowledge
 This class is an advanced data-intensive elective. We assume the following:

@@ -15,6 +15,7 @@
           "**Read**{: .label .label-read } [MDSR 6: Tidy Data](https://mdsr-book.github.io/mdsr3e/06-dataII.html)":
           "**Read**{: .label .label-read } [MDSR Appendix B: Introduction to R and RStudio](https://mdsr-book.github.io/mdsr3e/B-appR.html)":
           "**Read**{: .label .label-read } [Wickham: R Style Guide](http://adv-r.had.co.nz/Style.html)":
+          "**Video**{: .label .label-watch } [Getting Started with Quarto](https://youtu.be/_f3latmOhew?si=qaO_BI7jWU2pOlS7)":
           "**Video**{: .label .label-watch } [Quarto: Elevating R Markdown for Advanced Publishing](https://www.youtube.com/watch?v=8qR0wtJEDX4)":
 
 
