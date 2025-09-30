@@ -5,8 +5,8 @@ author: "Rod Albuyeh"
 date: today
 format: pdf
 execute:
-  echo: false
-  eval: false
+  echo: true
+  eval: true
   warning: false
   error: false
   cache: true
@@ -54,6 +54,35 @@ Bullet Points
 [another
 link](https://quarto.org/docs/get-started/authoring/rstudio.html)
 
+# RStudio Setup
+
+Before we start coding, let's configure RStudio for reproducible
+workflows:
+
+1.  Go to **Tools → Global Options → General**
+2.  Under "Basic" section:
+    -   **Uncheck** "Restore .RData into workspace at startup"
+    -   **Uncheck** "Save workspace to .RData on exit"
+3.  Click **OK**
+4.  **Restart R** by going to **Session → Restart R** (or use
+    `Ctrl+Shift+F10` on Windows/Linux, `Cmd+Shift+F10` on Mac)
+
+These settings are **critical for reproducible research** because they
+ensure that: - Each R session starts fresh (no leftover objects from
+previous sessions) - You don't accidentally rely on objects that aren't
+created in your current script - Your code will work for others (and for
+future you!) - You avoid the frustrating "it works on my computer"
+problem
+
+Without these settings, you might write code that depends on objects
+created hours ago that you've forgotten about. Your code will seem to
+work perfectly, but when someone else (or you, later) tries to run it,
+it will fail mysteriously.
+
+*This is essential for any serious data analysis work. If you are
+unhappy with these settings, you can change them back, but we strongly
+recommend keeping them.*
+
 # R Basics
 
 Usually we work with R code inside "chunks" in RMarkdown.
@@ -62,7 +91,6 @@ Usually we work with R code inside "chunks" in RMarkdown.
 print("hello world")
 2 + 2
 ```
-
 
 We use the `<-` operator in R to assign values to object. This is like
 "saving" the object in memory
@@ -98,6 +126,179 @@ First add a new R code chunk beneath this markdown text. Then create
 your own vector of favorite numbers. Test what happens when you
 multiply, divide, add, or subtract it with `my_favorite_numbers`
 
+# Data Types in R
+
+R has several basic data types that you'll encounter frequently:
+
+## Numeric (numbers)
+
+```{r}
+my_number <- 42
+my_decimal <- 3.14
+class(my_number)
+class(my_decimal)
+```
+
+## Character (text)
+
+```{r}
+my_text <- "Hello world"
+my_name <- "Social Science"
+class(my_text)
+```
+
+## Logical (TRUE/FALSE)
+
+```{r}
+my_logical <- TRUE
+another_logical <- FALSE
+class(my_logical)
+
+# Logical values often come from comparisons
+5 > 3
+10 == 10
+"cat" == "dog"
+```
+
+## Factor (categorical data)
+
+Factors are useful for categorical variables like survey responses:
+
+```{r}
+# Create a factor for education levels
+education <- factor(c("High School", "College", "Graduate", "College", "High School"))
+education
+class(education)
+
+# See the levels (categories)
+levels(education)
+```
+
+*Quick Activity: Use the `class()` function to check the data type of
+`my_favorite_numbers` and `my_favorite_animals` from earlier.*
+
+# Getting Help in R
+
+R has excellent built-in documentation. Here's how to access it:
+
+## Using the `?` operator
+
+```{r}
+#| eval: false
+# Get help for any function
+?mean
+?c
+?factor
+```
+
+## Using the `help()` function
+
+```{r}
+#| eval: false
+# Same as using ?
+help(mean)
+help("mean")
+```
+
+## Searching for functions
+
+```{r}
+#| eval: false
+# Search for functions containing a keyword
+??regression
+??"standard deviation"
+```
+
+## Other helpful functions
+
+```{r}
+#| eval: false
+# See examples of how to use a function
+example(mean)
+
+# Get function arguments
+args(mean)
+```
+
+*Pro tip: The Help tab in RStudio will show documentation when you use
+these commands!*
+
+# Working Directories and File Paths
+
+When working with data in R, you need to tell R where to find your
+files. This involves understanding your **working directory** and **file
+paths**.
+
+## Working Directory
+
+Your working directory is the folder that R is currently "looking at".
+You can check your current working directory with:
+
+```{r}
+getwd()
+```
+
+For this course, we're organized like this:
+
+```         
+gpim_452_labs/
+├── R/           (where our .qmd files live)
+└── data/
+    ├── raw/     (original data files)
+    └── processed/ (cleaned data files)
+```
+
+## File Paths
+
+To read data from the `data` folder when working in the `R` folder, we
+need to use **relative paths**:
+
+```{r}
+#| eval: false
+# To read a file from the raw data folder:
+# read_csv("../data/raw/my_data.csv")
+
+# To save a file to the processed data folder:
+# write_csv(my_clean_data, "../data/processed/clean_data.csv")
+```
+
+The `..` means "go up one folder level" (from `R` to `gpim_452_labs`),
+then we navigate down to the `data` folder.
+
+## Alternative: Using `fs::path()`
+
+For cross-platform compatibility, you can use the `fs` package to build
+file paths:
+
+```{r}
+#| eval: false
+library(fs)
+
+# Build paths that work on any operating system
+read_csv(path("..", "data", "raw", "my_data.csv"))
+write_csv(my_clean_data, path("..", "data", "processed", "clean_data.csv"))
+```
+
+The `fs::path()` function handles path separators automatically, making
+your code work on Windows, Mac, and Linux.
+
+## Useful Functions for File Management
+
+```{r}
+#| eval: false
+# List files in your current directory
+list.files()
+
+# List files in the data/raw directory
+list.files("../data/raw")
+
+# Check if a file exists
+file.exists("../data/raw/some_file.csv")
+```
+
+*Pro tip: Use the Files pane in RStudio to navigate and see your folder
+structure!*
+
 # Loading packages in R
 
 To install a new R package on your computer, use the function
@@ -110,6 +311,7 @@ package name must be in quotes!
 ```{r}
 #| label: load-packages
 #| include: false
+#| eval: false
  install.packages("tidyverse")
 ```
 
@@ -167,7 +369,7 @@ my_data$my_favorite_animals
 We can easily add new columns to our tibble using `$`
 
 ```{r}
-my_data$all_threes <- c(3,4)
+my_data$all_threes <- c(3, 3, 3, 3)
 my_data
 ```
 
@@ -243,4 +445,4 @@ Knit your .qmd file with 'output: html' in the YAML header. Then replace
 it with 'format: pdf' and render again. Remember that Quarto documents
 will fail to knit if there are any errors in your R code!
 
-Submit both the .html and .pdf documents to Canvas
+Submit both the .html and .pdf documents to gradescope.
