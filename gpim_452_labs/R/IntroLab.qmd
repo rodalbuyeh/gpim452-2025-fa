@@ -1,0 +1,246 @@
+---
+title: "Intro to R & Quarto"
+subtitle: "Hello, world"
+author: "Rod Albuyeh"
+date: today
+format: pdf
+execute:
+  echo: false
+  eval: false
+  warning: false
+  error: false
+  cache: true
+  tidy: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+Quarto is composed of four parts:
+
+1.  Text for humans to read in Markdown
+2.  Code for computers to read in R
+3.  "Metadata" in YAML
+4.  Equations and tables in LaTeX
+
+Outputs (i.e. the final product after we hit "render"):
+
+1.  HTML (for quick reports and web pages)
+2.  PDF (for professional-looking reports and papers)
+3.  Word
+4.  Many others (including slides and books)
+
+# Markdown Basics
+
+## Smaller Title
+
+### Even Smaller Title
+
+#### Yet Smaller Title
+
+Bullet Points
+
+-   Item 1
+-   Item 2
+    -   Sub-Item 1
+    -   Sub-Item 2
+
+*italics*
+
+**bold**
+
+[link](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+
+[another
+link](https://quarto.org/docs/get-started/authoring/rstudio.html)
+
+# R Basics
+
+Usually we work with R code inside "chunks" in RMarkdown.
+
+```{r}
+print("hello world")
+2 + 2
+```
+
+
+We use the `<-` operator in R to assign values to object. This is like
+"saving" the object in memory
+
+```{r}
+a <- 8
+a
+a * 2
+```
+
+A very common object in R is a vector. Vectors are similar to columns,
+or variables, in a data frame
+
+```{r}
+# Create a stand-alone vector with the c() function
+my_favorite_numbers <- c(1, 4, 12, 9)
+my_favorite_numbers
+my_favorite_numbers * 2
+```
+
+Vectors can contain any data type, but every element must be the same
+type
+
+```{r}
+# Here is a vector whose elements are characters
+my_favorite_animals <- c("cat", "monkey", "llama", "penguin")
+my_favorite_animals
+```
+
+*Class Activity 5 Minutes*
+
+First add a new R code chunk beneath this markdown text. Then create
+your own vector of favorite numbers. Test what happens when you
+multiply, divide, add, or subtract it with `my_favorite_numbers`
+
+# Loading packages in R
+
+To install a new R package on your computer, use the function
+`install.packages()`
+
+You only have to do this once! I suggest typing your
+`install.packages()` commands in the Console. Don't forget that the
+package name must be in quotes!
+
+```{r}
+#| label: load-packages
+#| include: false
+ install.packages("tidyverse")
+```
+
+In a code chunk, we add code cell options with `#|` comments.
+
+When you want to use a package, use the function `library()`
+
+This should be done at the top of your R file
+
+```{r}
+library(tidyverse)
+```
+
+The tidyverse package contains a several amazing packages for data
+analysis - ggplot2: beautiful graphs - dplyr: easy data manipulation -
+tidyr: getting data into "tidy" format - readr: loading outside data
+into R - purrr: to make your code more concise with functional
+programming - tibble: easy to work-with data objects - stringr:
+string/character manipulation - forcats: working with "factor" variables
+
+You can selectively load these packages, or just use
+`library(tidyverse)` to load all
+
+Run the following command to install TeX on your computer. This is
+necessary to knit Quarto documents to pdf
+
+```{r}
+# tinytex::install_tinytex()
+```
+
+# Using tibbles to explore data
+
+The `tibble()` function lets us create a table of rows and columns
+
+```{r}
+my_data <- tibble(
+  my_favorite_numbers,
+  my_favorite_animals
+)
+```
+
+```{r}
+# check it out
+my_data
+```
+
+The dollar sign `$` is R's way of extracting elements of one object
+inside another. If we use `$` on a tibble we can get a single column
+(vector)
+
+```{r}
+my_data$my_favorite_animals
+```
+
+We can easily add new columns to our tibble using `$`
+
+```{r}
+my_data$all_threes <- c(3,4)
+my_data
+```
+
+*Group Activity 5 Minutes*
+
+Using the `$` operator, create a new column in `my_data` by multiplying
+`my_favorite_numbers` by `all_threes`
+
+Use the `View()` function, or click on `my_data` in your Environment tab
+to make sure it worked!
+
+```{r}
+
+
+```
+
+# Exploring functions
+
+Functions in R take stuff and turn it into other stuff
+
+For example, `mean()` is a function which takes a vector of numbers and
+returns the mean:
+
+```{r}
+mean(my_data$my_favorite_numbers)
+```
+
+Some functions take more than one input, or "argument". `rnorm()` is a
+function which generates random draws from a normal distribution with a
+given mean and standard deviation
+
+```{r}
+rnorm(n = 10, mean = 0, sd = 1)
+```
+
+Many functions, such as `rnorm()` have default arguments. This means
+that if you do not specify the arguments explicitly, they will use the
+default values. `rnorm()` defaults to mean = 0 and sd = 1
+
+```{r}
+rnorm(n = 10)
+```
+
+```{r}
+rnorm(n = 10, mean = -100, sd = 100)
+```
+
+*Group Activity 10 Minutes*
+
+Create a tibble with three numeric columns, then find the mean of each
+column.
+
+CHALLENGE: make one of the columns normally distributed
+
+```{r}
+
+
+```
+
+## Lab/Homework 1:
+
+Create an Quarto file which contains the following:
+
+Two code chunks: 1. Create a vector and do something to it 2. Create a
+tibble and print one of the columns
+
+Two sections of Markdown text:
+
+1.  Explain what your code from (1) does in words
+2.  Say how many rows and columns your tibble from (2) has
+
+Knit your .qmd file with 'output: html' in the YAML header. Then replace
+it with 'format: pdf' and render again. Remember that Quarto documents
+will fail to knit if there are any errors in your R code!
+
+Submit both the .html and .pdf documents to Canvas

@@ -1,0 +1,40 @@
+---
+title: "Week 1 Lab"
+author: "Kimberly Renk"
+format: pdf
+editor: source # toggle this to visual to override 
+---
+
+```{r message = FALSE}
+
+# Libraries used in file
+
+library(tidyverse)
+```
+
+**Part I**
+
+```{r}
+
+# Create a vector and do something to it
+
+odd_nums <- c (1, 3, 5, 7, 9, 11, 13)
+odd_nums + 1
+odd_nums * 2
+```
+
+This code creates a vector of odd numbers. It then adds 1 to each number and also multiplies each number by 2.
+
+**Part II**
+
+```{r}
+
+# Create a tibble and print one of the columns
+
+my_nums <- tibble(odd_nums,
+                  even_nums = c(2, 4, 6, 8, 10, 12, 24))
+
+my_nums$even_nums
+```
+
+My tibble has 2 columns and 7 rows.
