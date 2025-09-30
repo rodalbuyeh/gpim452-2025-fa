@@ -13,3 +13,18 @@ _site/
 docs/
 _freeze/
 .quarto/
+
+# R artifacts
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+.Rprofile
+.Rbuildignore
+.Rbuildignore
+*_files/
+*_cache/
+*.aux
+*.csv
+*.xlsx
