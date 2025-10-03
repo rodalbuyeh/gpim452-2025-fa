@@ -23,7 +23,6 @@ _freeze/
 .Rprofile
 .Rbuildignore
 .Rbuildignore
-*_files/
 *_cache/
 *.aux
 *.csv
