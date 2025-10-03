@@ -4,7 +4,7 @@
     days:
       - date: 2025-10-06
         events:
-          "**LEC 2**{: .label .label-lecture } Data Visualization and EDA":
+          "**LEC 2**{: .label .label-lecture } [Data Visualization and EDA]((_lectures/lec02_dataviz.html))":
           "**Read**{: .label .label-read } [MDSR 2: Data Visualization](https://mdsr-book.github.io/mdsr3e/02-datavizI.html)":
           "**Read**{: .label .label-read } [MDSR 3: A Grammar for Graphics](https://mdsr-book.github.io/mdsr3e/03-datavizII.html)":
           "**Read**{: .label .label-read } [R4DS 7: Exploratory Data Analysis](https://r4ds.had.co.nz/exploratory-data-analysis.html)":

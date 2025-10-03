@@ -1,0 +1,798 @@
+---
+title: "Telling Stories with Graphics"
+subtitle: "Data Visualization and EDA"
+author: "Rod Albuyeh"
+date: "10/06/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(patchwork)
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Identify** common visualization pitfalls that mislead audiences
+- **Apply** the Grammar of Graphics to build effective charts
+- **Choose** appropriate chart types for different data stories
+- **Critique** visualizations using evidence-based design principles
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Good data visualization is about **reducing cognitive load** while **preserving truth** in the data.
+:::
+:::
+
+# Part I: When Visualizations Mislead
+
+## The Bar Chart Deception {.smaller}
+
+**Question:** Looking at the left chart, how much more popular does Policy B appear than Policy A?
+
+::: {layout-ncol=2}
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 4
+misleading_data <- tibble(
+  category = c("Policy A", "Policy B"),
+  approval = c(39, 41)
+)
+
+# Misleading version - truncated y-axis
+ggplot(misleading_data, aes(x = category, y = approval, fill = category)) +
+  geom_col(width = 0.6) +
+  coord_cartesian(ylim = c(35, 45)) +
+  scale_y_continuous(breaks = seq(35, 45, 2)) +
+  scale_fill_manual(values = c("steelblue", "firebrick")) +
+  labs(title = "Misleading: Truncated Y-Axis", 
+       y = "Approval %", x = "") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(size = 12),
+        plot.title = element_text(color = "red", face = "bold"))
+```
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 4
+# Honest version - full scale
+ggplot(misleading_data, aes(x = category, y = approval, fill = category)) +
+  geom_col(width = 0.6) +
+  scale_y_continuous(limits = c(0, 50), breaks = seq(0, 50, 10)) +
+  scale_fill_manual(values = c("steelblue", "firebrick")) +
+  labs(title = "Honest: Fuller Scale", 
+       y = "Approval %", x = "") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(size = 12),
+        plot.title = element_text(color = "darkgreen", face = "bold"))
+```
+
+:::
+
+::: {.fragment}
+**Reality check:** Policy A = 39%, Policy B = 41%. That's a **2-percentage-point difference**, not the dramatic gap the truncated chart suggests!
+:::
+
+## Your Turn: Spot the Problems {.smaller}
+
+::: {.fragment}
+**Exercise (2 minutes):** Look at this chart and identify at least 3 issues:
+:::
+
+```{r}
+#| echo: false
+# Create intentionally problematic visualization
+budget_data <- tibble(
+  department = c("Education", "Defense", "Healthcare", "Infrastructure"),
+  budget_2023 = c(150, 800, 200, 75),
+  budget_2024 = c(160, 820, 210, 80)
+) %>%
+  pivot_longer(cols = starts_with("budget"), 
+               names_to = "year", 
+               values_to = "billions") %>%
+  mutate(year = str_extract(year, "\\d{4}"))
+
+# Problematic chart: 3D, unnecessary colors, no zero baseline, confusing legend
+ggplot(budget_data, aes(x = department, y = billions, fill = interaction(department, year))) +
+  geom_col(position = "dodge", width = 0.7) +
+  scale_fill_manual(values = c("red", "darkred", "blue", "darkblue", 
+                              "green", "darkgreen", "orange", "darkorange")) +
+  labs(title = "Federal Budget Allocations Are Changing!!!",
+       subtitle = "Dramatic shifts in spending priorities",
+       y = "Billions of Dollars",
+       x = "Government Department",
+       fill = "Dept & Year") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom",
+        plot.title = element_text(size = 16, color = "red"))
+```
+
+::: {.fragment}
+**Problems:** Misleading title, unnecessary color complexity, hard-to-read legend, no clear comparison story
+:::
+
+## The Corrected Version
+
+```{r}
+#| echo: false
+# Clean, honest version
+ggplot(budget_data, aes(x = department, y = billions, fill = year)) +
+  geom_col(position = "dodge", width = 0.7, alpha = 0.8) +
+  scale_fill_manual(values = c("2023" = "lightblue", "2024" = "darkblue")) +
+  scale_y_continuous(labels = dollar_format(suffix = "B", scale = 1)) +
+  labs(title = "Federal Budget by Department: 2023 vs 2024",
+       subtitle = "Most departments saw modest increases",
+       y = "Budget (Billions)",
+       x = "",
+       fill = "Year") +
+  theme_minimal() +
+  theme(legend.position = "top",
+        panel.grid.minor = element_blank())
+```
+
+::: {.fragment}
+**Better because:** Clear title, logical color scheme, readable labels, honest y-axis, focused message
+:::
+
+# Part II: The Grammar of Graphics
+
+## Building Blocks of Every Chart {.smaller}
+
+::: {.fragment}
+Every effective visualization maps **data** to **visual elements** through:
+:::
+
+::: {layout-ncol=2}
+### The Grammar
+- **Data**: What you're visualizing
+- **Aesthetics**: How data maps to visuals (x, y, color, size)
+- **Geometries**: The visual marks (points, bars, lines)
+- **Scales**: How data values become visual values
+- **Facets**: Breaking data into separate panels/subplots
+- **Themes**: Non-data visual elements (fonts, colors, grid)
+
+### The Questions
+- What **relationship** am I showing?
+- What **comparison** matters most?
+- What **action** should viewers take?
+- How can I **reduce cognitive load**?
+:::
+
+## Creating Our Dataset {.smaller}
+
+Let's create simulated policy data to work with:
+
+```{r}
+# COVID-19 vaccination rates by county income
+set.seed(42)  # Makes random numbers reproducible
+covid_data <- tibble(
+  county = paste("County", 1:50),  # paste() combines text: "County 1", "County 2", etc.
+  median_income = rnorm(50, 55000, 15000),  # rnorm() generates random normal distribution
+  vaccination_rate = pmax(0.3, pmin(0.95,   # pmax/pmin set floor/ceiling values
+    0.45 + 0.000008 * median_income + rnorm(50, 0, 0.1))),  # Create income correlation
+  population = sample(10000:500000, 50),  # sample() randomly picks from range
+  region = sample(c("Northeast", "South", "Midwest", "West"), 50, replace = TRUE)
+) %>%
+  mutate(
+    median_income = pmax(25000, median_income),  # Ensure minimum income of $25k
+    income_category = case_when(
+      median_income < 40000 ~ "Low Income",
+      median_income < 65000 ~ "Middle Income",
+      TRUE ~ "High Income"
+    ),
+    income_category = factor(income_category, 
+                           levels = c("Low Income", "Middle Income", "High Income"))
+  )
+
+# Look at our data
+head(covid_data, 3)
+```
+
+::: {.fragment}
+**Key insight**: We're creating a realistic relationship where higher income correlates with higher vaccination rates, plus regional and population variation.
+:::
+
+## Step 1: Basic Relationship {.smaller}
+
+Now let's visualize the core relationship:
+
+```{r}
+# Step 1: Basic relationship
+ggplot(covid_data, aes(x = median_income, y = vaccination_rate)) +  # aes() maps data to visual properties
+  geom_point(size = 2) +  # geom_point() creates scatter plot points
+  labs(title = "Step 1: Basic Relationship",
+       x = "Median Household Income", 
+       y = "Vaccination Rate") +
+  theme_minimal() +  # theme_minimal() creates clean, simple appearance
+  theme(text = element_text(size = 14),  # Larger text for readability
+        plot.title = element_text(size = 16, face = "bold"))
+```
+
+## Adding Layers for Insight
+
+```{r}
+# Step 2: Add trend line and better formatting
+ggplot(covid_data, aes(x = median_income, y = vaccination_rate)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  scale_x_continuous(labels = dollar_format(scale = 0.001, suffix = "K")) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Step 2: Add Trend and Better Labels",
+       x = "Median Household Income", 
+       y = "Vaccination Rate") +
+  theme_minimal()
+```
+
+## The Final Policy Story: Code {.smaller}
+
+Now let's add multiple layers to tell a complete story:
+
+```{r}
+#| eval: false
+# Step 3: Full story with regional context
+ggplot(covid_data, aes(x = median_income, y = vaccination_rate)) +
+  geom_point(aes(size = population, color = region), alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, color = "black", linetype = "dashed") +
+  scale_x_continuous(labels = dollar_format(scale = 0.001, suffix = "K")) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_size_continuous(name = "Population", 
+                       labels = comma_format(scale = 0.001, suffix = "K"),
+                       range = c(2, 8)) +
+  scale_color_viridis_d(name = "Region") +
+  labs(title = "COVID-19 Vaccination Rates by County Income Level",
+       subtitle = "Higher-income counties achieved higher vaccination rates across all regions",
+       x = "Median Household Income", 
+       y = "Vaccination Rate",
+       caption = "Note: Point size represents county population") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Notice:** We're mapping population to **size**, region to **color**, adding a **trend line**, and using **professional formatting**.
+:::
+
+## The Final Policy Story: Result
+
+```{r}
+#| echo: false
+# Step 3: Full story with regional context
+ggplot(covid_data, aes(x = median_income, y = vaccination_rate)) +
+  geom_point(aes(size = population, color = region), alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, color = "black", linetype = "dashed") +
+  scale_x_continuous(labels = dollar_format(scale = 0.001, suffix = "K")) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_size_continuous(name = "Population", 
+                       labels = comma_format(scale = 0.001, suffix = "K"),
+                       range = c(2, 8)) +
+  scale_color_viridis_d(name = "Region") +
+  labs(title = "COVID-19 Vaccination Rates by County Income Level",
+       subtitle = "Higher-income counties achieved higher vaccination rates across all regions",
+       x = "Median Household Income", 
+       y = "Vaccination Rate",
+       caption = "Note: Point size represents county population") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Policy insight**: Income-based vaccination disparities suggest need for targeted outreach in lower-income communities.
+:::
+
+# Part III: Choosing the Right Chart Type
+
+## The Chart Selection Framework {.smaller}
+
+::: {.fragment}
+**Ask yourself:** What is the **primary relationship** I want to show?
+:::
+
+::: {layout-ncol=2}
+### Relationship Types
+- **Comparison**: Bar charts, dot plots
+- **Distribution**: Histograms, box plots, violin plots  
+- **Correlation**: Scatter plots, heatmaps
+- **Composition**: Stacked bars, pie charts
+- **Trend over time**: Line charts, area charts
+- **Geographic**: Maps, cartograms
+
+### Decision Rules
+- **< 7 categories**: Bar chart
+- **> 7 categories**: Dot plot or table
+- **Continuous vs continuous**: Scatter plot
+- **Time series**: Line chart
+- **Part-to-whole**: Stacked bar
+:::
+
+## Education Spending Data {.smaller}
+
+Let's create some education spending data to demonstrate how the same data can tell different stories:
+
+```{r}
+# Create education spending data
+education_data <- tibble(
+  state = c("California", "Texas", "New York", "Florida", "Illinois", 
+           "Pennsylvania", "Ohio", "Georgia", "North Carolina", "Michigan"),
+  spending_per_pupil = c(12500, 9800, 15200, 9100, 13800, 
+                        14100, 11200, 10300, 9400, 11800),
+  enrollment = c(6200000, 5400000, 2700000, 2800000, 2000000,
+                1700000, 1700000, 1800000, 1500000, 1500000),
+  total_spending = spending_per_pupil * enrollment / 1e9  # Convert to billions
+) %>%
+  arrange(desc(total_spending))
+
+# Look at our data
+head(education_data, 4)
+```
+
+::: {.fragment}
+**Question:** Should we focus on **total spending** or **per-pupil spending** for policy analysis?
+:::
+
+## Two Ways to Visualize: Code {.smaller}
+
+```{r}
+#| eval: false
+# Chart 1: Total spending (misleading for policy)
+p1 <- ggplot(education_data, aes(x = reorder(state, total_spending), y = total_spending)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Total Education Spending by State",
+       subtitle = "California spends the most",
+       x = "", y = "Total Spending (Billions)") +
+  theme_minimal()
+
+# Chart 2: Per-pupil spending (better for policy)
+p2 <- ggplot(education_data, aes(x = reorder(state, spending_per_pupil), y = spending_per_pupil)) +
+  geom_col(fill = "darkgreen") +
+  coord_flip() +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Education Spending Per Pupil by State",
+       subtitle = "New York leads in per-pupil investment",
+       x = "", y = "Spending Per Pupil") +
+  theme_minimal()
+
+p1 / p2  # Stack the plots vertically
+```
+
+## Same Data, Different Stories
+
+```{r}
+#| echo: false
+# Chart 1: Total spending (misleading for policy)
+p1 <- ggplot(education_data, aes(x = reorder(state, total_spending), y = total_spending)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Total Education Spending by State",
+       subtitle = "California spends the most",
+       x = "", y = "Total Spending (Billions)") +
+  theme_minimal()
+
+# Chart 2: Per-pupil spending (better for policy)
+p2 <- ggplot(education_data, aes(x = reorder(state, spending_per_pupil), y = spending_per_pupil)) +
+  geom_col(fill = "darkgreen") +
+  coord_flip() +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Education Spending Per Pupil by State",
+       subtitle = "New York leads in per-pupil investment",
+       x = "", y = "Spending Per Pupil") +
+  theme_minimal()
+
+p1 / p2
+```
+
+::: {.fragment}
+**Key insight**: Total spending reflects state size; per-pupil spending reflects policy priorities.
+:::
+
+## Interactive Exercise: Fix This Chart {.smaller}
+
+```{r}
+#| echo: false
+# Problematic chart for students to fix
+crime_data <- tibble(
+  city = c("City A", "City B", "City C", "City D", "City E"),
+  violent_crime_2020 = c(450, 320, 680, 290, 510),
+  violent_crime_2023 = c(420, 340, 650, 310, 490),
+  property_crime_2020 = c(2100, 1800, 2800, 1600, 2300),
+  property_crime_2023 = c(1950, 1750, 2600, 1580, 2200)
+) %>%
+  pivot_longer(cols = -city, names_to = "metric", values_to = "incidents") %>%
+  separate(metric, into = c("crime_type", "year"), sep = "_(?=\\d{4}$)") %>%
+  mutate(crime_type = str_replace(crime_type, "_", " "),
+         crime_type = str_to_title(crime_type))
+
+# Bad version - stacked bar with different scales
+ggplot(crime_data, aes(x = city, y = incidents, fill = interaction(crime_type, year))) +
+  geom_col(position = "stack") +
+  scale_fill_manual(values = c("red", "darkred", "blue", "darkblue")) +
+  labs(title = "Crime Statistics by City",
+       y = "Number of Incidents",
+       fill = "Crime Type & Year") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Your task (3 minutes):** How would you redesign this to better show:
+1. Which cities saw crime increases/decreases?
+2. Whether violent vs property crime trends differ?
+:::
+
+## A Better Approach: Small Multiples
+
+```{r}
+#| echo: false
+# Better version - faceted with percent change
+crime_summary <- crime_data %>%
+  pivot_wider(names_from = year, values_from = incidents) %>%
+  mutate(
+    pct_change = (`2023` - `2020`) / `2020` * 100,
+    change_direction = ifelse(pct_change > 0, "Increase", "Decrease")
+  )
+
+ggplot(crime_summary, aes(x = reorder(city, pct_change), y = pct_change, fill = change_direction)) +
+  geom_col() +
+  geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.5) +
+  facet_wrap(~crime_type, scales = "free_y") +
+  coord_flip() +
+  scale_fill_manual(values = c("Decrease" = "darkgreen", "Increase" = "darkred")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(title = "Crime Rate Changes by City: 2020 to 2023",
+       subtitle = "Most cities saw decreases in both violent and property crime",
+       x = "", y = "Percent Change",
+       fill = "Direction") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+::: {.fragment}
+**Why this works:** Clear comparison, honest about direction of change, easy to scan patterns.
+:::
+
+# Part IV: Advanced Techniques
+
+## The Power of Small Multiples {.smaller}
+
+Small multiples (faceting) are powerful for policy analysis because they:
+
+::: {.fragment}
+- **Reduce cognitive load** (simpler individual charts)
+- **Enable pattern recognition** across groups
+- **Avoid misleading overlays** (different scales, colors)
+:::
+
+::: {.fragment}
+Let's demonstrate with unemployment data across regions and education levels:
+:::
+
+## Small Multiples: Data & Code {.smaller}
+
+```{r}
+#| eval: false
+# Create unemployment data by education level across regions
+unemployment_data <- expand_grid(
+  region = c("Northeast", "South", "Midwest", "West"),
+  education = c("Less than HS", "High School", "Some College", "Bachelor's+"),
+  year = 2018:2023
+) %>%
+  mutate(
+    # Create realistic unemployment patterns
+    base_rate = case_when(
+      education == "Less than HS" ~ 0.08,
+      education == "High School" ~ 0.05,
+      education == "Some College" ~ 0.04,
+      education == "Bachelor's+" ~ 0.025
+    ),
+    # Add regional variation and COVID effects
+    regional_adj = case_when(
+      region == "Northeast" ~ -0.005, region == "South" ~ 0.01,
+      region == "Midwest" ~ 0.005, region == "West" ~ 0.0
+    ),
+    covid_effect = ifelse(year == 2020, 0.04, ifelse(year == 2021, 0.02, 0)),
+    unemployment_rate = pmax(0.01, base_rate + regional_adj + covid_effect + rnorm(n(), 0, 0.005))
+  )
+
+ggplot(unemployment_data, aes(x = year, y = unemployment_rate, color = education)) +
+  geom_line(size = 1.2) + geom_point(size = 2) +
+  facet_wrap(~region, nrow = 2) +  # This creates the small multiples!
+  scale_y_continuous(labels = percent_format()) +
+  scale_color_viridis_d(name = "Education Level") +
+  labs(title = "Unemployment Rates by Education and Region",
+       subtitle = "COVID-19 impact varied by education level across all regions") +
+  theme_minimal()
+```
+
+## Small Multiples: Result
+
+```{r}
+#| echo: false
+# Create unemployment data by education level across regions
+unemployment_data <- expand_grid(
+  region = c("Northeast", "South", "Midwest", "West"),
+  education = c("Less than HS", "High School", "Some College", "Bachelor's+"),
+  year = 2018:2023
+) %>%
+  mutate(
+    # Create realistic unemployment patterns
+    base_rate = case_when(
+      education == "Less than HS" ~ 0.08,
+      education == "High School" ~ 0.05,
+      education == "Some College" ~ 0.04,
+      education == "Bachelor's+" ~ 0.025
+    ),
+    # Add regional variation
+    regional_adj = case_when(
+      region == "Northeast" ~ -0.005,
+      region == "South" ~ 0.01,
+      region == "Midwest" ~ 0.005,
+      region == "West" ~ 0.0
+    ),
+    # Add COVID spike in 2020
+    covid_effect = ifelse(year == 2020, 0.04, 
+                         ifelse(year == 2021, 0.02, 0)),
+    unemployment_rate = pmax(0.01, base_rate + regional_adj + covid_effect + rnorm(n(), 0, 0.005))
+  )
+
+ggplot(unemployment_data, aes(x = year, y = unemployment_rate, color = education)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  facet_wrap(~region, nrow = 2) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_color_viridis_d(name = "Education Level") +
+  labs(title = "Unemployment Rates by Education and Region",
+       subtitle = "COVID-19 impact varied by education level across all regions",
+       x = "Year", y = "Unemployment Rate") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        strip.text = element_text(size = 12, face = "bold"))
+```
+
+::: {.fragment}
+**Notice:** Each region shows the same pattern (education matters), but you can easily spot regional differences too.
+:::
+
+## When to Use Color Strategically {.smaller}
+
+::: {.fragment}
+**Color should enhance understanding, not decorate.** Use it to:
+:::
+
+::: {.fragment}
+::: {layout-ncol=2}
+### Good Uses
+- **Highlight key findings**
+- **Group related data**
+- **Show sequential/diverging scales**
+- **Indicate categories meaningfully**
+
+### Avoid
+- **Rainbow scales** for continuous data
+- **Too many colors** (>7 categories)
+- **Red/green only** (colorblind issues)
+- **Color as the only differentiator**
+:::
+:::
+
+::: {.fragment}
+Let's see strategic color use in action with a policy effectiveness analysis:
+:::
+
+## Strategic Color: Code {.smaller}
+
+```{r}
+#| eval: false
+# Create policy effectiveness data
+policy_effectiveness <- tibble(
+  policy = c("Universal Pre-K", "Job Training", "Housing Vouchers", 
+            "Minimum Wage", "Earned Income Tax Credit", "Food Stamps"),
+  cost_per_person = c(8000, 12000, 6000, 0, 3000, 2000),
+  effectiveness_score = c(8.5, 6.2, 7.8, 5.1, 9.2, 7.5),
+  policy_type = c("Education", "Employment", "Housing", 
+                 "Employment", "Tax", "Nutrition")
+)
+
+ggplot(policy_effectiveness, aes(x = cost_per_person, y = effectiveness_score)) +
+  geom_point(aes(color = policy_type), size = 4, alpha = 0.8) +  # Color by category
+  geom_text(aes(label = policy), vjust = -0.5, size = 3) +
+  scale_x_continuous(labels = dollar_format(), limits = c(-500, 13000)) +  # Add padding
+  scale_y_continuous(limits = c(4.5, 10)) +  # Add padding for top labels
+  scale_color_brewer(type = "qual", palette = "Set2", name = "Policy Area") +  # Good palette
+  labs(title = "Policy Cost-Effectiveness Analysis",
+       subtitle = "Tax policies show high effectiveness at low cost",
+       x = "Cost Per Person Served",
+       y = "Effectiveness Score (1-10)") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Key choices:** Color groups policy types, uses colorblind-friendly palette, includes clear legend.
+:::
+
+## Strategic Color: Result
+
+```{r}
+#| echo: false
+# Demonstrate strategic color use
+policy_effectiveness <- tibble(
+  policy = c("Universal Pre-K", "Job Training", "Housing Vouchers", 
+            "Minimum Wage", "Earned Income Tax Credit", "Food Stamps"),
+  cost_per_person = c(8000, 12000, 6000, 0, 3000, 2000),
+  effectiveness_score = c(8.5, 6.2, 7.8, 5.1, 9.2, 7.5),
+  policy_type = c("Education", "Employment", "Housing", 
+                 "Employment", "Tax", "Nutrition")
+)
+
+ggplot(policy_effectiveness, aes(x = cost_per_person, y = effectiveness_score)) +
+  geom_point(aes(color = policy_type), size = 4, alpha = 0.8) +
+  geom_text(aes(label = policy), vjust = -0.5, size = 3) +
+  scale_x_continuous(labels = dollar_format(), limits = c(-500, 13000)) +  # Add padding
+  scale_y_continuous(limits = c(4.5, 10)) +  # Add padding for top labels
+  scale_color_brewer(type = "qual", palette = "Set2", name = "Policy Area") +
+  labs(title = "Policy Cost-Effectiveness Analysis",
+       subtitle = "Tax policies show high effectiveness at low cost",
+       x = "Cost Per Person Served",
+       y = "Effectiveness Score (1-10)") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**What patterns do you see?** Color helps you quickly identify that tax policies (EITC) offer high effectiveness at low cost.
+:::
+
+## Your Final Challenge {.smaller}
+
+::: {.fragment}
+**Scenario:** You're presenting to city council about traffic safety interventions. You have data on 5 interventions implemented across 10 intersections over 2 years.
+
+**Your task:** Design a visualization that clearly shows:
+1. Which interventions reduced accidents most?
+2. Whether effects varied by intersection type?
+3. Your recommendation for citywide rollout?
+:::
+
+::: {.fragment}
+**Understanding the data columns:**
+
+- **`intersection`**: 10 different intersections (A through J)
+- **`intervention`**: 5 safety interventions tested
+- **`period`**: Before vs After intervention implementation
+- **`intersection_type`**: Type of intersection (Residential, Commercial, etc.)
+- **`baseline_accidents`**: Natural accident rate for that intersection
+- **`intervention_effect`**: Assumed effectiveness (% reduction in accidents)
+- **`accidents`**: Final accident count (baseline + true intervention effect + noise)
+:::
+
+## Challenge Data Preview
+
+```{r}
+#| echo: false
+# Create the challenge dataset
+set.seed(123)
+
+# Define a lookup for the 10 intersections
+intersection_types <- tibble(
+  intersection = paste("Intersection", LETTERS[1:10]),
+  intersection_type = c("Residential", "Commercial", "Highway", "School Zone", "Downtown",
+                        "Residential", "Commercial", "Highway", "School Zone", "Downtown")
+)
+
+traffic_data <- expand_grid(
+  intersection = paste("Intersection", LETTERS[1:10]),
+  intervention = c("Speed Cameras", "Roundabouts", "Better Lighting", 
+                   "Crosswalk Signals", "Lane Reduction"),
+  period = c("Before", "After")
+) %>%
+  left_join(intersection_types, by = "intersection") %>%
+  mutate(
+    # Baseline accidents per year by intersection type (constant for each intersection)
+    baseline_accidents = case_when(
+      intersection_type == "Highway" ~ 15,
+      intersection_type == "Commercial" ~ 12,
+      intersection_type == "Downtown" ~ 10,
+      intersection_type == "School Zone" ~ 8,
+      intersection_type == "Residential" ~ 6
+    ),
+    # Assumed intervention effectiveness (proportion reduction in accidents)
+    intervention_effect = case_when(
+      intervention == "Roundabouts" ~ -0.4,      # 40% reduction
+      intervention == "Speed Cameras" ~ -0.3,   # 30% reduction  
+      intervention == "Better Lighting" ~ -0.15, # 15% reduction
+      intervention == "Crosswalk Signals" ~ -0.2, # 20% reduction
+      intervention == "Lane Reduction" ~ -0.1    # 10% reduction
+    ),
+    accidents = ifelse(period == "Before", 
+                       baseline_accidents + rnorm(n(), 0, 1),
+                       baseline_accidents * (1 + intervention_effect) + rnorm(n(), 0, 1)),
+    accidents = pmax(1, accidents)
+  )
+
+# Show them the data structure - all columns
+print(head(traffic_data, 8), width = Inf)  # width = Inf shows all columns
+```
+
+::: {.fragment}
+**Think about:** Chart type, color use, layout, title, and key message before we see solutions.
+:::
+
+## Wrapping Up: The Visualization Checklist {.smaller}
+
+::: {.fragment}
+Before you finalize any chart, ask:
+:::
+
+::: {layout-ncol=2}
+### Content
+- [ ] **Clear main message?**
+- [ ] **Honest representation?**
+- [ ] **Appropriate chart type?**
+- [ ] **Necessary context provided?**
+
+### Design  
+- [ ] **Readable labels/titles?**
+- [ ] **Logical color choices?**
+- [ ] **Minimal cognitive load?**
+- [ ] **Actionable for audience?**
+:::
+
+::: {.fragment}
+::: callout-important
+**Remember:** The best visualization is the one that helps your audience make better decisions with less effort.
+:::
+:::
+
+## Next Steps {.smaller}
+
+::: {.fragment}
+**For Wednesday's Lab 2:**
+
+- **R and Markdown Principles** - hands-on practice with the tools
+- Apply today's visualization concepts to real data
+- Practice the Grammar of Graphics workflow
+:::
+
+::: {.fragment}
+**Before Wednesday, please read/watch:**
+
+- **MDSR Ch. 2**: Data Visualization  
+- **MDSR Ch. 3**: A Grammar for Graphics
+- **R4DS Ch. 7**: Exploratory Data Analysis
+- **Video**: Caffo on Exploratory Data Analysis
+- **Podcast**: Cautionary Tales - Florence Nightingale and Her Geeks Declare War on Death
+:::
+
+## Questions?
+
