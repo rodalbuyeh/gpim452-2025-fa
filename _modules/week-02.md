@@ -14,5 +14,6 @@
       - date: 2025-10-08
         events:
           "**Lab 2**{: .label .label-lab } R and Markdown Principles":
-
+          "**Git**{: .label .label-adv } For power users: [Happy Git and GitHub for the useR](https://happygitwithr.com)":
+          "**Git**{: .label .label-adv } For power users: [How to use Git/GitHub with R](https://rfortherestofus.com/2021/02/how-to-use-git-github-with-r)":
 ---
