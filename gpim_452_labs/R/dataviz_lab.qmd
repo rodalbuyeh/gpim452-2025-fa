@@ -1,0 +1,655 @@
+---
+title: "Data Visualization Lab"
+subtitle: "Creating Effective Visual Stories with Data"
+author: "Rod Albuyeh"
+date: today
+format: pdf
+execute:
+  echo: true
+  eval: true
+  warning: false
+  error: false
+  cache: true
+  tidy: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Introduction
+
+Data visualization is one of the most powerful tools in a researcher's toolkit. Good visualizations can reveal patterns, communicate findings clearly, and tell compelling stories with data. Poor visualizations can mislead, confuse, or obscure important insights.
+
+## Learning Objectives
+
+By the end of this lab, you will be able to:
+
+1. **Understand the grammar of graphics** - the foundational principles behind ggplot2
+2. **Create effective univariate visualizations** to explore single variables
+3. **Build informative bivariate plots** to examine relationships between variables
+4. **Design multivariate visualizations** using color, size, and faceting
+5. **Apply design principles** to create clear, accessible, and professional plots
+6. **Avoid common visualization pitfalls** that can mislead or confuse audiences
+
+## The Grammar of Graphics
+
+The `ggplot2` package is built on the "grammar of graphics" - a systematic approach to creating visualizations. Think of it like constructing a sentence: you need subjects, verbs, and objects arranged in a logical structure.
+
+Every ggplot has these essential components:
+
+- **Data**: Your dataset (the subject)
+- **Aesthetics (aes)**: How variables map to visual properties (the relationships)
+- **Geometries (geoms)**: The type of visual representation (the action)
+
+Optional components add sophistication:
+
+- **Scales**: Control how data values map to visual values
+- **Facets**: Create subplots for different groups
+- **Themes**: Control the overall appearance
+- **Labels**: Add titles, captions, and axis labels
+
+# Setup and Data Exploration
+
+```{r message = FALSE}
+# Essential libraries for data visualization and manipulation
+library(tidyverse)    # Includes ggplot2, dplyr, and other useful packages
+library(poliscidata)  # Contains political science datasets
+
+# Optional: Install if not already available
+# install.packages(c("tidyverse", "poliscidata", "ggthemes"))
+```
+
+## Understanding Our Dataset
+
+Before creating any visualization, we must understand our data. Let's explore the `world` dataset from the `poliscidata` package.
+
+```{r}
+# Get information about the dataset
+?world  # Opens help documentation
+
+# View the structure of the data
+glimpse(world)  # Shows variable types and first few values
+```
+
+```{r}
+# Get basic summary statistics
+summary(world)
+```
+
+```{r echo=FALSE}
+# Check the dimensions and variable names
+cat("Dataset dimensions:", dim(world)[1], "countries,", dim(world)[2], "variables\n")
+```
+
+**Key variables we'll explore:**
+
+- `gdppcap08`: GDP per capita in 2008
+- `lifeex_total`: Life expectancy 
+- `pop_total`: Total population
+- `regionun`: UN regional classification
+
+**Key Point**: Always explore your data before visualizing. Understanding the scale, distribution, and missing values of your variables will inform your visualization choices.
+
+# Visualization Fundamentals
+
+## The ggplot2 Approach
+
+The `ggplot2` package follows a layered approach to building visualizations. Think of it as painting: you start with a canvas (data), add a base layer (aesthetics), then build up with additional layers (geometries, themes, labels).
+
+### Basic Structure
+```
+ggplot(data = your_data) +           # Canvas + paint
+  aes(x = variable1, y = variable2) +  # What goes where
+  geom_point() +                       # How to display it
+  labs(title = "Your Title")           # Labels and annotations
+```
+
+## Data Visualization Best Practices
+
+Before we start creating plots, let's establish some principles for effective visualization:
+
+### 1. **Choose the Right Chart Type**
+- **Continuous variables**: histograms, density plots, box plots
+- **Categorical variables**: bar charts, dot plots
+- **Relationships**: scatter plots, line graphs
+- **Distributions by group**: faceted plots, grouped charts
+
+### 2. **Design for Your Audience**
+- Use clear, descriptive titles and axis labels
+- Choose colors that are accessible (avoid red-green combinations)
+- Ensure text is large enough to read
+- Remove unnecessary elements (chart junk)
+
+### 3. **Tell a Story**
+- Every visualization should have a clear message
+- Guide the reader's eye to the most important information
+- Use annotations to highlight key findings
+
+Visit the [ggplot2 reference](https://ggplot2.tidyverse.org/reference/) for comprehensive documentation.
+
+# Univariate Plots: Exploring Single Variables
+
+Univariate plots help us understand the distribution of a single variable. Different variable types require different approaches.
+
+## Continuous Variables
+
+For continuous variables like GDP per capita, we want to see the shape of the distribution, central tendency, and spread.
+
+```{r}
+# Creating a histogram of GDP per capita
+# Histograms show the frequency distribution of continuous data
+
+ggplot(data = world) +
+  aes(x = gdppcap08) +
+  geom_histogram(bins = 30, fill = "steelblue", alpha = 0.7) +
+  labs(
+    title = "Distribution of GDP per Capita (2008)",
+    x = "GDP per Capita (USD)",
+    y = "Number of Countries",
+    caption = "Source: World Bank via poliscidata package"
+  ) +
+  theme_minimal()
+```
+
+**Interpretation**: Notice the right-skewed distribution - most countries have lower GDP per capita, with a few wealthy outliers.
+
+```{r}
+# Box plots reveal different information about the same variable
+# They show median, quartiles, and outliers clearly
+
+ggplot(data = world) +
+  aes(y = gdppcap08) +  # Note: y aesthetic for vertical box plot
+  geom_boxplot(fill = "lightcoral", alpha = 0.7) +
+  labs(
+    title = "GDP per Capita Distribution (Box Plot)",
+    y = "GDP per Capita (USD)",
+    caption = "Box shows median and quartiles; dots show outliers"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Remove x-axis text
+        axis.ticks.x = element_blank()) # Remove x-axis ticks
+```
+
+## Comparing Different Approaches
+
+Let's see how different visualizations reveal different aspects of the same data:
+
+```{r}
+# Density plot - smooth version of histogram
+ggplot(data = world) +
+  aes(x = gdppcap08) +
+  geom_density(fill = "purple", alpha = 0.5) +
+  labs(
+    title = "GDP per Capita - Density Plot",
+    x = "GDP per Capita (USD)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+### 🎯 **Exercise 1: Your Turn** (5 minutes)
+
+Choose a different continuous variable from the `world` dataset and create **two different** univariate visualizations. Consider these options:
+
+- `lifeex_total` (life expectancy)
+- `pop_total` (population) 
+- `gdp08` (total GDP)
+
+**Available geoms**: `geom_histogram()`, `geom_density()`, `geom_boxplot()`, `geom_violin()`
+
+**Challenge**: Add appropriate titles, labels, and colors to make your plots publication-ready.
+
+```{r}
+# Your code here - Visualization 1
+
+
+```
+
+```{r}
+# Your code here - Visualization 2
+
+
+```
+
+**Reflection Questions**: 
+
+1. What does each visualization tell you about your variable's distribution?
+2. Which visualization do you find more informative and why?
+
+# Bivariate Plots: Exploring Relationships
+
+Bivariate plots help us understand relationships between two variables. The choice of visualization depends on the types of variables involved.
+
+## Continuous vs. Continuous: Scatter Plots
+
+Scatter plots are ideal for examining relationships between two continuous variables.
+
+```{r}
+# Creating a scatter plot to examine the relationship between wealth and health
+# This is a classic relationship in development economics
+
+p2 <- ggplot(world) +
+  aes(x = gdppcap08, y = lifeex_total) + 
+  geom_point(alpha = 0.6, size = 2) +
+  labs(
+    title = "The Wealth-Health Relationship",
+    x = "GDP per Capita (USD, 2008)",
+    y = "Life Expectancy (years)",
+    caption = "Each point represents one country"
+  ) +
+  theme_minimal()
+
+p2
+```
+
+**What do you see?** There appears to be a positive relationship - wealthier countries tend to have higher life expectancy.
+
+## Adding Trend Lines
+
+Trend lines help us see patterns more clearly and can reveal the strength of relationships.
+
+```{r}
+# Adding a fitted line to show the overall trend
+# The gray band shows the confidence interval
+
+p2 +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(
+    title = "Wealth-Health Relationship with Linear Trend",
+    subtitle = "Gray band shows 95% confidence interval"
+  )
+```
+
+```{r}
+# Sometimes a curved line fits better than a straight line
+# method = "loess" creates a flexible, curved trend line
+
+p2 +
+  geom_smooth(method = "loess", se = TRUE, color = "blue") +
+  labs(
+    title = "Wealth-Health Relationship with Curved Trend",
+    subtitle = "Curved line may better capture the relationship"
+  )
+```
+
+**Key Insight**: The relationship might not be perfectly linear - there may be diminishing returns to wealth in terms of health outcomes.
+
+# Advanced Customization: Making Professional Plots
+
+Good data visualization is as much about design as it is about data. Let's learn how to create publication-quality plots.
+
+## Color and Aesthetics
+
+Colors should serve a purpose - they can highlight important information, group related data, or simply make plots more appealing.
+
+```{r}
+# Using color strategically to enhance the message
+# Here, we use a professional color palette
+
+p2 +
+  geom_point(size = 2.5, alpha = 0.7, color = "#2E86AB") +  # Professional blue
+  geom_smooth(method = "lm", 
+              color = "#A23B72",      # Complementary color for trend line
+              fill = "#F18F01",       # Warm color for confidence band
+              alpha = 0.3) +
+  labs(
+    title = "Economic Development and Life Expectancy",
+    subtitle = "Higher GDP per capita is associated with longer life expectancy",
+    x = "GDP per Capita (USD, 2008)",
+    y = "Life Expectancy (years)",
+    caption = "Source: World Bank data via poliscidata package"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 11, color = "gray40"),
+    axis.title = element_text(size = 10),
+    plot.caption = element_text(size = 8, color = "gray50")
+  )
+```
+
+## The Power of Good Labels
+
+Clear, informative labels are crucial for effective communication.
+
+```{r}
+# Example of comprehensive labeling for a professional report
+ggplot(world) +
+  aes(x = gdppcap08, y = lifeex_total) +
+  geom_point(alpha = 0.6, size = 2, color = "steelblue") +
+  geom_smooth(method = "loess", se = FALSE, color = "darkred", size = 1.2) +  # Changed to loess for curved relationship
+  scale_x_continuous(
+    labels = scales::dollar_format(),  # Format x-axis as currency
+    breaks = seq(0, 80000, 20000)     # Custom break points
+  ) +
+  scale_y_continuous(
+    breaks = seq(40, 85, 10)          # Custom y-axis breaks
+  ) +
+  labs(
+    title = "Wealth and Health Across Nations",
+    subtitle = "Higher GDP per capita associated with longer life expectancy",
+    x = "GDP per Capita (USD)",
+    y = "Life Expectancy (years)",
+    caption = "Data: World Bank | Each point represents one country"
+  ) +
+  theme_classic() +  # Clean, publication-ready theme
+  theme(
+    plot.title = element_text(size = 16, face = "bold", margin = margin(b = 10)),
+    plot.subtitle = element_text(size = 12, color = "gray30", margin = margin(b = 15)),
+    axis.title = element_text(size = 11),
+    plot.caption = element_text(size = 9, color = "gray50", hjust = 0)
+  )
+```
+
+**Design Principles Applied:**
+
+- **Hierarchy**: Title is largest, subtitle smaller, caption smallest
+- **Color**: Limited palette with purposeful color choices
+- **Spacing**: Appropriate margins and spacing between elements
+- **Clarity**: Professional formatting and clear labels
+
+# Working with Scales and Transformations
+
+Choosing appropriate scales is crucial for accurate data representation. Sometimes transforming your data can reveal patterns that aren't visible in the original scale.
+
+## Axis Limits: When and Why to Use Them
+
+```{r}
+# Should we start axes at zero? It depends on your message and data type
+# For life expectancy, starting at 0 might be misleading
+
+# Starting y-axis at 0 - compresses the visible differences
+p2 +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  ylim(0, 100) +
+  labs(
+    title = "Starting Y-axis at Zero",
+    subtitle = "Differences between countries appear smaller"
+  )
+```
+
+```{r}
+# Focusing on the actual data range - highlights real differences
+p2 +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  ylim(40, 85) +
+  labs(
+    title = "Focusing on Data Range",
+    subtitle = "Real differences between countries are more visible"
+  )
+```
+
+**When to start at zero**: For quantities where zero is meaningful (counts, percentages, absolute amounts)
+**When NOT to start at zero**: For measurements where zero isn't meaningful or relevant (temperature, test scores, life expectancy)
+
+## Log Transformations: Revealing Hidden Patterns
+
+Sometimes the relationship between variables is better understood on a logarithmic scale. **But this isn't just mathematical trickery** - there are real-world reasons why log scales make sense.
+
+### The Intuition: It's About Proportional Changes
+
+Think about it this way: What matters more for quality of life - going from $1,000 to $2,000 income per year, or going from $50,000 to $51,000? 
+
+- **$1,000 → $2,000**: You doubled your income! Huge life change.
+- **$50,000 → $51,000**: A nice raise, but not life-changing.
+
+Both are $1,000 increases, but the *proportional* change is what matters for things like health outcomes. Log scales capture these proportional relationships.
+
+```{r}
+# The original relationship on linear scales
+# Here, small countries and large countries seem to follow different patterns
+p2 +
+  geom_point(alpha = 0.6, color = "darkblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(
+    title = "Linear Scale: Hard to See the True Relationship",
+    subtitle = "Rich countries seem to cluster at the right, making the pattern unclear"
+  )
+```
+
+```{r}
+# Using log10 transformation for GDP per capita
+# Now we can see that the relationship is actually quite consistent across income levels
+p2 +
+  geom_point(alpha = 0.6, color = "darkgreen") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  scale_x_log10(labels = scales::dollar_format()) +
+  labs(
+    title = "Log Scale: The True Pattern Emerges",
+    subtitle = "Doubling income has similar health effects whether you're poor or rich",
+    x = "GDP per Capita (USD, log scale)"
+  )
+```
+
+### Why This Makes Sense in the Real World
+
+**Log transformations are appropriate when:**
+
+- **Proportional changes matter more than absolute changes** (like income → health)
+- **The effect of "doubling" something is consistent** across different starting points
+- **You have data spanning many orders of magnitude** (from $500 to $50,000+ per capita)
+
+**Real examples where log scales reveal truth:**
+
+- **Population growth**: Going from 1M to 2M people vs 10M to 11M people
+- **Sound**: Decibels are already on a log scale (whisper vs rock concert)
+- **Earthquakes**: Richter scale is logarithmic (magnitude 6 vs 7 is 10x stronger)
+- **Economic development**: Doubling GDP has similar effects on quality of life regardless of starting point
+
+**This isn't data manipulation** - it's revealing the underlying relationship that linear scales obscure!
+
+### 🎯 **Exercise 2: Scale Transformations** (3 minutes)
+
+Look back at your univariate or bivariate plots from Exercise 1. Consider:
+
+1. **For univariate plots**: Would a log transformation help if your variable is highly skewed?
+2. **For bivariate plots**: Does the relationship look curved? Would log-transforming one or both variables help?
+
+Try applying a transformation and compare the results.
+
+```{r}
+# Your transformation experiment here
+
+
+```
+
+**Helpful resource**: [ggplot2 axis scales guide](http://www.sthda.com/english/wiki/ggplot2-axis-scales-and-transformations)
+
+# Multivariate Visualizations: Adding More Dimensions
+
+Real-world relationships often involve multiple variables. We can incorporate additional variables using aesthetics like size, color, and faceting.
+
+## Adding a Third Variable with Size
+
+Let's add population as a third dimension to our wealth-health relationship.
+
+```{r}
+# Adding population as the size of points
+# This creates a "bubble chart" - a scatter plot where point size represents a third variable
+
+p3 <- ggplot(world) +
+  aes(x = gdppcap08, y = lifeex_total, size = pop_total) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  scale_size_continuous(
+    name = "Population",
+    range = c(1, 12),  # Control the range of point sizes
+    guide = "none"     # Remove the legend entirely - size is intuitive
+  ) +
+  labs(
+    title = "Wealth, Health, and Population Size",
+    subtitle = "Point size represents population (larger = more people)",
+    x = "GDP per Capita (USD)",
+    y = "Life Expectancy (years)",
+    caption = "Source: World Bank data"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+p3
+```
+
+**What stories emerge?** 
+
+- Large countries have lower GDP per capita but vary in life expectancy
+- Small, wealthy countries often have high life expectancy
+- Some large countries are both wealthy and have high life expectancy
+
+## Faceting: Small Multiples
+
+Faceting creates separate panels for different groups, allowing us to see patterns within subgroups.
+
+```{r}
+# Creating separate plots for each UN region
+# This helps us see if the wealth-health relationship varies by region
+
+p3 + 
+  facet_wrap(~regionun, scales = "free") +  # scales = "free" allows different axis ranges
+  labs(
+    title = "Wealth-Health Relationship by World Region",
+    subtitle = "Each panel shows countries from one UN region"
+  ) +
+  theme(
+    strip.text = element_text(size = 8),  # Smaller text for facet labels
+    axis.text = element_text(size = 7)    # Smaller axis text
+  )
+```
+
+**Regional Insights:**
+
+- Does the wealth-health relationship hold across all regions?
+- Which regions show the strongest/weakest relationships?
+- Are there regional outliers that don't follow the global pattern?
+
+### 🎯 **Exercise 3: Multivariate Exploration** (5 minutes)
+
+Take one of your previous plots and add a third variable using either:
+
+1. **Size aesthetic**: `aes(size = variable_name)`
+2. **Color aesthetic**: `aes(color = variable_name)` 
+3. **Faceting**: `facet_wrap(~variable_name)`
+
+Consider what story the additional variable tells about your data.
+
+```{r}
+# Your multivariate visualization here
+
+
+```
+
+# Professional Themes and Styling
+
+The right theme can make your visualization look polished and professional. ggplot2 offers many built-in themes, and additional packages provide even more options.
+
+```{r}
+# Load additional theme options
+library(ggthemes)  # install.packages("ggthemes") if needed
+
+# Create a base plot to demonstrate different themes
+base_plot <- ggplot(world) +
+  aes(x = gdppcap08, y = lifeex_total) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "darkred") +
+  labs(
+    title = "Economic Development and Life Expectancy",
+    x = "GDP per Capita (USD)",
+    y = "Life Expectancy (years)"
+  )
+```
+
+```{r}
+# Built-in ggplot2 themes
+base_plot + theme_minimal() + labs(subtitle = "theme_minimal() - clean, modern")
+base_plot + theme_classic() + labs(subtitle = "theme_classic() - traditional, publication-ready")
+base_plot + theme_void() + labs(subtitle = "theme_void() - minimalist, focus on data")
+```
+
+```{r}
+# Themes from ggthemes package
+base_plot + theme_economist() + labs(subtitle = "theme_economist() - Economist magazine style")
+base_plot + theme_fivethirtyeight() + labs(subtitle = "theme_fivethirtyeight() - FiveThirtyEight website style")
+base_plot + theme_tufte() + labs(subtitle = "theme_tufte() - Edward Tufte's minimalist approach")
+```
+
+**Choosing Themes:**
+
+- **Academic papers**: `theme_classic()` or `theme_minimal()`
+- **Business presentations**: `theme_economist()` or custom corporate themes
+- **Web/social media**: `theme_fivethirtyeight()` or `theme_modern()`
+- **Focus on data**: `theme_void()` or `theme_tufte()`
+
+# Lab Assignment: Creating Publication-Quality Visualizations
+
+## Overview
+
+Your task is to create two high-quality visualizations using the `world` dataset that demonstrate your understanding of effective data visualization principles. Choose variables **different** from those used in the lab examples (avoid `gdppcap08` and `lifeex_total` as your main variables).
+
+## Requirements
+
+### Part 1: Univariate Visualization (5 points)
+
+Create **one univariate plot** that explores the distribution of a single variable.
+
+**Technical Requirements:**
+
+- Choose an appropriate geom for your variable type
+- Apply proper styling (colors, transparency, etc.)
+- Include meaningful axis labels and title
+- Use a professional theme
+- Hide code in final output (`echo = FALSE`)
+
+**Variables to consider:** `pop_total`, `gdp08`, `literacy`, `gini`, `dem_score14`, `civlib_score14`
+
+### Part 2: Bivariate Visualization (5 points)
+
+Create **one bivariate plot** that examines the relationship between two variables.
+
+**Technical Requirements:**
+- Use appropriate geom(s) for your variable types
+- Add a trend line if appropriate
+- Consider scale transformations if needed
+- Apply professional styling and color choices
+- Include comprehensive labels (title, subtitle, axis labels, caption)
+- Use a professional theme
+- Hide code in final output (`echo = FALSE`)
+
+**Show-off opportunities (for the overachievers):**
+- Add a third variable using size, color, or faceting
+- Apply a scale transformation and explain why
+- Include data source and analysis attribution in caption
+
+### Part 3: Written Interpretation (5 points)
+
+For each visualization, write 2-3 sentences describing:
+1. What the visualization shows
+2. Key patterns or relationships you observe
+3. Why this information might be important or interesting
+
+## Formatting Requirements
+
+- Set up code chunks with `echo = FALSE` so code is hidden
+- Include proper YAML header (already configured)
+- Render to PDF format
+- Write interpretations in regular text (not code chunks)
+
+
+
+## Submission Instructions
+
+Submit **both** files to gradescope:
+1. Your `.qmd` source file
+2. The rendered `.pdf` file
+
+
+## Academic Integrity
+
+If you use ChatGPT or other AI tools for assistance, include an appendix detailing:
+- Which tools you used
+- What specific help you requested
+- How you verified and modified the AI-generated content
+
+Remember: The goal is to demonstrate **your** understanding of data visualization principles.
+
+
+**Now go forth and make some beautiful plots! 📊✨**
