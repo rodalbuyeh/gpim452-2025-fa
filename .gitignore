@@ -28,9 +28,3 @@ _freeze/
 *.csv
 *.xlsx
 
-# Ignore files in gpim452_labs/data directories but keep folder structure
-gpim452_labs/data/*
-!gpim452_labs/data/*/
-!gpim452_labs/data/.gitkeep
-gpim452_labs/data/*/*
-!gpim452_labs/data/*/.gitkeep
