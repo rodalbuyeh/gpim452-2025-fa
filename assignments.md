@@ -85,3 +85,74 @@ It should address:
 - No code in the compiled report — only in the source.
 - All work must be reproducible by an external reviewer with no extra setup.
 - All analysis in R only (no Excel/Stata).
+
+---
+
+## 🗂️ Feature Store: Augmenting Your Analysis
+
+To make your assignments **"bigger"** and more sophisticated, consider **augmenting your feature space** by enriching the LAT data with additional contextual variables. The datasets below provide ZIP code–level enrichment that can significantly enhance your predictive models.
+
+### 📍 Geographic Reference
+
+**U.S. Census ZCTA Shapefiles**  
+- [Download (TIGER/Line)](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html)  
+- Polygon boundaries for ZIP Code Tabulation Areas (ZCTAs).  
+- Use for spatial joins, mapping, and area aggregation.
+
+**HUD–USPS ZIP Crosswalk**  
+- [HUD Crosswalk Files](https://www.huduser.gov/portal/datasets/usps_crosswalk.html)  
+- Maps ZIPs to census tracts, counties, CBSAs.  
+- Useful when allocating metrics across geographies.
+
+### 💰 Demographic and Economic Data
+
+**IRS ZIP-Code Data**  
+- [IRS SOI ZIP-Code Statistics](https://catalog.data.gov/dataset/zip-code-data)  
+- Income, returns, and filer counts by ZIP.
+
+**SimpleMaps ZIP Database**  
+- [SimpleMaps US ZIP Codes](https://simplemaps.com/data/us-zips)  
+- CSV with location, population, time zone, and county.
+
+### 🧮 Deprivation and Socioeconomic Indices
+
+**Neighborhood Atlas – Area Deprivation Index (ADI)**  
+- [Download](https://www.neighborhoodatlas.medicine.wisc.edu/)  
+- Official ADI at the Census block group level.  
+- Can be aggregated to ZIP or ZCTA using population- or area-weighted joins.  
+- Measures income, education, employment, and housing disadvantage.
+
+**Social Deprivation Index (SDI)**  
+- [Graham Center SDI](https://www.graham-center.org/content/brand/rgc/maps-data-tools/social-deprivation-index.html)  
+- Provided at tract, county, and ZCTA levels.  
+- Composite of seven ACS indicators (poverty, education, employment, housing, etc.).  
+- Ready for ZCTA-level joins.
+
+**Distressed Communities Index (DCI)**  
+- [Economic Innovation Group DCI](https://eig.org/distressed-communities/)  
+- ZIP-level measure categorizing areas as prosperous to distressed.  
+- Combines metrics like poverty, education, and business growth.
+
+**Geomarker.io Deprivation Index (ZCTA)**  
+- [GitHub Repository](https://github.com/geomarker-io/dep_index)  
+- Open-source deprivation index aggregated to ZCTA from Census tract data.  
+- Good for direct ZIP/ZCTA feature joins.
+
+### 🧭 Implementation Notes
+
+- **ZIP vs ZCTA:** USPS ZIPs are routing designations; ZCTAs are Census approximations for area joins.  
+- **Aggregation:** Most deprivation indices originate at the census tract or block group level. Use crosswalks or spatial weighting for ZIP-level aggregation.  
+- **Boundary overlap:** ZIPs may span multiple counties or states. Use crosswalks for proportional allocation.  
+- **Updates:** ZIP codes and Census vintages change regularly. Verify that datasets use consistent reference years.  
+- **Licensing:** Check redistribution terms for any third-party or commercial datasets.
+
+### 💡 Feature Engineering Ideas
+
+**Expanding your feature space can dramatically improve model performance:**
+- **Economic context:** Join IRS income data to understand local economic conditions
+- **Social vulnerability:** Use ADI or SDI scores to capture community disadvantage
+- **Geographic clustering:** Create spatial lag variables for neighboring areas
+- **Temporal features:** Add seasonality, trends, or time-since-last-action variables
+- **Industry context:** Incorporate local employment patterns or business density
+
+**Remember:** More features ≠ better models. Focus on theoretically motivated variables that align with your research question and use proper feature selection techniques to avoid overfitting.
