@@ -16,19 +16,7 @@ editor:
     wrap: 72
 ---
 
-Quarto is composed of four parts:
-
-1.  Text for humans to read in Markdown
-2.  Code for computers to read in R
-3.  "Metadata" in YAML
-4.  Equations and tables in LaTeX
-
-Outputs (i.e. the final product after we hit "render"):
-
-1.  HTML (for quick reports and web pages)
-2.  PDF (for professional-looking reports and papers)
-3.  Word
-4.  Many others (including slides and books)
+DESTROY THIS FILE AND START FROM SCRATCH
 
 # Markdown Basics
 
