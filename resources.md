@@ -5,7 +5,7 @@ description: Useful links and resources for R, RStudio, and Quarto.
 nav_order: 4
 ---
 
-# 📚 Resources (R / RStudio / Quarto)
+# 📚 Resources (R / RStudio / Quarto / Python)
 {:.no_toc}
 
 ## Table of contents

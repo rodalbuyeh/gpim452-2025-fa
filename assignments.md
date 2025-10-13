@@ -6,7 +6,16 @@ nav_order: 6
 ---
 
 
+
 ## 📝 Assignments
+
+## Table of contents
+{: .no_toc .text-delta }
+
+1. TOC
+{:toc}
+
+---
 
 Several lab assignments, as well as one group assignment, will build up to the final group report.  
 **Starting in Week 4:** there will be a group check-in (written outcome from a scrum) due **every other week**.
@@ -92,7 +101,7 @@ It should address:
 
 To make your assignments **"bigger"** and more sophisticated, consider **augmenting your feature space** by enriching the LAT data with additional contextual variables. The datasets below provide ZIP code–level enrichment that can significantly enhance your predictive models.
 
-### 📍 Geographic Reference
+### Geographic Reference
 
 **U.S. Census ZCTA Shapefiles**  
 - [Download (TIGER/Line)](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html)  
@@ -106,7 +115,7 @@ To make your assignments **"bigger"** and more sophisticated, consider **augment
 - **Why you need it:** ZIP codes don't align with Census boundaries, so this helps you properly join ZIP-level data with tract/county-level data
 - **Example use:** Your LAT data has ZIP codes, but you want to add census tract poverty rates—this crosswalk shows you how to weight and allocate the tract data to ZIP level
 
-### 💰 Demographic and Economic Data
+### Demographic and Economic Data
 
 **IRS ZIP-Code Data**  
 - [IRS SOI ZIP-Code Statistics](https://catalog.data.gov/dataset/zip-code-data)  
@@ -124,7 +133,7 @@ To make your assignments **"bigger"** and more sophisticated, consider **augment
 - **Why it's valuable:** Peer-reviewed, documented datasets from academic research—often includes unique variables you won't find elsewhere
 - **Examples:** Voting patterns, health outcomes, business registrations, environmental measures, all at ZIP level
 
-### 🧮 Deprivation and Socioeconomic Indices
+### Deprivation and Socioeconomic Indices
 
 **Neighborhood Atlas – Area Deprivation Index (ADI)**  
 - [Download](https://www.neighborhoodatlas.medicine.wisc.edu/)  
@@ -148,7 +157,7 @@ To make your assignments **"bigger"** and more sophisticated, consider **augment
 - Open-source deprivation index aggregated to ZCTA from Census tract data.  
 - Good for direct ZIP/ZCTA feature joins.
 
-### 🧭 Implementation Notes
+### Implementation Notes
 
 - **ZIP vs ZCTA:** USPS ZIPs are routing designations; ZCTAs are Census approximations for area joins.  
 - **Aggregation:** Most deprivation indices originate at the census tract or block group level. Use crosswalks or spatial weighting for ZIP-level aggregation.  
@@ -156,7 +165,7 @@ To make your assignments **"bigger"** and more sophisticated, consider **augment
 - **Updates:** ZIP codes and Census vintages change regularly. Verify that datasets use consistent reference years.  
 - **Licensing:** Check redistribution terms for any third-party or commercial datasets.
 
-### 💡 Feature Engineering Ideas
+### Feature Engineering Ideas
 
 **Expanding your feature space can dramatically improve model performance:**
 - **Economic context:** Join IRS income data to understand local economic conditions
