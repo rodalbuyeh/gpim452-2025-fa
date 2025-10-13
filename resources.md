@@ -112,7 +112,7 @@ For learners interested in transitioning from **R to Python**, with emphasis on 
 | Data I/O | `readr`, `haven` | `pandas.read_csv`, `pyreadstat`, `openpyxl` | [Real Python: Reading and Writing Files](https://realpython.com/read-write-files-python/) |
 | Functional programming | `purrr` | `map`, `itertools`, `toolz` | [Real Python: Functional Programming](https://realpython.com/python-functional-programming/) |
 | Tidy evaluation | `rlang`, `across()` | Pandas chaining or `pipe()` | [Modern Pandas Tutorial](https://tomaugspurger.github.io/modern-1-intro.html) |
-| Reproducible notebooks | `RMarkdown` | `Jupyter`, `Quarto` | [Quarto Docs](https://quarto.org/docs/computations/python.html) |
+
 
 **See also:**  
 - [Pandas Comparison with R](https://pandas.pydata.org/docs/getting_started/comparison/comparison_with_r.html)  
