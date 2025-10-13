@@ -96,23 +96,33 @@ To make your assignments **"bigger"** and more sophisticated, consider **augment
 
 **U.S. Census ZCTA Shapefiles**  
 - [Download (TIGER/Line)](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html)  
-- Polygon boundaries for ZIP Code Tabulation Areas (ZCTAs).  
-- Use for spatial joins, mapping, and area aggregation.
+- **What it is:** Map boundaries that show the actual geographic area covered by ZIP codes
+- **Why it matters:** ZIP codes are just postal routes, but ZCTAs show you the physical area on a map
+- **Use for:** Creating maps, measuring distances between locations, or calculating things like "labor actions within 50 miles of each other"
 
 **HUD–USPS ZIP Crosswalk**  
 - [HUD Crosswalk Files](https://www.huduser.gov/portal/datasets/usps_crosswalk.html)  
-- Maps ZIPs to census tracts, counties, CBSAs.  
-- Useful when allocating metrics across geographies.
+- **What it does:** Tells you which census tracts, counties, and metro areas overlap with each ZIP code (and by how much)
+- **Why you need it:** ZIP codes don't align with Census boundaries, so this helps you properly join ZIP-level data with tract/county-level data
+- **Example use:** Your LAT data has ZIP codes, but you want to add census tract poverty rates—this crosswalk shows you how to weight and allocate the tract data to ZIP level
 
 ### 💰 Demographic and Economic Data
 
 **IRS ZIP-Code Data**  
 - [IRS SOI ZIP-Code Statistics](https://catalog.data.gov/dataset/zip-code-data)  
-- Income, returns, and filer counts by ZIP.
+- **What it has:** Average income, number of tax returns filed, and taxpayer counts for each ZIP code
+- **Why it's useful:** Shows economic conditions in different areas—richer neighborhoods might have different patterns of labor organizing
 
 **SimpleMaps ZIP Database**  
 - [SimpleMaps US ZIP Codes](https://simplemaps.com/data/us-zips)  
-- CSV with location, population, time zone, and county.
+- **What it has:** Basic info for every ZIP code—latitude/longitude, population size, which county it's in, time zone
+- **Why it's handy:** Easy way to get coordinates and population for your ZIP codes without dealing with complex Census files
+
+**OpenICPSR ZIP-Level Datasets**  
+- [Search ZIP-related studies](https://www.openicpsr.org/openicpsr/search/studies?start=0&ARCHIVE=openicpsr&sort=score%20desc%2CDATEUPDATED%20desc&rows=25&q=zip)  
+- **What it is:** Repository of social science research datasets, many with ZIP-level variables
+- **Why it's valuable:** Peer-reviewed, documented datasets from academic research—often includes unique variables you won't find elsewhere
+- **Examples:** Voting patterns, health outcomes, business registrations, environmental measures, all at ZIP level
 
 ### 🧮 Deprivation and Socioeconomic Indices
 
