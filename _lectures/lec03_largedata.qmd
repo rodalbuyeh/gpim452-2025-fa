@@ -16,7 +16,6 @@ format:
     incremental: true
     code-overflow: wrap
     code-line-numbers: false
-    self-contained: true
 execute:
   echo: true
   warning: false
