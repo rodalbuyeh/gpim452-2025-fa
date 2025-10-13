@@ -102,7 +102,7 @@ While our course assessments are unique, practicing R coding and analysis with o
 
 For learners interested in transitioning from **R to Python**, with emphasis on **machine learning workflows** and reproducible data science.
 
-### 🔄 Transitioning from R to Python
+### Transitioning from R to Python
 
 | Task | R Package / Function | Python Equivalent | Learn More |
 |------|----------------------|-------------------|-------------|
@@ -118,7 +118,7 @@ For learners interested in transitioning from **R to Python**, with emphasis on 
 - [Pandas Comparison with R](https://pandas.pydata.org/docs/getting_started/comparison/comparison_with_r.html)  
 - [Datacamp Python for R Users](https://www.datacamp.com/courses/python-for-r-users)  
 
-### 🧠 Machine Learning Workflows
+### Machine Learning Workflows
 
 Core Python ecosystem for applied ML:
 
@@ -136,7 +136,7 @@ Core Python ecosystem for applied ML:
 - [fast.ai Practical Deep Learning](https://course.fast.ai/)  
 - [Google ML Crash Course](https://developers.google.com/machine-learning/crash-course)
 
-### ⚙️ Environment and Workflow Tools
+### Environment and Workflow Tools
 
 **Setup:**  
 - `conda` / `mamba` — manage environments  
@@ -149,7 +149,7 @@ Core Python ecosystem for applied ML:
 - [Real Python: Virtual Environments Primer](https://realpython.com/python-virtual-environments-a-primer/)  
 - [VS Code for Python](https://code.visualstudio.com/docs/languages/python)
 
-### 📚 Python Further Reading
+### Python Further Reading
 
 - [Python Data Science Handbook – Jake VanderPlas](https://jakevdp.github.io/PythonDataScienceHandbook/)  
 - [Introduction to Machine Learning with Python – O'Reilly](https://learning.oreilly.com/library/view/introduction-to-machine/9781449369880/)  
