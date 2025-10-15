@@ -7,7 +7,6 @@ _site/
 .ipynb_checkpoints/
 
 # Quarto build artifacts
-
 !_extensions/        # keep extensions
 _site/
 docs/
@@ -25,5 +24,11 @@ _freeze/
 .Rbuildignore
 *_cache/
 *.aux
-# Note: *.csv and *.xlsx are now tracked with Git LFS (see .gitattributes)
 
+# Processed data files
+lab_materials/data/processed/*.csv
+lab_materials/data/processed/*.rds
+lab_materials/data/processed/*.RData
+lab_materials/data/processed/*.rda
+
+# Note: *.csv and *.xlsx are now tracked with Git LFS (see .gitattributes)

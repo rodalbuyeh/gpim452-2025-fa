@@ -1,0 +1,990 @@
+---
+title: "From Raw Data to Validated Models"
+subtitle: "Making or Breaking Your Project"
+author: "Rod Albuyeh"
+date: today
+format: pdf
+execute:
+  echo: true
+  eval: true
+  warning: false
+  error: false
+  cache: true
+  tidy: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Working with Real-World Data
+
+## Project Organization
+
+Before we dive into analysis, let's set up our work properly. Good project organization is crucial for:
+
+- Reproducibility (others can run your code)
+- Collaboration (team members can understand your work)
+- Maintainability (you can understand your work months later)
+
+### Working Directories and Projects
+
+There are two common approaches to managing file paths in R:
+
+1. **The Hard Way**: Manual directory setting
+```r
+setwd("C:/Users/your_name/your_project/")  # Don't do this!
+```
+Problems with this approach:
+
+- Different paths on different computers
+- Windows vs Mac path syntax
+- Hard to collaborate
+- Code breaks when moved
+
+2. **The Better Way**: R Projects + here package
+
+### Creating an R Project
+
+To create a new R Project:
+
+1. In RStudio: File → New Project...
+2. Choose "New Directory" or "Existing Directory"
+3. Select "New Project" (or other project type)
+4. Choose your project location
+5. Click "Create Project"
+
+::: {.callout-important}
+## Project Setup Steps
+1. Create these folders in your project:
+   ```
+   data/
+   ├── raw/      # For original data files
+   └── processed/ # For cleaned data
+   ```
+2. Never modify files in `raw/`
+3. Save all processed data to `processed/`
+4. Use `here()` for all file paths
+
+**Version Control Note**: 
+
+- Always commit the `.Rproj` file to version control
+- This file contains important project settings that affect all team members
+- Without it, your colleagues won't have the same project configuration
+- Common mistake: thinking `.Rproj` is like `.Rhistory` (which you don't commit)
+:::
+
+### Using R Projects
+
+Once your project is set up:
+
+1. Always open RStudio by clicking the `.Rproj` file
+2. This sets the working directory automatically
+3. All paths will be relative to project root
+4. Use `here()` to construct file paths
+
+For example:
+```r
+# Don't do this:
+read_csv("../../data/raw/my_data.csv")
+
+# Do this instead:
+read_csv(here("data", "raw", "my_data.csv"))
+```
+
+::: {.callout-note}
+## How `here()` Works
+The `here` package is smart about finding your project root:
+
+1. Starts in your current directory
+2. Walks *backwards* up the directory tree
+3. Looks for project markers like `.Rproj` files
+4. Uses the first marker it finds as the root
+5. All paths are then relative to that root
+
+So even if you're working in a subdirectory like `R/`, `here()` will find the project root and make paths work correctly!
+:::
+
+::: {.callout-tip}
+## Best Practice
+Always use R Projects and the `here` package for file paths. Never use `setwd()`!
+:::
+
+### Data Organization
+
+A good project structure:
+```
+project_root/
+├── data/
+│   ├── raw/      # Original, immutable data
+│   └── processed/ # Cleaned, transformed data
+├── R/            # R scripts and notebooks
+└── output/       # Results, figures, etc.
+```
+
+## Setup and Data Loading
+
+```{r}
+# Essential libraries
+library(tidyverse)      # For data manipulation
+library(readxl)         # For reading Excel files
+library(here)          # For file path management
+library(janitor)       # For cleaning column names
+```
+
+# Part 1: Working with Data Files
+
+## Understanding Data Types
+
+Before we work with our data, let's understand the main data types we'll encounter:
+
+::: {.callout-note}
+## Common R Data Types
+- **Numeric**: Numbers with decimals (`3.14`, `100.5`)
+- **Integer**: Whole numbers (`1L`, `42L`)
+- **Character**: Text strings (`"strike"`, `"protest"`)
+- **Logical**: True/False values (`TRUE`, `FALSE`)
+- **Factor**: Categorical data with fixed levels
+- **Date/Time**: Temporal data (`2024-01-01`, `2024-01-01 12:30:00`)
+:::
+
+Data type conversion is a crucial part of data cleaning. For example:
+
+- Text to dates using `as.Date()`
+- Text to numbers using `as.numeric()`
+- Text to categories using `as.factor()`
+- Numbers to categories using `cut()`
+
+## Raw Data: Treat as Immutable
+
+One of the most important principles in data science is treating raw data as immutable (unchangeable). Why?
+
+- **Reproducibility**: Anyone should be able to recreate your analysis from the original data
+- **Audit Trail**: Keep track of all transformations from raw to final
+- **Error Recovery**: Can always go back to the original if something goes wrong
+- **Collaboration**: Everyone works from the same original source
+
+### Data Storage Best Practices
+
+When working with data, especially in production or cloud environments, consider these storage formats:
+
+::: {.callout-tip}
+## Beyond CSV: Modern Data Storage
+While we'll use R's native .rds format for this lab, modern data science often uses even more sophisticated formats like **Parquet**:
+
+- **Column-based storage**: Efficient for analytics, especially with many columns
+- **Schema enforcement**: Maintains data types across systems
+- **Cloud-ready**: Works seamlessly with AWS, Spark, and other cloud tools
+- **Memory efficient**: Can read only needed columns
+- **Partitioning**: Can split data by year/category for faster access
+
+If you're interested in learning more, look into the `arrow` package and Parquet format for your future projects.
+:::
+
+## Loading the Labor Action Tracker Data
+
+Let's load our raw data. Notice how we use `here()` to make our file paths reproducible:
+
+```{r}
+# Load the raw data
+labor_raw <- read_excel(
+  here("data", "raw", "labor_action_tracker_data.xlsx")
+)
+
+# Take a first look
+glimpse(labor_raw)
+```
+
+### Understanding Our Data
+
+Let's explore what we have:
+
+```{r}
+# Basic information about our dataset
+cat("Number of rows:", nrow(labor_raw), "\n")
+cat("Number of columns:", ncol(labor_raw), "\n")
+
+# Look at the first few rows
+head(labor_raw)
+
+# Check data types
+str(labor_raw)
+```
+
+## Initial Data Processing
+
+Let's clean up our data and save a processed version. 
+
+::: {.callout-tip}
+## Type Safety: Be Explicit!
+Even when R correctly guesses data types (like dates), explicitly convert them anyway:
+
+- Excel/CSV imports can be unpredictable
+- Minimal overhead to enforce schema
+- Makes code more robust across different data sources
+- Helps catch data quality issues early
+- Documents your expectations about data types
+:::
+
+```{r}
+# Look at column names first
+names(labor_raw)
+labor_clean <- labor_raw %>%
+  janitor::clean_names() %>%
+  mutate(
+    # Convert dates (explicit conversion even if already dates)
+    start_date = as.Date(start_date),
+    end_date = as.Date(end_date),
+    
+    # Create outcome variable (Strike vs Protest)
+    is_strike = factor(strike_or_protest == "Strike", 
+                      levels = c(FALSE, TRUE),
+                      labels = c("Protest", "Strike")),
+    
+    # Convert numeric variables
+    bargaining_unit_size = as.numeric(bargaining_unit_size),
+    approximate_number_of_participants = as.numeric(approximate_number_of_participants),
+    duration_amount = as.numeric(duration_amount),
+    
+    # Clean up industry - take just the first industry listed
+    # NOTE: This is a massive oversimplification! In real analysis, you'd want to:
+    # - Investigate patterns of multiple industries
+    # - Consider industry hierarchies
+    # - Maybe do fancier categorical encoding for these
+    # - Consult domain experts about industry classifications
+    # But this is just a lab focusing on validation concepts :)
+    industry = str_split_i(industry, ";", 1),
+    
+    # Convert to factors
+    industry = as.factor(industry),
+    state = as.factor(state)
+  ) %>%
+  # Remove rows with missing outcome or key predictors
+  filter(!is.na(strike_or_protest))
+
+# Look at industry distribution
+cat("Number of unique industries after cleaning:", length(levels(labor_clean$industry)), "\n\n")
+print("Most common industries:")
+sort(table(labor_clean$industry), decreasing = TRUE)[1:10]
+
+# Look at our cleaned column names
+names(labor_clean)
+
+# Save processed data
+# Using .rds format to preserve data types (better than CSV!)
+saveRDS(
+  labor_clean,
+  here("data", "processed", "labor_clean.rds")
+)
+
+# Why .rds instead of .csv?
+# - Preserves data types (factors stay factors)
+# - Keeps date formats
+# - Maintains column types
+# - More space efficient
+# - Faster to read/write
+# 
+# To read this data back:
+# labor_clean <- readRDS(here("data", "processed", "labor_clean.rds"))
+```
+
+::: {.callout-important}
+## Why Save Processed Data?
+- Saves time: Don't need to reprocess raw data every time
+- Validates processing: Can check if changes are as expected
+- Documents changes: Clear what transformations were made
+- Shares results: Others can use your cleaned version
+:::
+
+
+# Introduction to Model Validation
+
+Model validation is perhaps the most critical yet often misunderstood aspect of machine learning and statistical modeling. A model that performs well on training data but fails in the real world is not just useless—it can be dangerous, especially in policy contexts where decisions affect people's lives.
+
+::: {.callout-note}
+## Learning with Simulated Data
+
+In the remainder of this lab, we'll use simulated policy data to learn validation concepts. Why?
+
+1. **Clean Data**: No missing values or data quality issues to distract from core concepts
+2. **Known Relationships**: We know exactly what patterns the model should find
+3. **Controlled Complexity**: We can focus on validation without other complications
+4. **Clear Examples**: Easy to see why different validation strategies matter
+
+We're using this simplified setup precisely because we don't want to present any one approach as THE "right answer". When you work with the real labor action data, you'll face:
+
+- Missing data
+- Complex relationships
+- Multiple data types
+- Time dependencies
+- Grouped observations
+
+These challenges often have multiple valid solutions. You might come up with approaches that are more creative, relevant, or better performing than what we demonstrate here. That's great! The goal is to understand the validation principles, then apply them thoughtfully to your unique approach.
+
+:::
+
+## Learning Objectives
+
+By the end of these validation sections, you will be able to:
+
+1. **Understand different validation strategies** and when to use each
+2. **Implement proper train-test splits** that respect data dependencies
+3. **Perform cross-validation** correctly and interpret the results
+4. **Identify and prevent data leakage** in your validation process
+5. **Choose appropriate validation metrics** for your problem
+6. **Apply nested cross-validation** for hyperparameter tuning
+
+## Setup and Data Loading
+
+```{r}
+# Essential libraries
+library(tidyverse)      # For data manipulation and visualization
+library(rsample)        # For data splitting - provides nice functions for train/test splits
+
+# Note: rsample is part of tidymodels and provides helpful splitting functions:
+# - initial_split(): Creates a random train/test split (can do stratified sampling with 'strata' argument)
+# - training(): Extracts training data from the split
+# - testing(): Extracts test data from the split
+# - group_initial_split(): Like initial_split() but keeps all observations from same group together
+```
+
+We'll use a dataset on policy implementation outcomes across different cities:
+
+```{r}
+# Simulate a realistic policy dataset
+set.seed(123)
+n <- 1000
+
+policy_data <- tibble(
+  city_id = rep(1:50, each = 20),  # 50 cities, 20 observations each
+  population = runif(n, 50000, 2000000),
+  budget_per_capita = rlnorm(n, log(1000), 0.5),
+  staff_experience = runif(n, 1, 20),
+  community_support = runif(n, 0, 100),
+  implementation_year = sample(2015:2022, n, replace = TRUE),
+  poverty_rate = runif(n, 5, 40),
+  success_score = (0.3 * scale(staff_experience) + 
+                  0.4 * scale(community_support) + 
+                  0.2 * scale(budget_per_capita) +
+                  0.1 * scale(population) +
+                  rnorm(n, 0, 0.5)) %>%
+    scale() %>%
+    pnorm() * 100  # Convert to 0-100 scale
+)
+```
+
+# Part 1: Understanding Validation Fundamentals
+
+## The Wrong Way: Training-Only Evaluation
+
+Let's first see why evaluating only on training data is problematic:
+
+We'll use two related metrics to assess our model:
+
+1. **Loss Function (MSE)**: Mean Squared Error is what the model tries to minimize during training:
+
+$$\text{MSE} = \frac{1}{n}\sum_{i=1}^n(y_i - \hat{y}_i)^2$$
+
+2. **Evaluation Metric (RMSE)**: Root Mean Square Error is how we evaluate performance, chosen because it's in the same units as our outcome:
+
+$$\text{RMSE} = \sqrt{\text{MSE}} = \sqrt{\frac{1}{n}\sum_{i=1}^n(y_i - \hat{y}_i)^2}$$
+
+where:
+
+- $y_i$ is the actual success score
+- $\hat{y}_i$ is our predicted success score
+- $n$ is the number of observations
+
+In plain English:
+
+- MSE: Average of squared prediction errors (what the model minimizes)
+- RMSE: Square root of MSE (what we use to evaluate, because it's in original units)
+
+For example, if RMSE = 10, our predictions are typically off by 10 points on our 0-100 success score scale.
+
+Let's calculate this for our model:
+
+```{r}
+# Fit a model using all data
+simple_model <- lm(success_score ~ ., data = select(policy_data, -city_id))
+
+# Calculate RMSE on training data
+train_preds <- predict(simple_model, policy_data)
+train_rmse <- sqrt(mean((policy_data$success_score - train_preds)^2))
+cat("Training RMSE:", round(train_rmse, 2), 
+    "\nInterpretation: On average, our predictions are off by", round(train_rmse, 2),
+    "points on the 0-100 success score scale")
+```
+
+This error looks small! But it's deceiving. Let's see why we can't trust this training-only evaluation.
+
+## A Better Way: Train-Test Split
+
+::: {.callout-warning}
+## Important: Split First, Clean Later!
+In this example, we're doing the split after cleaning for simplicity. However, in real applications, you should:
+
+1. Split your data BEFORE any cleaning or processing
+2. Develop your cleaning process using ONLY the training data
+3. Apply the same cleaning steps to test data later
+
+Why? Because any data insights you gain during cleaning (even simple ones like "this column needs scaling" or "that value is an outlier") are a form of information leakage if you learned them from the full dataset!
+
+We're not following this best practice here just to keep the example code simpler and focused on validation concepts.
+:::
+
+```{r}
+# Create a basic train-test split
+set.seed(456)
+data_split <- initial_split(policy_data, prop = 0.7)
+train_data <- training(data_split)
+test_data <- testing(data_split)
+
+# Fit model on training data
+train_model <- lm(success_score ~ ., data = select(train_data, -city_id))
+
+# Get predictions for both sets
+train_preds <- predict(train_model, train_data)
+test_preds <- predict(train_model, test_data)
+
+# Calculate RMSE for both sets
+train_rmse <- sqrt(mean((train_data$success_score - train_preds)^2))
+test_rmse <- sqrt(mean((test_data$success_score - test_preds)^2))
+
+cat("Training RMSE:", round(train_rmse, 2), 
+    "\nTesting RMSE:", round(test_rmse, 2),
+    "\n\nInterpretation:",
+    "\n- On training data: predictions off by", round(train_rmse, 2), "points",
+    "\n- On testing data: predictions off by", round(test_rmse, 2), "points",
+    "\n\nNote: The larger error on test data reveals our model's true predictive accuracy")
+```
+
+### 🎯 **Exercise 1: Basic Train-Test Split** (5 minutes)
+
+Try different train-test proportions (e.g., 80-20, 60-40) and see how they affect your results:
+
+```{r}
+# Your code here - try different split proportions
+
+
+```
+
+**Questions to consider:**
+1. How does the split proportion affect the difference between train and test performance?
+2. What's the trade-off between having more training data vs. more testing data?
+
+# Part 2: Cross-Validation Strategies
+
+## K-Fold Cross-Validation
+
+K-fold cross-validation gives us a more robust estimate of model performance by using multiple train/test splits:
+
+![K-Fold Cross Validation](../images/cv.png)
+
+```{r}
+# Set up 5-fold CV
+set.seed(789)
+cv_folds <- vfold_cv(policy_data, v = 5)
+
+# Function to evaluate a fold
+evaluate_fold <- function(split) {
+  # Get training and validation data for this fold
+  train <- analysis(split)
+  valid <- assessment(split)
+  
+  # Fit model
+  model <- lm(success_score ~ ., data = select(train, -city_id))
+  
+  # Get predictions
+  preds <- predict(model, select(valid, -city_id))
+  
+  # Calculate RMSE
+  rmse <- sqrt(mean((valid$success_score - preds)^2))
+  return(rmse)
+}
+
+# Apply to all folds
+cv_results <- map_dbl(cv_folds$splits, evaluate_fold)
+
+# Look at results
+cat("CV RMSE by fold:", round(cv_results, 2), "\n",
+    "Mean CV RMSE:", round(mean(cv_results), 2), "\n",
+    "SD of CV RMSE:", round(sd(cv_results), 2), "\n",
+    "\nNote: RMSE values are on the same 0-100 scale as success_score")
+```
+
+## Time-Based Validation
+
+For time series data, we need to respect temporal order:
+
+```{r}
+# Sort data by year
+policy_data <- arrange(policy_data, implementation_year)
+
+# Function for time-based validation
+time_validation <- function(data, train_years, test_years) {
+  # Split data
+  train <- filter(data, implementation_year %in% train_years)
+  test <- filter(data, implementation_year %in% test_years)
+  
+  # Fit model
+  model <- lm(success_score ~ ., data = select(train, -city_id))
+  
+  # Get predictions
+  preds <- predict(model, select(test, -city_id))
+  
+  # Calculate RMSE
+  rmse <- sqrt(mean((test$success_score - preds)^2))
+  return(rmse)
+}
+
+# Try different time windows
+results <- tibble(
+  train_window = c("2015-2019", "2016-2020", "2017-2021"),
+  test_window = c("2020", "2021", "2022"),
+  rmse = c(
+    time_validation(policy_data, 2015:2019, 2020),
+    time_validation(policy_data, 2016:2020, 2021),
+    time_validation(policy_data, 2017:2021, 2022)
+  )
+) %>%
+  mutate(
+    interpretation = paste("Predictions for", test_window, 
+                         "are off by", round(rmse, 2), "points")
+  )
+
+print(results)
+```
+
+### 🎯 **Exercise 2: Comparing Validation Strategies** (10 minutes)
+
+Let's compare how different validation approaches affect our model assessment. We'll provide the code, and you'll analyze the results.
+
+```{r}
+# Regular train-test split (70-30)
+# initial_split() creates a random train/test split
+# Note: If you need to maintain distributions of specific variables,
+# you can use the 'strata' argument
+set.seed(123)
+regular_split <- initial_split(policy_data, prop = 0.7)  # 70% training, 30% testing
+reg_train <- training(regular_split)  # Extract training data
+reg_test <- testing(regular_split)    # Extract testing data
+
+# Group-based split (by city)
+# group_initial_split() ensures all data from a city stays together
+# This prevents data leakage between cities in train/test sets
+set.seed(123)
+city_split <- group_initial_split(policy_data, group = city_id)
+city_train <- training(city_split)
+city_test <- testing(city_split)
+
+# Time-based split (pre-2021 vs 2021+)
+time_train <- policy_data %>% filter(implementation_year < 2021)
+time_test <- policy_data %>% filter(implementation_year >= 2021)
+
+# Function to fit model and calculate RMSE
+evaluate_split <- function(train, test) {
+  # Fit model
+  model <- lm(success_score ~ population + budget_per_capita + 
+              staff_experience + community_support,
+              data = train)
+  
+  # Get predictions
+  preds <- predict(model, test)
+  
+  # Calculate RMSE
+  rmse <- sqrt(mean((test$success_score - preds)^2))
+  return(rmse)
+}
+
+# Compare results
+results <- tibble(
+  method = c("Regular Split", "City-Based Split", "Time-Based Split"),
+  rmse = c(
+    evaluate_split(reg_train, reg_test),
+    evaluate_split(city_train, city_test),
+    evaluate_split(time_train, time_test)
+  )
+) %>%
+  # Add interpretation context
+  mutate(
+    interpretation = case_when(
+      method == "Regular Split" ~ "Average prediction error when randomly splitting data",
+      method == "City-Based Split" ~ "Average prediction error when predicting new cities",
+      method == "Time-Based Split" ~ "Average prediction error when predicting future outcomes"
+    )
+  )
+
+print(results)
+```
+
+**Questions to consider:**
+
+1. Which validation strategy shows the largest prediction error (RMSE)? Why might this be?
+2. The success score is on a 0-100 scale. How would you interpret these RMSE values to a policy maker?
+3. Why might the city-based split show different errors than the random split?
+4. Looking at the time-based split results, how confident would you be in using this model for future policy decisions?
+5. Which validation strategy would you recommend for this policy implementation problem? Why?
+
+**Bonus:** Look at the size of training and test sets for each approach:
+```{r}
+# Compare split sizes
+split_sizes <- tibble(
+  method = c("Regular Split", "City-Based Split", "Time-Based Split"),
+  train_size = c(
+    nrow(reg_train),
+    nrow(city_train),
+    nrow(time_train)
+  ),
+  test_size = c(
+    nrow(reg_test),
+    nrow(city_test),
+    nrow(time_test)
+  )
+)
+
+print(split_sizes)
+```
+
+5. How might these different split sizes affect our confidence in the results?
+
+# Part 3: Preventing Data Leakage
+
+## Common Sources of Leakage
+
+Let's see how data leakage can occur and how to prevent it. First, let's look at scaling, a common source of leakage:
+
+::: {.callout-note}
+## What does scale() do?
+Base R's `scale()` function standardizes numeric data by:
+1. Subtracting the mean (centering)
+2. Dividing by standard deviation (scaling)
+
+The problem? It calculates these statistics using ALL the data it's given. If we use it before splitting, we're letting information from our test set influence our training data!
+:::
+
+```{r}
+# Let's make our example more realistic by adding some outliers
+policy_data_messy <- policy_data %>%
+  mutate(
+    # Add some extreme values to make scaling more important
+    population = if_else(row_number() %% 20 == 0, population * 10, population),
+    budget_per_capita = if_else(row_number() %% 15 == 0, budget_per_capita * 5, budget_per_capita)
+  )
+
+# BAD: Scaling before splitting (using ALL data including outliers)
+scaled_data <- policy_data_messy %>%
+  mutate(across(where(is.numeric), scale))
+
+# GOOD: Calculate scaling parameters from training data ONLY
+# First split the data
+set.seed(123)
+proper_split <- initial_split(policy_data_messy, prop = 0.7)
+train_data <- training(proper_split)
+test_data <- testing(proper_split)
+
+# Explicitly specify which numeric columns to scale
+numeric_cols <- names(select_if(policy_data, is.numeric))  # Get actual numeric columns
+
+# Calculate means and sds from TRAINING data
+train_means <- sapply(numeric_cols, function(col) mean(train_data[[col]]))
+train_sds <- sapply(numeric_cols, function(col) sd(train_data[[col]]))
+
+# Scale training data using training stats
+train_scaled <- train_data %>%
+  select(all_of(numeric_cols)) %>%
+  scale(center = train_means, scale = train_sds)
+
+# Scale test data using SAME training stats
+test_scaled <- test_data %>%
+  select(all_of(numeric_cols)) %>%
+  scale(center = train_means, scale = train_sds)
+
+# Now our test data hasn't leaked into our scaling!
+
+# Compare results
+# BAD WAY: Scale then split (leakage!)
+set.seed(123)
+bad_split <- initial_split(scaled_data, prop = 0.7)
+bad_train <- training(bad_split)  # Already scaled using ALL data (bad!)
+bad_test <- testing(bad_split)    # Already scaled using ALL data (bad!)
+
+# Fit model on incorrectly scaled data
+bad_model <- lm(success_score ~ ., data = bad_train)
+bad_preds <- predict(bad_model, bad_test)
+bad_rmse <- sqrt(mean((bad_test$success_score - bad_preds)^2))
+
+# GOOD WAY: Split then scale (using training data only)
+# Convert scaled matrices back to data frames
+good_train <- as.data.frame(train_scaled)  # Scaled using ONLY training stats (good!)
+good_test <- as.data.frame(test_scaled)    # Scaled using ONLY training stats (good!)
+
+good_model <- lm(success_score ~ ., data = good_train)
+good_preds <- predict(good_model, good_test)
+good_rmse <- sqrt(mean((good_test$success_score - good_preds)^2))
+
+# Compare results
+cat("BAD way (with leakage) RMSE:", round(bad_rmse, 2), 
+    "\nGOOD way (no leakage) RMSE:", round(good_rmse, 2),
+    "\n\nNote: Our simulated data is well-behaved, so the difference is small.",
+    "\nIn real data, scaling before splitting can SERIOUSLY mess up your validation!",
+    "\nYou might think your model is great, deploy it, and then watch it fail spectacularly.",
+    "\nDon't let test data influence your training process - ever!")
+```
+
+## Group-Based Validation
+
+When data has natural groupings (like cities), we need to respect these:
+
+```{r}
+# Group CV by city
+set.seed(123)
+city_splits <- group_initial_split(policy_data, group = city_id)
+city_train <- training(city_splits)
+city_test <- testing(city_splits)
+
+# Fit model on grouped training data
+city_fit <- workflow_proper %>%
+  fit(city_train)
+
+# Get predictions on grouped test data
+city_preds <- predict(city_fit, city_test)$.pred
+city_rmse <- sqrt(mean((city_test$success_score - city_preds)^2))
+
+# Compare results
+cat("Regular split RMSE:", round(proper_rmse, 2), 
+    "\nGroup split RMSE:", round(city_rmse, 2),
+    "\n\nInterpretation:",
+    "\n- Random split: predictions off by", round(proper_rmse, 2), "points",
+    "\n- City-based split: predictions off by", round(city_rmse, 2), "points",
+    "\n\nNote: The larger error in city-based validation shows how much harder",
+    "\nit is to predict outcomes for entirely new cities")
+```
+
+### 🎯 **Exercise 3: Identifying Leakage** (5 minutes)
+
+Look at this code and identify potential sources of data leakage:
+
+```{r}
+problematic_workflow <- function(data) {
+  # PROBLEM 1: Calculate city means using ALL data (including future test data!)
+  city_means <- data %>%
+    group_by(city_id) %>%
+    summarize(mean_success = mean(success_score))
+  
+  # PROBLEM 2: Add these means back to the data
+  # Now each row contains information about its city's overall performance
+  data_with_means <- data %>%
+    left_join(city_means, by = "city_id")
+  
+  # PROBLEM 3: Split AFTER adding the means
+  # So test data rows already know their city's average performance!
+  split <- initial_split(data_with_means, prop = 0.7)
+  train <- training(split)
+  test <- testing(split)
+  
+  # Fit model (which now has access to future information)
+  model <- lm(success_score ~ ., data = train)
+  
+  # Get test RMSE (will be artificially low)
+  preds <- predict(model, test)
+  rmse <- sqrt(mean((test$success_score - preds)^2))
+  return(rmse)
+}
+
+result <- problematic_workflow(policy_data)
+print(paste("RMSE:", round(result, 2),
+           "\nNote: This error is deceptively low because our test data",
+           "contains information about future outcomes through city_means"))
+```
+
+**Questions:**
+1. What's wrong with this workflow?
+
+   - We're calculating city means using ALL data before splitting
+   - Test data points "know" their city's overall performance
+
+2. How would you fix it?
+   - Move the train/test split to the BEGINNING
+   - Calculate city means using ONLY training data
+   - Apply these means to test data without recalculating
+
+3. Why might the prediction error (RMSE) be artificially low?
+   - Each test point already has information about its true outcome through its city mean
+   - The model learns to use these means to make better predictions
+   - In real life, we wouldn't know a city's future performance when making predictions
+
+# Part 4: Hyperparameter Tuning with Train/Validation/Test Splits
+
+Before we dive into the code, let's understand what hyperparameters are:
+
+- **Model parameters** (like regression coefficients) are learned from the data during training
+- **Hyperparameters** are choices we make BEFORE training, such as:
+  * Number of features to include
+  * Model complexity settings (e.g., tree depth, regularization strength)
+  * Learning settings (e.g., how fast the model learns)
+
+To find good hyperparameters, we need three separate datasets:
+
+1. **Training data**: Fit models with different hyperparameter values
+2. **Validation data**: Compare these models and choose the best settings
+3. **Test data**: Get an unbiased estimate of final performance
+
+This three-way split ensures we don't "peek" at our test data while making model design choices. Here's how it works:
+
+```{r}
+# Step 1: Set aside test data (20%)
+set.seed(123)
+test_split <- initial_split(policy_data, prop = 0.2)
+test_data <- testing(test_split)
+train_val_data <- training(test_split)
+
+# Step 2: Split remaining data into training (70%) and validation (30%)
+train_val_split <- initial_split(train_val_data, prop = 0.7)
+train_data <- training(train_val_split)
+val_data <- testing(train_val_split)
+
+# Try different numbers of predictors, evaluate each on validation set
+results <- tibble(
+  n_predictors = 1:4,
+  val_rmse = map_dbl(n_predictors, function(n) {
+    # Select first n predictors
+    predictors <- names(select(policy_data, -c(city_id, success_score)))[1:n]
+    formula <- as.formula(paste("success_score ~", paste(predictors, collapse = " + ")))
+    
+    # Fit model on training data
+    model <- lm(formula, data = train_data)
+    
+    # Evaluate on validation data
+    preds <- predict(model, val_data)
+    sqrt(mean((val_data$success_score - preds)^2))
+  })
+)
+
+# Find best number of predictors using validation performance
+best_n <- results$n_predictors[which.min(results$val_rmse)]
+
+# Now that we've chosen the best model, combine training + validation data
+# and fit final model (this is okay because we still have held-out test data)
+final_predictors <- names(select(policy_data, -c(city_id, success_score)))[1:best_n]
+final_formula <- as.formula(paste("success_score ~", paste(final_predictors, collapse = " + ")))
+final_model <- lm(final_formula, data = train_val_data)
+
+# Finally, evaluate on test data that we haven't touched yet
+test_preds <- predict(final_model, test_data)
+test_rmse <- sqrt(mean((test_data$success_score - test_preds)^2))
+
+# Show results
+print("Validation results for different numbers of predictors:")
+print(results)
+cat("\nBest number of predictors (chosen using validation data):", best_n,
+    "\nFinal test set RMSE:", round(test_rmse, 2),
+    "\nInterpretation: On completely new data, predictions are typically off by",
+    round(test_rmse, 2), "points")
+```
+
+::: {.callout-note}
+## Other Uses of Validation Data
+
+While we've used the validation set to choose the number of predictors, it has other important uses in practice:
+
+1. **Parameter Selection** (what we did here)
+   - Choose model hyperparameters
+   - Select which features to include
+
+2. **Convergence Monitoring** (for iterative models)
+   - Check if model has learned enough
+   - Stop training when validation error stops improving
+   - Prevent overfitting by catching when model starts performing worse on validation data
+
+3. **Model Comparison**
+   - Compare different types of models
+   - Test different feature engineering approaches
+
+The key is: validation data helps us make modeling decisions without "peeking" at our final test data.
+:::
+
+
+
+# Lab Assignment: Predicting Strike vs Protest
+
+## Overview
+
+Your task is to build and validate a simple logistic regression model that predicts whether a labor action will be a strike (vs protest) using the Labor Action Tracker data. This will test both your data handling and validation skills, not the quality of the model.
+
+::: {.callout-note}
+## Classification Metrics
+
+For this binary classification task, you'll use three metrics:
+
+1. **Log Loss** (Cross-Entropy):
+
+   - Measures how well your probability estimates are calibrated
+   - Heavily penalizes confident wrong predictions
+   - Lower is better
+   - Look up `logistic` regression's connection to log loss
+
+2. **AUC** (Area Under ROC Curve):
+
+   - Measures model's ability to rank positive vs negative cases
+   - Ranges from 0.5 (random) to 1.0 (perfect)
+   - Invariant to class imbalance
+   - Look up relationship between ROC curves and decision thresholds
+
+3. **Average Precision**:
+
+   - Area under precision-recall curve
+   - Better than AUC for imbalanced classes
+   - Ranges from 0.0 to 1.0
+
+You'll need to research these metrics in more detail to interpret your results properly!
+:::
+
+## Requirements
+
+### Part 1: Data Pipeline (5 points)
+
+- Load the labor action data using proper project organization
+- Clean and prepare features appropriately
+- Create train/validation/test splits respecting time order
+- Save processed data in a type-safe format
+- Document all cleaning decisions
+
+### Part 2: Baseline Model (10 points)
+
+- Fit a logistic regression using basic features
+- Implement proper validation strategy
+- Calculate all three metrics (log loss, AUC, avg precision)
+- Visualize model performance
+- Explain what the metrics tell us about your model
+
+### Part 3: Analysis (5 points)
+
+- Interpret your model's performance
+- Discuss limitations of your validation approach
+- Suggest how to improve the model
+- Explain policy implications of false positives vs false negatives
+
+## Tips for Success
+
+1. Keep it simple, you are just practicing the concepts of data loading and validation.
+2. Consider time-based validation - why might this matter for labor actions?
+3. Think about data leakage - what information shouldn't your model have?
+4. Consider class imbalance - are strikes and protests equally common?
+5. Think about stratification:
+   - Are some industries overrepresented?
+   - Do states have different labor laws/patterns?
+   - Should your validation splits preserve these distributions?
+6. Document your decisions - validation choices matter!
+
+## Formatting Requirements
+
+- Include proper YAML header
+- Render to PDF format
+- Include clear explanations between code chunks
+
+## Submission Instructions
+
+Submit **both** files to gradescope:
+
+1. Your `.qmd` source file
+2. The rendered `.pdf` file
