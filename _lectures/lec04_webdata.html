@@ -585,20 +585,23 @@ Next two days forecast:</code></pre>
 <span id="cb14-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
 <span id="cb14-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Define which states we want unemployment data for</span></span>
-<span id="cb14-5"><a href="" aria-hidden="true" tabindex="-1"></a>state_series <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb14-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST060000000000003"</span>,  <span class="co"># California</span></span>
-<span id="cb14-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST360000000000003"</span>,  <span class="co"># New York</span></span>
-<span id="cb14-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST480000000000003"</span>,  <span class="co"># Texas</span></span>
-<span id="cb14-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST120000000000003"</span>,  <span class="co"># Florida</span></span>
-<span id="cb14-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST170000000000003"</span>   <span class="co"># Illinois</span></span>
-<span id="cb14-11"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-12"><a href="" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-13"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the API request body</span></span>
-<span id="cb14-14"><a href="" aria-hidden="true" tabindex="-1"></a>state_request <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb14-15"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">seriesid =</span> state_series,</span>
-<span id="cb14-16"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">startyear =</span> <span class="st">"2023"</span>,</span>
-<span id="cb14-17"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">endyear =</span> <span class="st">"2023"</span></span>
-<span id="cb14-18"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Series IDs are structured as: LAUST[state_fips]00000000003</span></span>
+<span id="cb14-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># where '03' at the end indicates unemployment rate</span></span>
+<span id="cb14-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># For example: LAUST060000000000003 is California's unemployment rate</span></span>
+<span id="cb14-8"><a href="" aria-hidden="true" tabindex="-1"></a>state_series <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST060000000000003"</span>,  <span class="co"># California unemployment rate</span></span>
+<span id="cb14-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST360000000000003"</span>,  <span class="co"># New York unemployment rate</span></span>
+<span id="cb14-11"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST480000000000003"</span>,  <span class="co"># Texas unemployment rate</span></span>
+<span id="cb14-12"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST120000000000003"</span>,  <span class="co"># Florida unemployment rate</span></span>
+<span id="cb14-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST170000000000003"</span>   <span class="co"># Illinois unemployment rate</span></span>
+<span id="cb14-14"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-15"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the API request body</span></span>
+<span id="cb14-17"><a href="" aria-hidden="true" tabindex="-1"></a>state_request <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-18"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">seriesid =</span> state_series,</span>
+<span id="cb14-19"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">startyear =</span> <span class="st">"2023"</span>,</span>
+<span id="cb14-20"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">endyear =</span> <span class="st">"2023"</span></span>
+<span id="cb14-21"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="callout callout-note callout-titled callout-style-default">
@@ -1059,11 +1062,11 @@ Next two days forecast:</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 3
  $ :List of 1
-  ..$ price: num 48.9
+  ..$ price: num 99.6
  $ :List of 1
   ..$ price: logi NA
  $ :List of 1
-  ..$ price: num 97.6</code></pre>
+  ..$ price: num 38.7</code></pre>
 </div>
 </div>
 </div>

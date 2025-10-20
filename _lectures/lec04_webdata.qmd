@@ -308,12 +308,15 @@ library(httr)
 library(jsonlite)
 
 # Define which states we want unemployment data for
+# Series IDs are structured as: LAUST[state_fips]00000000003
+# where '03' at the end indicates unemployment rate
+# For example: LAUST060000000000003 is California's unemployment rate
 state_series <- list(
-  "LAUST060000000000003",  # California
-  "LAUST360000000000003",  # New York
-  "LAUST480000000000003",  # Texas
-  "LAUST120000000000003",  # Florida
-  "LAUST170000000000003"   # Illinois
+  "LAUST060000000000003",  # California unemployment rate
+  "LAUST360000000000003",  # New York unemployment rate
+  "LAUST480000000000003",  # Texas unemployment rate
+  "LAUST120000000000003",  # Florida unemployment rate
+  "LAUST170000000000003"   # Illinois unemployment rate
 )
 
 # Create the API request body
