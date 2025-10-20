@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="lec04_webdata_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lec04_webdata_files/libs/quarto-html/tabby.min.js"></script>
+<script src="lec04_webdata_files/libs/quarto-html/popper.min.js"></script>
+<script src="lec04_webdata_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="lec04_webdata_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lec04_webdata_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="lec04_webdata_files/libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.24">
+
+  <meta name="author" content="Rod Albuyeh">
+  <meta name="dcterms.date" content="2025-10-20">
+  <title>Finding and Getting Data on the Web</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="lec04_webdata_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="lec04_webdata_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="lec04_webdata_files/libs/revealjs/dist/theme/quarto-7262fb28817f0fdf3c802d565bf43787.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="lec04_webdata_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="lec04_webdata_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="lec04_webdata_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="lec04_webdata_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Finding and Getting Data on the Web</h1>
+  <p class="subtitle">APIs, Web Scraping, and Data Collection</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Rod Albuyeh 
+</div>
+</div>
+</div>
+
+  <p class="date">2025-10-20</p>
+</section>
+<section id="todays-learning-goals" class="slide level2 smaller">
+<h2>Today’s Learning Goals</h2>
+<div class="fragment">
+<p>By the end of this session, you’ll be able to:</p>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment"><strong>Identify</strong> different types of web data sources and their structures</li>
+<li class="fragment"><strong>Navigate</strong> common data formats (JSON, XML, CSV)</li>
+<li class="fragment"><strong>Apply</strong> appropriate tools for different data collection scenarios</li>
+<li class="fragment"><strong>Evaluate</strong> trade-offs between different data collection methods</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Key insight</strong>: The method you choose to collect data affects both the quality of your analysis and the reproducibility of your work.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<section id="part-i-the-data-collection-landscape" class="title-slide slide level1 center">
+<h1>Part I: The Data Collection Landscape</h1>
+
+</section>
+<section id="the-data-quality-hierarchy" class="slide level2 smaller">
+<h2>The Data Quality Hierarchy</h2>
+<div class="fragment">
+<p><strong>From worst to best practices:</strong></p>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Manual Methods</strong></p>
+<ul>
+<li class="fragment">Copy-paste (Never do this!)</li>
+<li class="fragment">Manual downloads</li>
+<li class="fragment">Screenshot parsing</li>
+<li class="fragment">PDF extraction</li>
+</ul>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Automated Methods</strong></p>
+<ul>
+<li class="fragment">API calls (Best!)</li>
+<li class="fragment">Web scraping (When needed)</li>
+<li class="fragment">Automated downloads</li>
+<li class="fragment">Database connections</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Remember</strong>: Your analysis is only as reproducible as your data collection process.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="tidy-data-the-gold-standard" class="slide level2 smaller">
+<h2>Tidy Data: The Gold Standard</h2>
+<div class="fragment">
+<p><strong>The three rules of tidy data:</strong></p>
+<ol type="1">
+<li class="fragment">Every column is a variable</li>
+<li class="fragment">Every row is an observation</li>
+<li class="fragment">Every cell is a single value</li>
+</ol>
+</div>
+</section>
+<section id="the-raw-reality-json-apis" class="slide level2 smaller">
+<h2>The Raw Reality: JSON APIs</h2>
+<p>Most APIs return data in JSON format. Let’s look at a typical response:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Example weather API response</span></span>
+<span id="cb1-2"><a href="" aria-hidden="true" tabindex="-1"></a>weather_json <span class="ot">&lt;-</span> <span class="st">'{</span></span>
+<span id="cb1-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  "location": {</span></span>
+<span id="cb1-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    "name": "San Diego",</span></span>
+<span id="cb1-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    "region": "California",</span></span>
+<span id="cb1-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    "country": "USA"</span></span>
+<span id="cb1-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  },</span></span>
+<span id="cb1-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  "current": {</span></span>
+<span id="cb1-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    "temp_f": 72,</span></span>
+<span id="cb1-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    "condition": {</span></span>
+<span id="cb1-11"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">      "text": "Sunny",</span></span>
+<span id="cb1-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">      "humidity": 65</span></span>
+<span id="cb1-13"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="cb1-14"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  },</span></span>
+<span id="cb1-15"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  "forecast": {</span></span>
+<span id="cb1-16"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    "daily": [</span></span>
+<span id="cb1-17"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">      {"date": "2025-10-20", "high": 75, "low": 62},</span></span>
+<span id="cb1-18"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">      {"date": "2025-10-21", "high": 73, "low": 61}</span></span>
+<span id="cb1-19"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    ]</span></span>
+<span id="cb1-20"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb1-21"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">}'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>JSON is hierarchical - objects contain other objects, arrays, or simple values.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="basic-json-parsing-with-jsonlite" class="slide level2 smaller">
+<h2>Basic JSON Parsing with jsonlite</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(httr)</span>
+<span id="cb2-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb2-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Parse JSON into R objects</span></span>
+<span id="cb2-5"><a href="" aria-hidden="true" tabindex="-1"></a>weather_data <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(weather_json)</span>
+<span id="cb2-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Access nested data easily</span></span>
+<span id="cb2-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Location:"</span>, weather_data<span class="sc">$</span>location<span class="sc">$</span>name, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Location: San Diego </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Current temp:"</span>, weather_data<span class="sc">$</span>current<span class="sc">$</span>temp_f, <span class="st">"°F</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Current temp: 72 °F</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrays automatically become data frames</span></span>
+<span id="cb6-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Next two days forecast:</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Next two days forecast:</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="" aria-hidden="true" tabindex="-1"></a>forecast <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(weather_data<span class="sc">$</span>forecast<span class="sc">$</span>daily)</span>
+<span id="cb8-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(forecast)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  date        high   low
+  &lt;chr&gt;      &lt;int&gt; &lt;int&gt;
+1 2025-10-20    75    62
+2 2025-10-21    73    61</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>jsonlite handles common JSON patterns well, but real APIs often have more complex structures.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="from-json-to-domain-specific-packages" class="slide level2 smaller">
+<h2>From JSON to Domain-Specific Packages</h2>
+<p>While jsonlite is great for basic JSON, specialized packages like tidycensus make working with specific APIs even easier:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span>
+<span id="cb10-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb10-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Just specify the variables you want</span></span>
+<span id="cb10-5"><a href="" aria-hidden="true" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"median_income"</span> <span class="ot">=</span> <span class="st">"B19013_001"</span>,  <span class="co"># No need to know JSON structure</span></span>
+<span id="cb10-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"population"</span> <span class="ot">=</span> <span class="st">"B01003_001"</span>      <span class="co"># Just use meaningful names</span></span>
+<span id="cb10-8"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># One function handles the API call, JSON parsing, and data cleaning</span></span>
+<span id="cb10-11"><a href="" aria-hidden="true" tabindex="-1"></a>state_data <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(</span>
+<span id="cb10-12"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">geography =</span> <span class="st">"state"</span>,</span>
+<span id="cb10-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> vars,</span>
+<span id="cb10-14"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">year =</span> <span class="dv">2021</span>,</span>
+<span id="cb10-15"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">survey =</span> <span class="st">"acs5"</span></span>
+<span id="cb10-16"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Domain-specific packages like tidycensus abstract away the technical details so you can focus on the data you need!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-result-clean-tidy-data" class="slide level2 smaller">
+<h2>The Result: Clean, Tidy Data</h2>
+<p>Now let’s look at our tidy dataset:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">State</th>
+<th style="text-align: right;">Median Household Income</th>
+<th style="text-align: right;">Total Population</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">California</td>
+<td style="text-align: right;">$78,672</td>
+<td style="text-align: right;">39,538,223</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Texas</td>
+<td style="text-align: right;">$64,034</td>
+<td style="text-align: right;">29,145,505</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Florida</td>
+<td style="text-align: right;">$57,703</td>
+<td style="text-align: right;">21,538,187</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">New York</td>
+<td style="text-align: right;">$71,117</td>
+<td style="text-align: right;">19,836,286</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Illinois</td>
+<td style="text-align: right;">$65,886</td>
+<td style="text-align: right;">12,671,821</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Each row is a month, each column is a different economic measure, and each cell is a single value - perfectly tidy!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="what-we-want-vs.-what-we-get" class="slide level2 smaller">
+<h2>What We Want vs.&nbsp;What We Get</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>What We Want</strong></p>
+<ul>
+<li class="fragment">Clean, structured data</li>
+<li class="fragment">Ready for analysis</li>
+<li class="fragment">Well-documented</li>
+<li class="fragment">Easy to update</li>
+</ul>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><strong>What We Often Get</strong></p>
+<p><img data-src="images/messydata.png"></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Common challenges:</strong></p>
+<ul>
+<li class="fragment">Unstructured formats</li>
+<li class="fragment">Missing documentation</li>
+<li class="fragment">Rate limits</li>
+<li class="fragment">Changing APIs</li>
+</ul>
+</div>
+</section></section>
+<section>
+<section id="part-ii-understanding-web-data-formats" class="title-slide slide level1 center">
+<h1>Part II: Understanding Web Data Formats</h1>
+
+</section>
+<section id="the-three-main-data-languages" class="slide level2 smaller">
+<h2>The Three Main Data Languages</h2>
+<div class="fragment">
+<p><strong>1. JSON (JavaScript Object Notation)</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb11-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb11-3"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"first"</span><span class="fu">:</span> <span class="st">"Rod"</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"last"</span><span class="fu">:</span> <span class="st">"Albuyeh"</span></span>
+<span id="cb11-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb11-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"employed"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb11-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"profession"</span><span class="fu">:</span> <span class="st">"Lecturer, UC San Diego"</span><span class="fu">,</span></span>
+<span id="cb11-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"emails"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"ralbuyeh@ucsd.edu"</span><span class="ot">,</span> <span class="st">"ralbuyeh@sandiego.edu"</span><span class="ot">]</span></span>
+<span id="cb11-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<p><strong>2. XML (eXtensible Markup Language)</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode xml code-with-copy"><code class="sourceCode xml"><span id="cb12-1"><a href="" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">name</span>&gt;</span>
+<span id="cb12-2"><a href="" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">first</span>&gt;Rod&lt;/<span class="kw">first</span>&gt;</span>
+<span id="cb12-3"><a href="" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">last</span>&gt;Albuyeh&lt;/<span class="kw">last</span>&gt;</span>
+<span id="cb12-4"><a href="" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">name</span>&gt;</span>
+<span id="cb12-5"><a href="" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">employed</span>&gt;true&lt;/<span class="kw">employed</span>&gt;</span>
+<span id="cb12-6"><a href="" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">profession</span>&gt;Lecturer, UC San Diego&lt;/<span class="kw">profession</span>&gt;</span>
+<span id="cb12-7"><a href="" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">contact-info</span>&gt;</span>
+<span id="cb12-8"><a href="" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">email-addresses</span>&gt;</span>
+<span id="cb12-9"><a href="" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">email</span>&gt;ralbuyeh@ucsd.edu&lt;/<span class="kw">email</span>&gt;</span>
+<span id="cb12-10"><a href="" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">email</span>&gt;ralbuyeh@sandiego.edu&lt;/<span class="kw">email</span>&gt;</span>
+<span id="cb12-11"><a href="" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">email-addresses</span>&gt;</span>
+<span id="cb12-12"><a href="" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">contact-info</span>&gt;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="yaml-a-more-human-readable-format" class="slide level2 smaller">
+<h2>YAML: A More Human-Readable Format</h2>
+<div class="fragment">
+<p>YAML is designed to be easy for humans to read and write:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb13-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span></span>
+<span id="cb13-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">first</span><span class="kw">:</span><span class="at"> Rod</span></span>
+<span id="cb13-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">last</span><span class="kw">:</span><span class="at"> Albuyeh</span></span>
+<span id="cb13-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">employed</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb13-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">profession</span><span class="kw">:</span><span class="at"> Lecturer, UC San Diego</span></span>
+<span id="cb13-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">emails</span><span class="kw">:</span></span>
+<span id="cb13-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> ralbuyeh@ucsd.edu</span></span>
+<span id="cb13-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> ralbuyeh@sandiego.edu</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Notice how YAML uses indentation and simple punctuation instead of braces or tags.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="working-with-apis-setup" class="slide level2 smaller">
+<h2>Working with APIs: Setup</h2>
+<p>First, let’s set up our request to the Bureau of Labor Statistics API:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(httr)</span>
+<span id="cb14-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb14-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Define which states we want unemployment data for</span></span>
+<span id="cb14-5"><a href="" aria-hidden="true" tabindex="-1"></a>state_series <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST060000000000003"</span>,  <span class="co"># California</span></span>
+<span id="cb14-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST360000000000003"</span>,  <span class="co"># New York</span></span>
+<span id="cb14-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST480000000000003"</span>,  <span class="co"># Texas</span></span>
+<span id="cb14-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST120000000000003"</span>,  <span class="co"># Florida</span></span>
+<span id="cb14-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"LAUST170000000000003"</span>   <span class="co"># Illinois</span></span>
+<span id="cb14-11"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-12"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the API request body</span></span>
+<span id="cb14-14"><a href="" aria-hidden="true" tabindex="-1"></a>state_request <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-15"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">seriesid =</span> state_series,</span>
+<span id="cb14-16"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">startyear =</span> <span class="st">"2023"</span>,</span>
+<span id="cb14-17"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">endyear =</span> <span class="st">"2023"</span></span>
+<span id="cb14-18"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>The BLS API uses series IDs to identify specific economic indicators by state.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="working-with-apis-making-the-request" class="slide level2 smaller">
+<h2>Working with APIs: Making the Request</h2>
+<p>Now we’ll send our request and look at the JSON structure:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Show what we're sending</span></span>
+<span id="cb15-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"API Request Structure:</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>API Request Structure:</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">toJSON</span>(state_request, <span class="at">pretty =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{
+  "seriesid": [
+    ["LAUST060000000000003"],
+    ["LAUST360000000000003"],
+    ["LAUST480000000000003"],
+    ["LAUST120000000000003"],
+    ["LAUST170000000000003"]
+  ],
+  "startyear": ["2023"],
+  "endyear": ["2023"]
+}</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the API call</span></span>
+<span id="cb19-2"><a href="" aria-hidden="true" tabindex="-1"></a>state_response <span class="ot">&lt;-</span> <span class="fu">POST</span>(</span>
+<span id="cb19-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"https://api.bls.gov/publicAPI/v2/timeseries/data/"</span>,</span>
+<span id="cb19-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">body =</span> <span class="fu">toJSON</span>(state_request),</span>
+<span id="cb19-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">encode =</span> <span class="st">"json"</span>,</span>
+<span id="cb19-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">content_type_json</span>()</span>
+<span id="cb19-7"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="looking-at-the-api-response" class="slide level2 smaller">
+<h2>Looking at the API Response</h2>
+<p>Here’s what we get back from the BLS API:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>API Response:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{
+  "status": ["REQUEST_SUCCEEDED"],
+  "responseTime": [150],
+  "message": [],
+  "Results": {
+    "series": [
+      {
+        "seriesID": ["LAUST060000000000003"],
+        "data": [
+          {
+            "year": ["2023"],
+            "period": ["M09"],
+            "periodName": ["September"],
+            "value": ["4.1"],
+            "footnotes": [
+              {
+                "code": ["P"],
+                "text": ["Preliminary."]
+              }
+            ]
+          },
+          {
+            "year": ["2023"],
+            "period": ["M08"],
+            "periodName": ["August"],
+            "value": ["4.2"],
+            "footnotes": []
+          },
+          {
+            "year": ["2023"],
+            "period": ["M07"],
+            "periodName": ["July"],
+            "value": ["4.0"],
+            "footnotes": []
+          }
+        ],
+        "state": ["CA"],
+        "measure": ["Unemployment Rate"]
+      }
+    ]
+  }
+}</code></pre>
+</div>
+</div>
+</section>
+<section id="working-with-apis-data-cleaning" class="slide level2 smaller">
+<h2>Working with APIs: Data Cleaning</h2>
+<p>Now let’s see how to extract the data we want:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract data points from the nested structure</span></span>
+<span id="cb22-2"><a href="" aria-hidden="true" tabindex="-1"></a>clean_data <span class="ot">&lt;-</span> <span class="fu">map_df</span>(example_response<span class="sc">$</span>Results<span class="sc">$</span>series[[<span class="dv">1</span>]]<span class="sc">$</span>data, <span class="cf">function</span>(point) {</span>
+<span id="cb22-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb22-4"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> <span class="fu">as.Date</span>(<span class="fu">paste</span>(point<span class="sc">$</span>year, <span class="fu">substr</span>(point<span class="sc">$</span>period, <span class="dv">2</span>, <span class="dv">3</span>), <span class="st">"01"</span>, <span class="at">sep=</span><span class="st">"-"</span>)),</span>
+<span id="cb22-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">state =</span> example_response<span class="sc">$</span>Results<span class="sc">$</span>series[[<span class="dv">1</span>]]<span class="sc">$</span>state,</span>
+<span id="cb22-6"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate =</span> <span class="fu">as.numeric</span>(point<span class="sc">$</span>value),</span>
+<span id="cb22-7"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">is_preliminary =</span> <span class="fu">any</span>(<span class="fu">sapply</span>(point<span class="sc">$</span>footnotes, <span class="cf">function</span>(f) f<span class="sc">$</span>code <span class="sc">==</span> <span class="st">"P"</span>))</span>
+<span id="cb22-8"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-9"><a href="" aria-hidden="true" tabindex="-1"></a>}) <span class="sc">%&gt;%</span></span>
+<span id="cb22-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(date))</span>
+<span id="cb22-11"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the clean result</span></span>
+<span id="cb22-13"><a href="" aria-hidden="true" tabindex="-1"></a>clean_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  date       state  rate is_preliminary
+  &lt;date&gt;     &lt;chr&gt; &lt;dbl&gt; &lt;lgl&gt;         
+1 2023-09-01 CA      4.1 TRUE          
+2 2023-08-01 CA      4.2 FALSE         
+3 2023-07-01 CA      4   FALSE         </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Notice how we’ve gone from nested JSON to a clean, rectangular data frame!</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Pro tip</strong>: Always check API documentation for rate limits and terms of service!</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="part-iii-data-collection-methods" class="title-slide slide level1 center">
+<h1>Part III: Data Collection Methods</h1>
+
+</section>
+<section id="method-1-apis-application-programming-interfaces" class="slide level2 smaller">
+<h2>Method 1: APIs (Application Programming Interfaces)</h2>
+<div class="fragment">
+<p><strong>Benefits:</strong></p>
+<ul>
+<li class="fragment">Structured data</li>
+<li class="fragment">Official support</li>
+<li class="fragment">Rate limiting</li>
+<li class="fragment">Documentation</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Popular R packages for APIs:</strong></p>
+<ul>
+<li class="fragment"><code>WDI</code> (World Bank)</li>
+<li class="fragment"><code>tidycensus</code> (US Census)</li>
+<li class="fragment"><code>rtweet</code> (Twitter)</li>
+<li class="fragment"><code>gtrendsR</code> (Google Trends)</li>
+</ul>
+</div>
+<p>:::</p>
+</section>
+<section id="example-world-bank-development-api" class="slide level2 smaller">
+<h2>Example: World Bank Development API</h2>
+<p>The World Bank provides a rich API for accessing global economic data:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(WDI)</span>
+<span id="cb24-2"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># First, let's see what indicators are available</span></span>
+<span id="cb24-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># WDIsearch('gdp') would show all GDP-related indicators</span></span>
+<span id="cb24-5"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Get GDP per capita (constant 2015 US$) for G7 countries</span></span>
+<span id="cb24-7"><a href="" aria-hidden="true" tabindex="-1"></a>gdp_data <span class="ot">&lt;-</span> <span class="fu">WDI</span>(</span>
+<span id="cb24-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">country =</span> <span class="fu">c</span>(<span class="st">"USA"</span>, <span class="st">"GBR"</span>, <span class="st">"JPN"</span>, <span class="st">"DEU"</span>, <span class="st">"FRA"</span>, <span class="st">"ITA"</span>, <span class="st">"CAN"</span>),  <span class="co"># ISO3 codes</span></span>
+<span id="cb24-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">indicator =</span> <span class="fu">c</span>(</span>
+<span id="cb24-10"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"gdp_pc"</span> <span class="ot">=</span> <span class="st">"NY.GDP.PCAP.KD"</span>,     <span class="co"># GDP per capita</span></span>
+<span id="cb24-11"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"gdp_growth"</span> <span class="ot">=</span> <span class="st">"NY.GDP.MKTP.KD.ZG"</span>  <span class="co"># GDP growth rate</span></span>
+<span id="cb24-12"><a href="" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb24-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">start =</span> <span class="dv">2015</span>,</span>
+<span id="cb24-14"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">end =</span> <span class="dv">2023</span>,</span>
+<span id="cb24-15"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">extra =</span> <span class="cn">TRUE</span>,  <span class="co"># Get country metadata</span></span>
+<span id="cb24-16"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">language =</span> <span class="st">"en"</span>  <span class="co"># Ensure English labels</span></span>
+<span id="cb24-17"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>The WDI package handles all the API complexity, including authentication and rate limiting!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="method-2-web-scraping" class="slide level2 smaller">
+<h2>Method 2: Web Scraping</h2>
+<div class="fragment">
+<p><strong>When to use:</strong></p>
+<ul>
+<li class="fragment">No API available</li>
+<li class="fragment">Simple HTML structure</li>
+<li class="fragment">Public data</li>
+<li class="fragment">Infrequent updates</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Key considerations:</strong></p>
+<ul>
+<li class="fragment">Check robots.txt</li>
+<li class="fragment">Rate limiting</li>
+<li class="fragment">Site structure changes</li>
+<li class="fragment">Legal implications</li>
+</ul>
+</div>
+<p>:::</p>
+</section>
+<section id="example-scraping-wikipedia-tables" class="slide level2 smaller">
+<h2>Example: Scraping Wikipedia Tables</h2>
+<p>The <code>rvest</code> package makes it easy to scrape structured data:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
+<span id="cb25-2"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: Scraping a table</span></span>
+<span id="cb25-4"><a href="" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://en.wikipedia.org/wiki/List_of_largest_companies_by_revenue"</span></span>
+<span id="cb25-5"><a href="" aria-hidden="true" tabindex="-1"></a>page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span>
+<span id="cb25-6"><a href="" aria-hidden="true" tabindex="-1"></a>table <span class="ot">&lt;-</span> page <span class="sc">%&gt;%</span></span>
+<span id="cb25-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">"table"</span>) <span class="sc">%&gt;%</span>  <span class="co"># Find all tables</span></span>
+<span id="cb25-8"><a href="" aria-hidden="true" tabindex="-1"></a>  .[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span>              <span class="co"># Take first table</span></span>
+<span id="cb25-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()            <span class="co"># Convert to data frame</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Wikipedia is a good place to practice web scraping - they allow it and their HTML is well-structured!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="method-3-automated-downloads" class="slide level2 smaller">
+<h2>Method 3: Automated Downloads</h2>
+<div class="fragment">
+<p><strong>Best for:</strong></p>
+<ul>
+<li class="fragment">Regular data releases</li>
+<li class="fragment">ZIP/CSV files</li>
+<li class="fragment">Bulk downloads</li>
+<li class="fragment">Official sources</li>
+</ul>
+</div>
+</section>
+<section id="example-downloading-census-data-files" class="slide level2 smaller">
+<h2>Example: Downloading Census Data Files</h2>
+<p>A real-world example of downloading and combining quarterly data:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to download a single quarter</span></span>
+<span id="cb26-2"><a href="" aria-hidden="true" tabindex="-1"></a>download_census_file <span class="ot">&lt;-</span> <span class="cf">function</span>(year, quarter) {</span>
+<span id="cb26-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Construct URL and filename</span></span>
+<span id="cb26-4"><a href="" aria-hidden="true" tabindex="-1"></a>  url <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(</span>
+<span id="cb26-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://www2.census.gov/programs-surveys/qwi/data/2023/qwi_%s_sa_%sq.csv.gz"</span>,</span>
+<span id="cb26-6"><a href="" aria-hidden="true" tabindex="-1"></a>    year, quarter</span>
+<span id="cb26-7"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-8"><a href="" aria-hidden="true" tabindex="-1"></a>  dest <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"data/qwi_%s_%sq.csv.gz"</span>, year, quarter)</span>
+<span id="cb26-9"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create directory if needed</span></span>
+<span id="cb26-11"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(<span class="st">"data"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb26-12"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Try download with error handling</span></span>
+<span id="cb26-14"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb26-15"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">download.file</span>(url, dest, <span class="at">mode =</span> <span class="st">"wb"</span>)  <span class="co"># binary mode for .gz</span></span>
+<span id="cb26-16"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="fu">sprintf</span>(<span class="st">"Downloaded %s"</span>, <span class="fu">basename</span>(dest)))</span>
+<span id="cb26-17"><a href="" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb26-18"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="fu">sprintf</span>(<span class="st">"Failed to download %s: %s"</span>, <span class="fu">basename</span>(dest), e<span class="sc">$</span>message))</span>
+<span id="cb26-19"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb26-20"><a href="" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb26-21"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-22"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Return path if successful</span></span>
+<span id="cb26-23"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">file.exists</span>(dest)) <span class="fu">return</span>(dest)</span>
+<span id="cb26-24"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-25"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-26"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Download all quarters for 2023</span></span>
+<span id="cb26-27"><a href="" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">map_chr</span>(</span>
+<span id="cb26-28"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,  <span class="co"># quarters</span></span>
+<span id="cb26-29"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span><span class="fu">download_census_file</span>(<span class="st">"2023"</span>, .x)</span>
+<span id="cb26-30"><a href="" aria-hidden="true" tabindex="-1"></a>) </span>
+<span id="cb26-31"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-32"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Read and combine (only if downloads succeeded)</span></span>
+<span id="cb26-33"><a href="" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> files <span class="sc">%&gt;%</span></span>
+<span id="cb26-34"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">discard</span>(is.null) <span class="sc">%&gt;%</span>  <span class="co"># remove failed downloads</span></span>
+<span id="cb26-35"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(read_csv, <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="best-practices-for-downloads" class="slide level2 smaller">
+<h2>Best Practices for Downloads</h2>
+<p>When downloading data files, always remember to:</p>
+<div class="fragment">
+<ul>
+<li class="fragment">Use proper file modes (binary for compressed files)</li>
+<li class="fragment">Create directories if they don’t exist</li>
+<li class="fragment">Handle download errors gracefully</li>
+<li class="fragment">Verify files after download</li>
+<li class="fragment">Clean up temporary files</li>
+<li class="fragment">Document or log the data source and date</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Never assume downloads will succeed - always check and handle failures!</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="part-iv-best-practices-and-common-pitfalls" class="title-slide slide level1 center">
+<h1>Part IV: Best Practices and Common Pitfalls</h1>
+
+</section>
+<section id="the-data-collection-workflow" class="slide level2 smaller">
+<h2>The Data Collection Workflow</h2>
+<div class="fragment">
+<p><strong>1. Planning</strong></p>
+<ul>
+<li class="fragment">Identify data needs</li>
+<li class="fragment">Check available sources</li>
+<li class="fragment">Review documentation</li>
+<li class="fragment">Consider ethics/legality</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>2. Implementation</strong></p>
+<ul>
+<li class="fragment">Write reproducible code</li>
+<li class="fragment">Include error handling</li>
+<li class="fragment">Document assumptions</li>
+<li class="fragment">Test thoroughly</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>3. Maintenance</strong> - Monitor for changes, update dependencies, handle API updates, archive raw data</p>
+</div>
+</section>
+<section id="common-pitfalls-to-avoid" class="slide level2 smaller">
+<h2>Common Pitfalls to Avoid</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Technical Pitfalls</strong></p>
+<ul>
+<li class="fragment">Not handling errors</li>
+<li class="fragment">Ignoring rate limits</li>
+<li class="fragment">Missing authentication</li>
+<li class="fragment">Poor error logging</li>
+</ul>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Process Pitfalls</strong></p>
+<ul>
+<li class="fragment">Manual steps</li>
+<li class="fragment">Undocumented sources</li>
+<li class="fragment">No version control</li>
+<li class="fragment">Lost raw data</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Remember</strong>: Data collection is part of your analysis. Make it reproducible!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="handling-api-failures-gracefully" class="slide level2 smaller">
+<h2>Handling API Failures Gracefully</h2>
+<div class="fragment">
+<p><strong>The challenge</strong>: What happens when some API calls fail but we want to keep going?</p>
+</div>
+<div class="fragment">
+<p><strong>Solution</strong>: Use <code>purrr::possibly()</code> to handle failures:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Example of error handling with purrr::possibly()</span></span>
+<span id="cb27-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb27-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># A function that might fail</span></span>
+<span id="cb27-5"><a href="" aria-hidden="true" tabindex="-1"></a>get_stock_price <span class="ot">&lt;-</span> <span class="cf">function</span>(symbol) {</span>
+<span id="cb27-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(symbol <span class="sc">==</span> <span class="st">"ERROR"</span>) <span class="fu">stop</span>(<span class="st">"API failed"</span>)  <span class="co"># simulate failure</span></span>
+<span id="cb27-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">price =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>))  <span class="co"># simulate success</span></span>
+<span id="cb27-8"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-9"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a safe version that returns NA on failure</span></span>
+<span id="cb27-11"><a href="" aria-hidden="true" tabindex="-1"></a>safe_get_price <span class="ot">&lt;-</span> <span class="fu">possibly</span>(</span>
+<span id="cb27-12"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">.f =</span> get_stock_price,    <span class="co"># function to make safe</span></span>
+<span id="cb27-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">otherwise =</span> <span class="fu">list</span>(<span class="at">price =</span> <span class="cn">NA</span>),  <span class="co"># what to return on error</span></span>
+<span id="cb27-14"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">FALSE</span>  <span class="co"># show the error message</span></span>
+<span id="cb27-15"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-16"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Try with multiple stocks - some will fail</span></span>
+<span id="cb27-18"><a href="" aria-hidden="true" tabindex="-1"></a>stocks <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"AAPL"</span>, <span class="st">"ERROR"</span>, <span class="st">"MSFT"</span>)</span>
+<span id="cb27-19"><a href="" aria-hidden="true" tabindex="-1"></a>prices <span class="ot">&lt;-</span> <span class="fu">map</span>(stocks, safe_get_price)  <span class="co"># keeps going even if some fail</span></span>
+<span id="cb27-20"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-21"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Show results</span></span>
+<span id="cb27-22"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(prices)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 3
+ $ :List of 1
+  ..$ price: num 48.9
+ $ :List of 1
+  ..$ price: logi NA
+ $ :List of 1
+  ..$ price: num 97.6</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="error-handling-with-purrr" class="slide level2 smaller">
+<h2>Error Handling with purrr</h2>
+<p>The <code>possibly()</code> function is a powerful way to handle errors when working with multiple API calls:</p>
+<ol type="1">
+<li class="fragment">Takes a function that might fail</li>
+<li class="fragment">Returns a new function that won’t fail</li>
+<li class="fragment">Instead of erroring, returns a default value</li>
+<li class="fragment">Great for batch operations where some might fail</li>
+</ol>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p>Use <code>possibly()</code> when you want to keep going even if some operations fail, like downloading multiple files or calling an API multiple times.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="looking-forward-emerging-tools-and-trends" class="slide level2 smaller">
+<h2>Looking Forward: Emerging Tools and Trends</h2>
+<div class="fragment">
+<p><strong>New developments in data collection:</strong></p>
+<ul>
+<li class="fragment"><strong>GraphQL APIs</strong>: Query language that lets you request exactly what you need in one call, unlike REST APIs that have fixed responses</li>
+<li class="fragment"><strong>Real-time streaming</strong>: Live data feeds (like Twitter’s stream or financial data) instead of batch downloads</li>
+<li class="fragment"><strong>Data lakes</strong>: Huge repositories that store raw data in its original format until needed, unlike databases that enforce structure upfront</li>
+<li class="fragment"><strong>Automated ETL</strong>: Tools that automatically Extract, Transform, and Load data, reducing manual steps in data pipelines</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Future considerations:</strong></p>
+<ul>
+<li class="fragment">Privacy regulations, API authentication, data governance, ethical collection</li>
+</ul>
+</div>
+</section>
+<section id="next-steps" class="slide level2 smaller">
+<h2>Next Steps</h2>
+<div class="fragment">
+<p><strong>Before Wednesday’s Lab 4 (Preprocessing and Transforming Data):</strong></p>
+<ul>
+<li class="fragment"><strong>Read</strong>: MDSR 19.3 - Ingesting Text</li>
+<li class="fragment"><strong>Read</strong>: Barria - Web Mining</li>
+<li class="fragment"><strong>Read</strong>: Schutz - Mapping Local Government Priorities</li>
+<li class="fragment"><strong>Watch</strong>: Web Scraping in R (YouTube)</li>
+<li class="fragment"><strong>Read</strong>: MDSR 4 - Data Wrangling on One Table</li>
+<li class="fragment"><strong>Read</strong>: The Quartz Guide to Bad Data</li>
+</ul>
+</div>
+</section>
+<section id="questions" class="slide level2">
+<h2>Questions?</h2>
+<div class="fragment">
+<p><strong>Remember</strong>: The quality of your data collection process directly impacts the reliability of your analysis.</p>
+</div>
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="lec04_webdata_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="lec04_webdata_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="lec04_webdata_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="lec04_webdata_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="lec04_webdata_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="lec04_webdata_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="lec04_webdata_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="lec04_webdata_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="lec04_webdata_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="lec04_webdata_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': false,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: true,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

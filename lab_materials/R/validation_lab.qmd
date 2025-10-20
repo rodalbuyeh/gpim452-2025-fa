@@ -20,70 +20,82 @@ editor:
 
 ## Project Organization
 
-Before we dive into analysis, let's set up our work properly. Good project organization is crucial for:
+Before we dive into analysis, let's set up our work properly. Good
+project organization is crucial for:
 
-- Reproducibility (others can run your code)
-- Collaboration (team members can understand your work)
-- Maintainability (you can understand your work months later)
+-   Reproducibility (others can run your code)
+-   Collaboration (team members can understand your work)
+-   Maintainability (you can understand your work months later)
 
 ### Working Directories and Projects
 
 There are two common approaches to managing file paths in R:
 
-1. **The Hard Way**: Manual directory setting
-```r
+1.  **The Hard Way**: Manual directory setting
+
+``` r
 setwd("C:/Users/your_name/your_project/")  # Don't do this!
 ```
+
 Problems with this approach:
 
-- Different paths on different computers
-- Windows vs Mac path syntax
-- Hard to collaborate
-- Code breaks when moved
+-   Different paths on different computers
+-   Windows vs Mac path syntax
+-   Hard to collaborate
+-   Code breaks when moved
 
-2. **The Better Way**: R Projects + here package
+2.  **The Better Way**: R Projects + here package
 
 ### Creating an R Project
 
 To create a new R Project:
 
-1. In RStudio: File → New Project...
-2. Choose "New Directory" or "Existing Directory"
-3. Select "New Project" (or other project type)
-4. Choose your project location
-5. Click "Create Project"
+1.  In RStudio: File → New Project...
+2.  Choose "New Directory" or "Existing Directory"
+3.  Select "New Project" (or other project type)
+4.  Choose your project location
+5.  Click "Create Project"
 
-::: {.callout-important}
+::: callout-important
 ## Project Setup Steps
-1. Create these folders in your project:
-   ```
-   data/
-   ├── raw/      # For original data files
-   └── processed/ # For cleaned data
-   ```
-2. Never modify files in `raw/`
-3. Save all processed data to `processed/`
-4. Use `here()` for all file paths
 
-**Version Control Note**: 
+1.  Create these folders in your project:
 
-- Always commit the `.Rproj` file to version control
-- This file contains important project settings that affect all team members
-- Without it, your colleagues won't have the same project configuration
-- Common mistake: thinking `.Rproj` is like `.Rhistory` (which you don't commit)
+    ```         
+    data/
+    ├── raw/      # For original data files
+    └── processed/ # For cleaned data
+    ```
+
+2.  Never modify files in `raw/`
+
+3.  Save all processed data to `processed/`
+
+4.  Use `here()` for all file paths
+
+**Version Control Note**:
+
+-   Always commit the `.Rproj` file to version control
+-   This file contains important project settings that affect all team
+    members
+-   Without it, your colleagues won't have the same project
+    configuration
+-   Common mistake: thinking `.Rproj` is like `.Rhistory` (which you
+    don't commit)
 :::
 
 ### Using R Projects
 
 Once your project is set up:
 
-1. Always open RStudio by clicking the `.Rproj` file
-2. This sets the working directory automatically
-3. All paths will be relative to project root
-4. Use `here()` to construct file paths
+1.  Always open RStudio by clicking the `.Rproj` file
+2.  This sets the working directory automatically
+3.  All paths will be relative to project root
+4.  Use `here()` to construct file paths
 
 For example:
-```r
+
+``` r
 # Don't do this:
 read_csv("../../data/raw/my_data.csv")
 
@@ -91,28 +103,33 @@ read_csv("../../data/raw/my_data.csv")
 read_csv(here("data", "raw", "my_data.csv"))
 ```
 
-::: {.callout-note}
+::: callout-note
 ## How `here()` Works
+
 The `here` package is smart about finding your project root:
 
-1. Starts in your current directory
-2. Walks *backwards* up the directory tree
-3. Looks for project markers like `.Rproj` files
-4. Uses the first marker it finds as the root
-5. All paths are then relative to that root
+1.  Starts in your current directory
+2.  Walks *backwards* up the directory tree
+3.  Looks for project markers like `.Rproj` files
+4.  Uses the first marker it finds as the root
+5.  All paths are then relative to that root
 
-So even if you're working in a subdirectory like `R/`, `here()` will find the project root and make paths work correctly!
+So even if you're working in a subdirectory like `R/`, `here()` will
+find the project root and make paths work correctly!
 :::
 
-::: {.callout-tip}
+::: callout-tip
 ## Best Practice
-Always use R Projects and the `here` package for file paths. Never use `setwd()`!
+
+Always use R Projects and the `here` package for file paths. Never use
+`setwd()`!
 :::
 
 ### Data Organization
 
 A good project structure:
-```
+
+```         
 project_root/
 ├── data/
 │   ├── raw/      # Original, immutable data
@@ -135,54 +152,66 @@ library(janitor)       # For cleaning column names
 
 ## Understanding Data Types
 
-Before we work with our data, let's understand the main data types we'll encounter:
+Before we work with our data, let's understand the main data types we'll
+encounter:
 
-::: {.callout-note}
+::: callout-note
 ## Common R Data Types
-- **Numeric**: Numbers with decimals (`3.14`, `100.5`)
-- **Integer**: Whole numbers (`1L`, `42L`)
-- **Character**: Text strings (`"strike"`, `"protest"`)
-- **Logical**: True/False values (`TRUE`, `FALSE`)
-- **Factor**: Categorical data with fixed levels
-- **Date/Time**: Temporal data (`2024-01-01`, `2024-01-01 12:30:00`)
+
+-   **Numeric**: Numbers with decimals (`3.14`, `100.5`)
+-   **Integer**: Whole numbers (`1L`, `42L`)
+-   **Character**: Text strings (`"strike"`, `"protest"`)
+-   **Logical**: True/False values (`TRUE`, `FALSE`)
+-   **Factor**: Categorical data with fixed levels
+-   **Date/Time**: Temporal data (`2024-01-01`, `2024-01-01 12:30:00`)
 :::
 
 Data type conversion is a crucial part of data cleaning. For example:
 
-- Text to dates using `as.Date()`
-- Text to numbers using `as.numeric()`
-- Text to categories using `as.factor()`
-- Numbers to categories using `cut()`
+-   Text to dates using `as.Date()`
+-   Text to numbers using `as.numeric()`
+-   Text to categories using `as.factor()`
+-   Numbers to categories using `cut()`
 
 ## Raw Data: Treat as Immutable
 
-One of the most important principles in data science is treating raw data as immutable (unchangeable). Why?
+One of the most important principles in data science is treating raw
+data as immutable (unchangeable). Why?
 
-- **Reproducibility**: Anyone should be able to recreate your analysis from the original data
-- **Audit Trail**: Keep track of all transformations from raw to final
-- **Error Recovery**: Can always go back to the original if something goes wrong
-- **Collaboration**: Everyone works from the same original source
+-   **Reproducibility**: Anyone should be able to recreate your analysis
+    from the original data
+-   **Audit Trail**: Keep track of all transformations from raw to final
+-   **Error Recovery**: Can always go back to the original if something
+    goes wrong
+-   **Collaboration**: Everyone works from the same original source
 
 ### Data Storage Best Practices
 
-When working with data, especially in production or cloud environments, consider these storage formats:
+When working with data, especially in production or cloud environments,
+consider these storage formats:
 
-::: {.callout-tip}
+::: callout-tip
 ## Beyond CSV: Modern Data Storage
-While we'll use R's native .rds format for this lab, modern data science often uses even more sophisticated formats like **Parquet**:
 
-- **Column-based storage**: Efficient for analytics, especially with many columns
-- **Schema enforcement**: Maintains data types across systems
-- **Cloud-ready**: Works seamlessly with AWS, Spark, and other cloud tools
-- **Memory efficient**: Can read only needed columns
-- **Partitioning**: Can split data by year/category for faster access
+While we'll use R's native .rds format for this lab, modern data science
+often uses even more sophisticated formats like **Parquet**:
 
-If you're interested in learning more, look into the `arrow` package and Parquet format for your future projects.
+-   **Column-based storage**: Efficient for analytics, especially with
+    many columns
+-   **Schema enforcement**: Maintains data types across systems
+-   **Cloud-ready**: Works seamlessly with AWS, Spark, and other cloud
+    tools
+-   **Memory efficient**: Can read only needed columns
+-   **Partitioning**: Can split data by year/category for faster access
+
+If you're interested in learning more, look into the `arrow` package and
+Parquet format for your future projects.
 :::
 
 ## Loading the Labor Action Tracker Data
 
-Let's load our raw data. Notice how we use `here()` to make our file paths reproducible:
+Let's load our raw data. Notice how we use `here()` to make our file
+paths reproducible:
 
 ```{r}
 # Load the raw data
@@ -212,17 +241,19 @@ str(labor_raw)
 
 ## Initial Data Processing
 
-Let's clean up our data and save a processed version. 
+Let's clean up our data and save a processed version.
 
-::: {.callout-tip}
+::: callout-tip
 ## Type Safety: Be Explicit!
-Even when R correctly guesses data types (like dates), explicitly convert them anyway:
 
-- Excel/CSV imports can be unpredictable
-- Minimal overhead to enforce schema
-- Makes code more robust across different data sources
-- Helps catch data quality issues early
-- Documents your expectations about data types
+Even when R correctly guesses data types (like dates), explicitly
+convert them anyway:
+
+-   Excel/CSV imports can be unpredictable
+-   Minimal overhead to enforce schema
+-   Makes code more robust across different data sources
+-   Helps catch data quality issues early
+-   Documents your expectations about data types
 :::
 
 ```{r}
@@ -287,51 +318,66 @@ saveRDS(
 # labor_clean <- readRDS(here("data", "processed", "labor_clean.rds"))
 ```
 
-::: {.callout-important}
+::: callout-important
 ## Why Save Processed Data?
-- Saves time: Don't need to reprocess raw data every time
-- Validates processing: Can check if changes are as expected
-- Documents changes: Clear what transformations were made
-- Shares results: Others can use your cleaned version
-:::
 
+-   Saves time: Don't need to reprocess raw data every time
+-   Validates processing: Can check if changes are as expected
+-   Documents changes: Clear what transformations were made
+-   Shares results: Others can use your cleaned version
+:::
 
 # Introduction to Model Validation
 
-Model validation is perhaps the most critical yet often misunderstood aspect of machine learning and statistical modeling. A model that performs well on training data but fails in the real world is not just useless—it can be dangerous, especially in policy contexts where decisions affect people's lives.
+Model validation is perhaps the most critical yet often misunderstood
+aspect of machine learning and statistical modeling. A model that
+performs well on training data but fails in the real world is not just
+useless—it can be dangerous, especially in policy contexts where
+decisions affect people's lives.
 
-::: {.callout-note}
+::: callout-note
 ## Learning with Simulated Data
 
-In the remainder of this lab, we'll use simulated policy data to learn validation concepts. Why?
+In the remainder of this lab, we'll use simulated policy data to learn
+validation concepts. Why?
 
-1. **Clean Data**: No missing values or data quality issues to distract from core concepts
-2. **Known Relationships**: We know exactly what patterns the model should find
-3. **Controlled Complexity**: We can focus on validation without other complications
-4. **Clear Examples**: Easy to see why different validation strategies matter
+1.  **Clean Data**: No missing values or data quality issues to distract
+    from core concepts
+2.  **Known Relationships**: We know exactly what patterns the model
+    should find
+3.  **Controlled Complexity**: We can focus on validation without other
+    complications
+4.  **Clear Examples**: Easy to see why different validation strategies
+    matter
 
-We're using this simplified setup precisely because we don't want to present any one approach as THE "right answer". When you work with the real labor action data, you'll face:
+We're using this simplified setup precisely because we don't want to
+present any one approach as THE "right answer". When you work with the
+real labor action data, you'll face:
 
-- Missing data
-- Complex relationships
-- Multiple data types
-- Time dependencies
-- Grouped observations
+-   Missing data
+-   Complex relationships
+-   Multiple data types
+-   Time dependencies
+-   Grouped observations
 
-These challenges often have multiple valid solutions. You might come up with approaches that are more creative, relevant, or better performing than what we demonstrate here. That's great! The goal is to understand the validation principles, then apply them thoughtfully to your unique approach.
-
+These challenges often have multiple valid solutions. You might come up
+with approaches that are more creative, relevant, or better performing
+than what we demonstrate here. That's great! The goal is to understand
+the validation principles, then apply them thoughtfully to your unique
+approach.
 :::
 
 ## Learning Objectives
 
 By the end of these validation sections, you will be able to:
 
-1. **Understand different validation strategies** and when to use each
-2. **Implement proper train-test splits** that respect data dependencies
-3. **Perform cross-validation** correctly and interpret the results
-4. **Identify and prevent data leakage** in your validation process
-5. **Choose appropriate validation metrics** for your problem
-6. **Apply nested cross-validation** for hyperparameter tuning
+1.  **Understand different validation strategies** and when to use each
+2.  **Implement proper train-test splits** that respect data
+    dependencies
+3.  **Perform cross-validation** correctly and interpret the results
+4.  **Identify and prevent data leakage** in your validation process
+5.  **Choose appropriate validation metrics** for your problem
+6.  **Apply nested cross-validation** for hyperparameter tuning
 
 ## Setup and Data Loading
 
@@ -347,7 +393,8 @@ library(rsample)        # For data splitting - provides nice functions for train
 # - group_initial_split(): Like initial_split() but keeps all observations from same group together
 ```
 
-We'll use a dataset on policy implementation outcomes across different cities:
+We'll use a dataset on policy implementation outcomes across different
+cities:
 
 ```{r}
 # Simulate a realistic policy dataset
@@ -380,26 +427,31 @@ Let's first see why evaluating only on training data is problematic:
 
 We'll use two related metrics to assess our model:
 
-1. **Loss Function (MSE)**: Mean Squared Error is what the model tries to minimize during training:
+1.  **Loss Function (MSE)**: Mean Squared Error is what the model tries
+    to minimize during training:
 
 $$\text{MSE} = \frac{1}{n}\sum_{i=1}^n(y_i - \hat{y}_i)^2$$
 
-2. **Evaluation Metric (RMSE)**: Root Mean Square Error is how we evaluate performance, chosen because it's in the same units as our outcome:
+2.  **Evaluation Metric (RMSE)**: Root Mean Square Error is how we
+    evaluate performance, chosen because it's in the same units as our
+    outcome:
 
 $$\text{RMSE} = \sqrt{\text{MSE}} = \sqrt{\frac{1}{n}\sum_{i=1}^n(y_i - \hat{y}_i)^2}$$
 
 where:
 
-- $y_i$ is the actual success score
-- $\hat{y}_i$ is our predicted success score
-- $n$ is the number of observations
+-   $y_i$ is the actual success score
+-   $\hat{y}_i$ is our predicted success score
+-   $n$ is the number of observations
 
 In plain English:
 
-- MSE: Average of squared prediction errors (what the model minimizes)
-- RMSE: Square root of MSE (what we use to evaluate, because it's in original units)
+-   MSE: Average of squared prediction errors (what the model minimizes)
+-   RMSE: Square root of MSE (what we use to evaluate, because it's in
+    original units)
 
-For example, if RMSE = 10, our predictions are typically off by 10 points on our 0-100 success score scale.
+For example, if RMSE = 10, our predictions are typically off by 10
+points on our 0-100 success score scale.
 
 Let's calculate this for our model:
 
@@ -415,21 +467,27 @@ cat("Training RMSE:", round(train_rmse, 2),
     "points on the 0-100 success score scale")
 ```
 
-This error looks small! But it's deceiving. Let's see why we can't trust this training-only evaluation.
+This error looks small! But it's deceiving. Let's see why we can't trust
+this training-only evaluation.
 
 ## A Better Way: Train-Test Split
 
-::: {.callout-warning}
+::: callout-warning
 ## Important: Split First, Clean Later!
-In this example, we're doing the split after cleaning for simplicity. However, in real applications, you should:
 
-1. Split your data BEFORE any cleaning or processing
-2. Develop your cleaning process using ONLY the training data
-3. Apply the same cleaning steps to test data later
+In this example, we're doing the split after cleaning for simplicity.
+However, in real applications, you should:
 
-Why? Because any data insights you gain during cleaning (even simple ones like "this column needs scaling" or "that value is an outlier") are a form of information leakage if you learned them from the full dataset!
+1.  Split your data BEFORE any cleaning or processing
+2.  Develop your cleaning process using ONLY the training data
+3.  Apply the same cleaning steps to test data later
 
-We're not following this best practice here just to keep the example code simpler and focused on validation concepts.
+Why? Because any data insights you gain during cleaning (even simple
+ones like "this column needs scaling" or "that value is an outlier") are
+a form of information leakage if you learned them from the full dataset!
+
+We're not following this best practice here just to keep the example
+code simpler and focused on validation concepts.
 :::
 
 ```{r}
@@ -460,7 +518,8 @@ cat("Training RMSE:", round(train_rmse, 2),
 
 ### 🎯 **Exercise 1: Basic Train-Test Split** (5 minutes)
 
-Try different train-test proportions (e.g., 80-20, 60-40) and see how they affect your results:
+Try different train-test proportions (e.g., 80-20, 60-40) and see how
+they affect your results:
 
 ```{r}
 # Your code here - try different split proportions
@@ -468,15 +527,16 @@ Try different train-test proportions (e.g., 80-20, 60-40) and see how they affec
 
 ```
 
-**Questions to consider:**
-1. How does the split proportion affect the difference between train and test performance?
-2. What's the trade-off between having more training data vs. more testing data?
+**Questions to consider:** 1. How does the split proportion affect the
+difference between train and test performance? 2. What's the trade-off
+between having more training data vs. more testing data?
 
 # Part 2: Cross-Validation Strategies
 
 ## K-Fold Cross-Validation
 
-K-fold cross-validation gives us a more robust estimate of model performance by using multiple train/test splits:
+K-fold cross-validation gives us a more robust estimate of model
+performance by using multiple train/test splits:
 
 ![K-Fold Cross Validation](../images/cv.png)
 
@@ -557,7 +617,8 @@ print(results)
 
 ### 🎯 **Exercise 2: Comparing Validation Strategies** (10 minutes)
 
-Let's compare how different validation approaches affect our model assessment. We'll provide the code, and you'll analyze the results.
+Let's compare how different validation approaches affect our model
+assessment. We'll provide the code, and you'll analyze the results.
 
 ```{r}
 # Regular train-test split (70-30)
@@ -619,13 +680,19 @@ print(results)
 
 **Questions to consider:**
 
-1. Which validation strategy shows the largest prediction error (RMSE)? Why might this be?
-2. The success score is on a 0-100 scale. How would you interpret these RMSE values to a policy maker?
-3. Why might the city-based split show different errors than the random split?
-4. Looking at the time-based split results, how confident would you be in using this model for future policy decisions?
-5. Which validation strategy would you recommend for this policy implementation problem? Why?
+1.  Which validation strategy shows the largest prediction error (RMSE)?
+    Why might this be?
+2.  The success score is on a 0-100 scale. How would you interpret these
+    RMSE values to a policy maker?
+3.  Why might the city-based split show different errors than the random
+    split?
+4.  Looking at the time-based split results, how confident would you be
+    in using this model for future policy decisions?
+5.  Which validation strategy would you recommend for this policy
+    implementation problem? Why?
 
 **Bonus:** Look at the size of training and test sets for each approach:
+
 ```{r}
 # Compare split sizes
 split_sizes <- tibble(
@@ -645,21 +712,25 @@ split_sizes <- tibble(
 print(split_sizes)
 ```
 
-5. How might these different split sizes affect our confidence in the results?
+5.  How might these different split sizes affect our confidence in the
+    results?
 
 # Part 3: Preventing Data Leakage
 
 ## Common Sources of Leakage
 
-Let's see how data leakage can occur and how to prevent it. First, let's look at scaling, a common source of leakage:
+Let's see how data leakage can occur and how to prevent it. First, let's
+look at scaling, a common source of leakage:
 
-::: {.callout-note}
+::: callout-note
 ## What does scale() do?
-Base R's `scale()` function standardizes numeric data by:
-1. Subtracting the mean (centering)
-2. Dividing by standard deviation (scaling)
 
-The problem? It calculates these statistics using ALL the data it's given. If we use it before splitting, we're letting information from our test set influence our training data!
+Base R's `scale()` function standardizes numeric data by: 1. Subtracting
+the mean (centering) 2. Dividing by standard deviation (scaling)
+
+The problem? It calculates these statistics using ALL the data it's
+given. If we use it before splitting, we're letting information from our
+test set influence our training data!
 :::
 
 ```{r}
@@ -797,39 +868,43 @@ print(paste("RMSE:", round(result, 2),
            "contains information about future outcomes through city_means"))
 ```
 
-**Questions:**
-1. What's wrong with this workflow?
+**Questions:** 1. What's wrong with this workflow?
 
-   - We're calculating city means using ALL data before splitting
-   - Test data points "know" their city's overall performance
+-   We're calculating city means using ALL data before splitting
+-   Test data points "know" their city's overall performance
 
-2. How would you fix it?
-   - Move the train/test split to the BEGINNING
-   - Calculate city means using ONLY training data
-   - Apply these means to test data without recalculating
-
-3. Why might the prediction error (RMSE) be artificially low?
-   - Each test point already has information about its true outcome through its city mean
-   - The model learns to use these means to make better predictions
-   - In real life, we wouldn't know a city's future performance when making predictions
+2.  How would you fix it?
+    -   Move the train/test split to the BEGINNING
+    -   Calculate city means using ONLY training data
+    -   Apply these means to test data without recalculating
+3.  Why might the prediction error (RMSE) be artificially low?
+    -   Each test point already has information about its true outcome
+        through its city mean
+    -   The model learns to use these means to make better predictions
+    -   In real life, we wouldn't know a city's future performance when
+        making predictions
 
 # Part 4: Hyperparameter Tuning with Train/Validation/Test Splits
 
 Before we dive into the code, let's understand what hyperparameters are:
 
-- **Model parameters** (like regression coefficients) are learned from the data during training
-- **Hyperparameters** are choices we make BEFORE training, such as:
-  * Number of features to include
-  * Model complexity settings (e.g., tree depth, regularization strength)
-  * Learning settings (e.g., how fast the model learns)
+-   **Model parameters** (like regression coefficients) are learned from
+    the data during training
+-   **Hyperparameters** are choices we make BEFORE training, such as:
+    -   Number of features to include
+    -   Model complexity settings (e.g., tree depth, regularization
+        strength)
+    -   Learning settings (e.g., how fast the model learns)
 
 To find good hyperparameters, we need three separate datasets:
 
-1. **Training data**: Fit models with different hyperparameter values
-2. **Validation data**: Compare these models and choose the best settings
-3. **Test data**: Get an unbiased estimate of final performance
+1.  **Training data**: Fit models with different hyperparameter values
+2.  **Validation data**: Compare these models and choose the best
+    settings
+3.  **Test data**: Get an unbiased estimate of final performance
 
-This three-way split ensures we don't "peek" at our test data while making model design choices. Here's how it works:
+This three-way split ensures we don't "peek" at our test data while
+making model design choices. Here's how it works:
 
 ```{r}
 # Step 1: Set aside test data (20%)
@@ -882,109 +957,115 @@ cat("\nBest number of predictors (chosen using validation data):", best_n,
     round(test_rmse, 2), "points")
 ```
 
-::: {.callout-note}
+::: callout-note
 ## Other Uses of Validation Data
 
-While we've used the validation set to choose the number of predictors, it has other important uses in practice:
+While we've used the validation set to choose the number of predictors,
+it has other important uses in practice:
 
-1. **Parameter Selection** (what we did here)
-   - Choose model hyperparameters
-   - Select which features to include
+1.  **Parameter Selection** (what we did here)
+    -   Choose model hyperparameters
+    -   Select which features to include
+2.  **Convergence Monitoring** (for iterative models)
+    -   Check if model has learned enough
+    -   Stop training when validation error stops improving
+    -   Prevent overfitting by catching when model starts performing
+        worse on validation data
+3.  **Model Comparison**
+    -   Compare different types of models
+    -   Test different feature engineering approaches
 
-2. **Convergence Monitoring** (for iterative models)
-   - Check if model has learned enough
-   - Stop training when validation error stops improving
-   - Prevent overfitting by catching when model starts performing worse on validation data
-
-3. **Model Comparison**
-   - Compare different types of models
-   - Test different feature engineering approaches
-
-The key is: validation data helps us make modeling decisions without "peeking" at our final test data.
+The key is: validation data helps us make modeling decisions without
+"peeking" at our final test data.
 :::
-
-
 
 # Lab Assignment: Predicting Strike vs Protest
 
 ## Overview
 
-Your task is to build and validate a simple logistic regression model that predicts whether a labor action will be a strike (vs protest) using the Labor Action Tracker data. This will test both your data handling and validation skills, not the quality of the model.
+Your task is to build and validate a simple logistic regression model
+that predicts whether a labor action will be a strike (vs protest) using
+the Labor Action Tracker data. This will test both your data handling
+and validation skills, not the quality of the model.
 
-::: {.callout-note}
+::: callout-note
 ## Classification Metrics
 
 For this binary classification task, you'll use three metrics:
 
-1. **Log Loss** (Cross-Entropy):
+1.  **Log Loss** (Cross-Entropy):
 
-   - Measures how well your probability estimates are calibrated
-   - Heavily penalizes confident wrong predictions
-   - Lower is better
-   - Look up `logistic` regression's connection to log loss
+    -   Measures how well your probability estimates are calibrated
+    -   Heavily penalizes confident wrong predictions
+    -   Lower is better
+    -   Look up `logistic` regression's connection to log loss
 
-2. **AUC** (Area Under ROC Curve):
+2.  **AUC** (Area Under ROC Curve):
 
-   - Measures model's ability to rank positive vs negative cases
-   - Ranges from 0.5 (random) to 1.0 (perfect)
-   - Invariant to class imbalance
-   - Look up relationship between ROC curves and decision thresholds
+    -   Measures model's ability to rank positive vs negative cases
+    -   Ranges from 0.5 (random) to 1.0 (perfect)
+    -   Invariant to class imbalance
+    -   Look up relationship between ROC curves and decision thresholds
 
-3. **Average Precision**:
+3.  **Average Precision**:
 
-   - Area under precision-recall curve
-   - Better than AUC for imbalanced classes
-   - Ranges from 0.0 to 1.0
+    -   Area under precision-recall curve
+    -   Better than AUC for imbalanced classes
+    -   Ranges from 0.0 to 1.0
 
-You'll need to research these metrics in more detail to interpret your results properly!
+You'll need to research these metrics in more detail to interpret your
+results properly!
 :::
 
 ## Requirements
 
 ### Part 1: Data Pipeline (5 points)
 
-- Load the labor action data using proper project organization
-- Clean and prepare features appropriately
-- Create train/validation/test splits respecting time order
-- Save processed data in a type-safe format
-- Document all cleaning decisions
+-   Load the labor action data using proper project organization
+-   Clean and prepare features appropriately
+-   Create train/validation/test splits respecting time order
+-   Save processed data in a type-safe format
+-   Document all cleaning decisions
 
 ### Part 2: Baseline Model (10 points)
 
-- Fit a logistic regression using basic features
-- Implement proper validation strategy
-- Calculate all three metrics (log loss, AUC, avg precision)
-- Visualize model performance
-- Explain what the metrics tell us about your model
+-   Fit a logistic regression using basic features
+-   Implement proper validation strategy
+-   Calculate all three metrics (log loss, AUC, avg precision)
+-   Visualize model performance
+-   Explain what the metrics tell us about your model
 
 ### Part 3: Analysis (5 points)
 
-- Interpret your model's performance
-- Discuss limitations of your validation approach
-- Suggest how to improve the model
-- Explain policy implications of false positives vs false negatives
+-   Interpret your model's performance
+-   Discuss limitations of your validation approach
+-   Suggest how to improve the model
+-   Explain policy implications of false positives vs false negatives
 
 ## Tips for Success
 
-1. Keep it simple, you are just practicing the concepts of data loading and validation.
-2. Consider time-based validation - why might this matter for labor actions?
-3. Think about data leakage - what information shouldn't your model have?
-4. Consider class imbalance - are strikes and protests equally common?
-5. Think about stratification:
-   - Are some industries overrepresented?
-   - Do states have different labor laws/patterns?
-   - Should your validation splits preserve these distributions?
-6. Document your decisions - validation choices matter!
+1.  Keep it simple, you are just practicing the concepts of data loading
+    and validation.
+2.  Consider time-based validation - why might this matter for labor
+    actions?
+3.  Think about data leakage - what information shouldn't your model
+    have?
+4.  Consider class imbalance - are strikes and protests equally common?
+5.  Think about stratification:
+    -   Are some industries overrepresented?
+    -   Do states have different labor laws/patterns?
+    -   Should your validation splits preserve these distributions?
+6.  Document your decisions - validation choices matter!
 
 ## Formatting Requirements
 
-- Include proper YAML header
-- Render to PDF format
-- Include clear explanations between code chunks
+-   Include proper YAML header
+-   Render to PDF format
+-   Include clear explanations between code chunks
 
 ## Submission Instructions
 
 Submit **both** files to gradescope:
 
-1. Your `.qmd` source file
-2. The rendered `.pdf` file
+1.  Your `.qmd` source file
+2.  The rendered `.pdf` file

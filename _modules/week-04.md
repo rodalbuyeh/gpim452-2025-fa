@@ -4,7 +4,7 @@
     days:
       - date: 2025-10-20
         events:
-          "**LEC 4**{: .label .label-lecture } Accessing Data in the Digital Age":
+          "**LEC 4**{: .label .label-lecture } [APIs, Web Scraping, and Data Collection](_lectures/lec04_webdata.html)":
             ", , "
           "**Read**{: .label .label-read } [MDSR 19.3: Ingesting Text](https://mdsr-book.github.io/mdsr3e/19-text.html#ingesting-text)":
           "**Read**{: .label .label-read } [Barria: Web Mining](https://www.taylorfrancis.com/chapters/edit/10.1201/9781003010623-12/web-mining-gonzalo-barr%C3%ADa)":
