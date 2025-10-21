@@ -22,7 +22,7 @@ nav_order: 1
 
 
 
-[Jump to the current week](#week-1-foundations-and-motivation){: .btn }
+[Jump to the current week](#week-4-gathering-and-wrangling-data){: .btn }
 
 
 {% for module in site.modules %}
