@@ -104,5 +104,5 @@ callouts:
     title: Note
     color: yellow
   success:
-    title: ""
+    title: "Important Announcement"
     color: green
