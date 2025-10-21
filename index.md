@@ -17,8 +17,10 @@ nav_order: 1
 
 <!-- Below, you can open "static" versions of each lecture by clicking the ✏️ emojis and watch podcasts by clicking the 🎥 emojis. -->
 
-<!-- {: .success }
-**This course site is under construction.** -->
+{: .success }
+**Final exam will only require conceptual knowledge of the lectures, not the labs or anything specific to R programming. Sample finals have been posted in campuswire.**
+
+
 
 [Jump to the current week](#week-1-foundations-and-motivation){: .btn }
 
