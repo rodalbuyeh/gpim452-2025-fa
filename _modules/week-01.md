@@ -11,7 +11,7 @@
 
       - date: 2025-10-1
         events:
-          "**Lab 1**{: .label .label-lab } [R and Markdown Principles](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/intro_lab.qmd)":
+          "**Lab 1**{: .label .label-lab } [R and Markdown Principles](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/intro_lab.qmd) [📑](https://posit.cloud/content/11223388)":
           "**Read**{: .label .label-read } [MDSR 6: Tidy Data](https://mdsr-book.github.io/mdsr3e/06-dataII.html)":
           "**Read**{: .label .label-read } [MDSR Appendix B: Introduction to R and RStudio](https://mdsr-book.github.io/mdsr3e/B-appR.html)":
           "**Read**{: .label .label-read } [Wickham: R Style Guide](http://adv-r.had.co.nz/Style.html)":

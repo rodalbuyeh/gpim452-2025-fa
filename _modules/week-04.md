@@ -14,7 +14,7 @@
 
       - date: 2025-10-22
         events:
-          "**Lab 4**{: .label .label-lab } Preprocessing and Transforming Data":
+          "**Lab 4**{: .label .label-lab } [Validation Lab Continued](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/validation_lab.qmd) [📑](https://posit.cloud/content/11223388)":
           "**Read**{: .label .label-read } [MDSR 4: Data Wrangling on One Table](https://mdsr-book.github.io/mdsr3e/04-dataI.html)":
           "**Read**{: .label .label-read } [The Quartz Guide to Bad Data](https://github.com/Quartz/bad-data-guide)":
 
