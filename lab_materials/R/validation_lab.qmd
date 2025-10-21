@@ -813,13 +813,23 @@ city_splits <- group_initial_split(policy_data, group = city_id)
 city_train <- training(city_splits)
 city_test <- testing(city_splits)
 
-# Fit model on grouped training data
-city_fit <- workflow_proper %>%
-  fit(city_train)
+# Create and fit model on grouped training data
+city_model <- lm(success_score ~ ., data = select(city_train, -city_id))
+city_preds <- predict(city_model, city_test)
 
-# Get predictions on grouped test data
-city_preds <- predict(city_fit, city_test)$.pred
+# Calculate RMSE for city-based validation
 city_rmse <- sqrt(mean((city_test$success_score - city_preds)^2))
+
+# Do a regular random split for comparison
+set.seed(123)
+regular_split <- initial_split(policy_data, prop = 0.7)
+regular_train <- training(regular_split)
+regular_test <- testing(regular_split)
+
+# Fit model on regular split
+regular_model <- lm(success_score ~ ., data = select(regular_train, -city_id))
+regular_preds <- predict(regular_model, regular_test)
+proper_rmse <- sqrt(mean((regular_test$success_score - regular_preds)^2))
 
 # Compare results
 cat("Regular split RMSE:", round(proper_rmse, 2), 
