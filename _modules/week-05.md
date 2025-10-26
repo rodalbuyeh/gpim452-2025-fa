@@ -4,7 +4,7 @@
     days:
       - date: 2025-10-27
         events:
-          "**LAB 5**{: .label .label-lab } [Data Wrangling and Joins](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/validation_lab.qmd) [📑](https://posit.cloud/content/11223388)": 
+          "**LAB 5**{: .label .label-lab } [Data Wrangling and Joins](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/wrangling_lab.qmd) [📑](https://posit.cloud/content/11223388)": 
           "**Read**{: .label .label-read } [MDSR 5: Data Wrangling on Multiple Tables](https://mdsr-book.github.io/mdsr3e/05-joins.html)":
       - date: 2025-10-29
         events:
