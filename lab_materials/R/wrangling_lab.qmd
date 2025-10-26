@@ -1,0 +1,499 @@
+---
+title: "Data Wrangling and Joining Lab"
+subtitle: "Making Messy Data Work for You"
+author: "Rod Albuyeh"
+date: today
+format: pdf
+execute:
+  echo: true
+  eval: true
+  warning: false
+  error: false
+  cache: true
+  tidy: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Introduction to Data Wrangling
+
+Data wrangling is perhaps the most time-consuming part of any data scienceproject. Studies suggest data scientists spend 50-80% of their time cleaning and preparing data. It rivals model validation in terms of impact on project success. This lab will teach you essential wrangling skills using real-world examples.
+
+## Learning Objectives
+
+By the end of this lab, you will be able to:
+
+1. **Apply tidy data principles** to structure data for analysis
+2. **Perform common data transformations** using dplyr verbs
+3. **Merge multiple data sources** using different join types
+4. **Handle messy real-world data** including duplicates and inconsistencies
+5. **Create reproducible data cleaning pipelines**
+6. **Implement best practices** for data validation and documentation
+
+# Setup and Data Loading
+
+```{r}
+# Essential libraries for data wrangling
+library(tidyverse)    # Core data manipulation tools
+library(janitor)      # Tools for cleaning data
+library(lubridate)    # Date/time handling
+library(stringr)      # String manipulation
+library(readxl)       # Excel file reading
+```
+
+# Part 1: Tidy Data Principles
+
+## Understanding Tidy Data
+
+The concept of "tidy data" provides a standard way of organizing data that makes analysis easier. However, what counts as "tidy" depends entirely on your unit of analysis - the fundamental thing you're studying. The three principles are:
+
+1. Every column is a variable
+2. Every row is an observation **of your unit of analysis**
+3. Every cell is a single value
+
+For example, if you're analyzing:
+
+- Student performance over time: each row might be a student-year combination
+- School-level metrics: each row would be a school
+- Subject-specific trends: each row could be a subject-year pair
+
+The same dataset could be "tidy" in different ways depending on your research question! Let's see this in action:
+
+```{r}
+# Example 1: Untidy data (wide format)
+untidy_scores <- tibble(
+  student = c("Alice", "Bob", "Charlie"),
+  math_2022 = c(85, 92, 78),
+  math_2023 = c(88, 95, 82),
+  science_2022 = c(90, 88, 85),
+  science_2023 = c(92, 85, 88)
+)
+
+# Different "tidy" formats depending on our unit of analysis:
+
+# 1. If analyzing student-level performance over time
+student_level_tidy <- untidy_scores %>%
+  pivot_longer(
+    cols = -student,
+    names_to = c("subject", "year"),
+    names_sep = "_",
+    values_to = "score"
+  )
+
+# 2. If analyzing subject-level trends
+subject_level_tidy <- untidy_scores %>%
+  pivot_longer(
+    cols = -student,
+    names_to = c("subject", "year"),
+    names_sep = "_",
+    values_to = "score"
+  ) %>%
+  group_by(subject, year) %>%
+  summarize(
+    mean_score = mean(score),
+    n_students = n(),
+    .groups = "drop"
+  )
+
+# Show all versions
+print("Original Format (Student-Subject-Year Wide):")
+print(untidy_scores)
+
+print("\nTidy for Student Analysis (Student-Subject-Year Long):")
+print(student_level_tidy)
+
+print("\nTidy for Subject Analysis (Subject-Year Summary):")
+print(subject_level_tidy)
+
+
+```
+
+Note how each format is 'tidy' for different analytical purposes:
+
+- Original: Good for viewing all scores at once
+- Student-level: Good for analyzing individual student performance
+- Subject-level: Good for comparing subjects over time
+
+### Why Tidy Data Matters
+
+Tidy data is:
+
+- Easier to visualize
+- Simpler to model
+- More consistent to work with
+- Perfect for vectorized operations
+
+Let's pause on that last point... what are vectorized operations? In R, vectorization means performing operations on entire vectors (columns) at once, rather than element by element. This is both faster and more readable. Here's an example:
+
+```{r}
+# Non-vectorized (slow, harder to read)
+scores <- c(85, 92, 78, 95)
+doubled_scores <- numeric(length(scores))  # Create empty vector
+for(i in 1:length(scores)) {
+  doubled_scores[i] <- scores[i] * 2
+}
+
+# Vectorized (fast, clean, "R-like")
+scores <- c(85, 92, 78, 95)
+doubled_scores <- scores * 2  # Entire operation happens at once!
+
+# More vectorized operations
+mean_centered <- scores - mean(scores)  # Center scores
+z_scores <- (scores - mean(scores)) / sd(scores)  # Standardize
+passed <- scores >= 80  # Logical comparisons
+
+# Show results
+results <- tibble(
+  original = scores,
+  doubled = doubled_scores,
+  centered = mean_centered,
+  standardized = z_scores,
+  passed_test = passed
+)
+print(results)
+
+# When data is tidy (one observation per row, one variable per column),
+# vectorized operations become natural:
+student_level_tidy %>%
+  group_by(subject) %>%
+  summarize(
+    mean_score = mean(score),  # Vectorized mean
+    pass_rate = mean(score >= 80),  # Vectorized logical operation
+    z_scores = (score - mean(score)) / sd(score)  # Vectorized standardization
+  )
+```
+### 🎯 **Exercise 1: Tidying Data** (5 minutes)
+
+Below is an untidy dataset about city temperatures. Convert it to tidy format:
+
+```{r}
+# Untidy temperature data
+city_temps <- tibble(
+  city = c("New York", "London", "Tokyo"),
+  spring_high = c(20, 18, 19),
+  spring_low = c(10, 8, 9),
+  summer_high = c(30, 25, 28),
+  summer_low = c(20, 15, 18)
+)
+
+# Your code here to make it tidy
+# Hint: You'll need pivot_longer() and consider how to handle high/low temps
+
+
+
+```
+
+**Questions to consider:**
+
+1. What are the variables in this dataset?
+2. What should each row represent?
+3. How would you structure this for easy plotting?
+
+# Part 2: Data Transformation with dplyr
+
+## The dplyr Verbs
+
+dplyr provides a consistent set of verbs for data manipulation:
+
+- `select()`: Choose columns
+- `filter()`: Choose rows
+- `mutate()`: Create new columns
+- `arrange()`: Sort rows
+- `summarize()`: Collapse rows
+- `group_by()`: Group for operations
+
+Let's see these in action with some real data:
+
+```{r}
+# Load example employee data
+employees <- tibble(
+  id = 1:10,
+  name = c("John Smith", "Jane Doe", "Bob Wilson", "Alice Brown", 
+           "Charlie Davis", "Diana Evans", "Edward Fox", "Grace Hill",
+           "Henry Jones", "Ivy King"),
+  department = c("Sales", "IT", "Sales", "HR", "IT", 
+                "Sales", "HR", "IT", "Sales", "HR"),
+  salary = c(50000, 65000, 51000, 55000, 67000, 
+             52000, 54000, 66000, 53000, 56000),
+  start_date = as.Date(c("2020-01-15", "2019-03-20", "2020-02-10", 
+                        "2019-07-05", "2018-11-30", "2020-03-15",
+                        "2019-08-22", "2018-12-10", "2020-04-05", 
+                        "2019-09-15"))
+)
+
+# Example transformations
+employees %>%
+  # Select specific columns
+  select(name, department, salary) %>%
+  # Filter for high-paid employees
+  filter(salary > 60000) %>%
+  # Sort by salary descending
+  arrange(desc(salary)) %>%
+  # Add a new column
+  mutate(salary_category = if_else(salary >= 65000, "High", "Medium"))
+```
+
+## Working with Groups
+
+Grouping is powerful for aggregation and group-wise operations:
+
+```{r}
+# Analyze salaries by department
+dept_summary <- employees %>%
+  group_by(department) %>%
+  summarize(
+    avg_salary = mean(salary),
+    min_salary = min(salary),
+    max_salary = max(salary),
+    n_employees = n()
+  ) %>%
+  arrange(desc(avg_salary))
+
+print(dept_summary)
+```
+
+### 🎯 **Exercise 2: Data Transformation** (10 minutes)
+
+Using the employees data:
+
+1. Calculate average salary by department
+2. Find the newest employee in each department
+3. Create a summary showing departments ordered by total salary budget
+
+```{r}
+# Your code here
+
+
+```
+
+# Part 3: Joining Data
+
+## Understanding Join Types
+
+Joins combine tables based on matching keys. The type of join determines which rows are kept:
+
+![Join Types Visualization](https://d33wubrfki0l68.cloudfront.net/aeab386461820b029b7e7606ccff1286f623bae1/ef0d4/diagrams/join-venn.png)
+
+Let's see different joins in action:
+
+```{r}
+# Create example department data
+departments <- tibble(
+  department = c("Sales", "IT", "HR", "Marketing"),
+  location = c("New York", "San Francisco", "Chicago", "Boston"),
+  budget = c(1000000, 800000, 500000, 700000)
+)
+
+# Demonstrate different joins
+# Inner join - only matching rows
+inner_result <- employees %>%
+  inner_join(departments, by = "department")
+
+# Left join - all employees, matching departments
+left_result <- employees %>%
+  left_join(departments, by = "department")
+
+# Full join - all rows from both tables
+full_result <- employees %>%
+  full_join(departments, by = "department")
+
+# Show results
+print("Inner Join Result (matching only):")
+print(inner_result)
+print("\nLeft Join Result (all employees):")
+print(left_result)
+print("\nFull Join Result (everything):")
+print(full_result)
+```
+
+## Common Join Problems
+
+When joining data, watch out for:
+
+1. **Duplicate Keys**: When the same key appears multiple times
+2. **Missing Keys**: When some keys don't have matches
+3. **Inconsistent Formats**: When keys don't match due to formatting
+4. **Wrong Join Type**: Using inner join when you needed left join
+
+Let's see these problems and their solutions:
+
+```{r}
+# Example of problematic joins
+# Create data with problems
+employees_messy <- employees %>%
+  mutate(department = if_else(row_number() == 1, "SALES", department))  # Inconsistent case
+
+departments_messy <- departments %>%
+  add_row(department = "Sales", location = "Miami", budget = 900000)    # Duplicate department
+
+# Try joining messy data
+messy_join <- employees_messy %>%
+  left_join(departments_messy, by = "department")
+
+# Show problems
+print("Problematic Join Result:")
+print(messy_join)
+
+# Fix the problems
+clean_join <- employees_messy %>%
+  mutate(department = str_to_title(department)) %>%  # Standardize case
+  left_join(
+    departments_messy %>% 
+      group_by(department) %>%
+      slice(1),  # Take first instance of duplicates
+    by = "department"
+  )
+
+print("\nCleaned Join Result:")
+print(clean_join)
+```
+
+### 🎯 **Exercise 3: Working with Joins** (10 minutes)
+
+You have two datasets about projects and employees. Join them appropriately:
+
+```{r}
+# Create project assignments data
+projects <- tibble(
+  project_id = c("P1", "P2", "P3", "P4"),
+  project_name = c("Website Redesign", "Mobile App", "Database Migration", "Cloud Migration"),
+  lead_id = c(2, 5, 7, 3),  # Employee IDs of project leads
+  budget = c(100000, 150000, 80000, 120000)
+)
+
+# Your task:
+# 1. Join projects with employees to get project lead names
+# 2. Calculate total budget managed by each department
+# 3. Find projects without valid leads
+
+# Your code here
+
+
+
+```
+
+# Part 4: Entity Resolution
+
+Entity resolution is the process of identifying and linking records that refer to the same entity across different data sources. Common challenges include:
+
+1. **Inconsistent Names**: "John Smith" vs. "Smith, John"
+2. **Typos**: "Google Inc" vs. "Google Inc."
+3. **Different Formats**: "IBM" vs. "International Business Machines"
+4. **Missing Data**: Incomplete records
+
+Let's work through an example:
+
+```{r}
+# Create data with entity resolution problems
+companies_a <- tibble(
+  name = c("Google Inc", "Microsoft Corp.", "IBM Corporation", "Apple Inc."),
+  revenue = c(180.5, 168.1, 73.6, 365.8)
+)
+
+companies_b <- tibble(
+  company_name = c("GOOGLE INC.", "Microsoft", "International Business Machines", "Apple"),
+  employees = c(156500, 181000, 350600, 154000)
+)
+
+# Function to standardize company names
+standardize_name <- function(name) {
+  name %>%
+    str_to_upper() %>%
+    str_remove_all("[.,]") %>%
+    str_remove_all("\\bCORP\\b|\\bCORPORATION\\b|\\bINC\\b") %>%  # regex string removal
+    str_trim()  # Remove extra whitespace
+}
+
+# Clean and join the data
+clean_companies <- companies_a %>%
+  mutate(clean_name = standardize_name(name)) %>%
+  left_join(
+    companies_b %>% mutate(clean_name = standardize_name(company_name)),
+    by = "clean_name"
+  )
+
+print(clean_companies)
+```
+
+### 🎯 **Exercise 4: Entity Resolution** (10 minutes)
+
+Clean and match these customer records:
+
+```{r}
+# Customer data from two sources
+customers_1 <- tibble(
+  name = c("John A. Smith", "Mary Johnson", "Robert Brown Jr.", "Sarah Wilson"),
+  email = c("john.smith@email.com", "mary.j@email.com", "rob.brown@email.com", "sarah@email.com")
+)
+
+customers_2 <- tibble(
+  customer_name = c("Smith, John", "Johnson, Mary", "Brown, Robert", "Wilson, S."),
+  phone = c("555-0101", "555-0102", "555-0103", "555-0104")
+)
+
+# Your task:
+# 1. Create a function to standardize names
+# 2. Join the customer records
+# 3. Handle the partial match (Sarah/S. Wilson) appropriately
+
+# Your code here. This one will likely take longer so consider it a take-home exercise. 
+
+```
+
+# Lab Assignment: ZIP-Level Data Integration Challenge
+
+## Overview
+
+Your task is to enrich the Labor Action Tracker (LAT) data with ZIP or county code-level features. While you'll coordinate with your project team to divide up which data sources to explore, the actual data integration work and analysis is to be completed individually.
+
+## Team Coordination (Before Starting)
+
+1. Meet with your project team
+2. Divide up the candidate data sources from the Feature Store so each person explores different ones
+3. Document which source(s) you're responsible for investigating
+
+## Individual Requirements (25 points)
+
+### Part 1: Data Exploration (5 points)
+- Examine your assigned ZIP-level dataset(s)
+- Document the variables available
+- Assess data quality and coverage
+- Identify potential joining keys
+
+### Part 2: Data Integration (10 points)
+- Implement the join between LAT and your ZIP or county code-level data
+- Handle any necessary data cleaning or standardization
+- Document all decisions about:
+  - How to handle missing values
+  - What to do with ZIP codes that don't match
+  - Any necessary data transformations
+
+### Part 3: Quality Assessment (10 points)
+- Evaluate the success of your join
+- Quantify data coverage and loss
+- Identify potential issues introduced
+- Suggest improvements or alternatives
+
+## Submission Instructions
+
+Submit individually to gradescope:
+
+1. Your `.qmd` source file
+2. The rendered `.pdf` file
+
+
+## Important Notes
+
+- While you divided up data sources with your team, all analysis and writing must be your own
+- You may discuss general approaches with classmates but implement solutions independently
+- Your team can later decide which joins to use in the group project
+
+## Academic Integrity
+
+If you use ChatGPT or other AI tools for assistance, include an appendix detailing:
+- Which tools you used
+- What specific help you requested
+- How you verified and modified the AI-generated content
+
+
