@@ -1,0 +1,497 @@
+---
+title: "Ethics in Data Science and Policy"
+subtitle: "Principles, Practice, and Public Trust"
+author: "Rod Albuyeh"
+date: "10/20/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(patchwork)
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Apply** ethical frameworks to data science decisions
+- **Evaluate** trade-offs between competing principles
+- **Design** ethical safeguards in data projects
+- **Communicate** ethical considerations to stakeholders
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Ethics in data science isn't about following rules—it's about making principled decisions that respect human dignity and promote social good.
+:::
+:::
+
+# Part I: Why Ethics Matter in Data Science
+
+## The Stakes Have Never Been Higher {.smaller}
+
+::: {.fragment}
+**Data science decisions affect lives:**
+
+- Credit scoring → Access to housing
+- Risk assessment → Criminal justice outcomes
+- Healthcare algorithms → Treatment access
+- Facial recognition → Civil liberties
+:::
+
+::: {.fragment}
+**Recent controversies:**
+
+- Biased hiring algorithms
+- Discriminatory lending practices
+- Privacy breaches in health apps
+- Surveillance overreach
+:::
+
+::: {.fragment}
+::: callout-important
+**Reality check**: Technical excellence without ethical consideration can amplify societal harms.
+:::
+:::
+
+## Case Study: COMPAS Recidivism Algorithm {.smaller}
+
+::: {.fragment}
+**The setup:**
+
+- Algorithm predicts likelihood of reoffending
+- Used in sentencing and parole decisions
+- Affects thousands of lives daily
+:::
+
+::: {.fragment}
+**ProPublica's findings (2016):**
+
+- Racially biased predictions
+- False positive rate for Black defendants: 45%
+- False positive rate for White defendants: 24%
+:::
+
+::: {.fragment}
+**Key ethical questions:**
+- What does "fairness" mean in this context?
+- How do we balance accuracy vs. equity?
+- Should algorithms make high-stakes decisions?
+:::
+
+# Part II: Ethical Frameworks in Practice
+
+## Beyond Rules: A Principled Approach {.smaller}
+
+::: {layout-ncol=2}
+### Traditional Approaches
+- **Rules-based (IRB)**
+  + Slow to adapt
+  + Binary decisions
+  + Minimum standards
+- **Ad hoc**
+  + Inconsistent
+  + Lacks accountability
+  + Personal bias risk
+
+### Modern Framework
+- **Principle-based**
+  + Flexible
+  + Context-aware
+  + Team-oriented
+- **Outcome-focused**
+  + Impact assessment
+  + Stakeholder input
+  + Continuous evaluation
+:::
+
+::: {.fragment}
+**Key insight**: Good ethical practice requires both strong principles AND practical frameworks for applying them.
+:::
+
+## Core Ethical Principles in Data Science {.smaller}
+
+::: {.fragment}
+**1. Respect for Persons**
+- Individual autonomy
+- Informed consent
+- Right to opt out
+:::
+
+::: {.fragment}
+**2. Beneficence**
+- Maximize benefits
+- Minimize harm
+- Consider indirect effects
+:::
+
+::: {.fragment}
+**3. Justice**
+- Fair distribution of benefits
+- Protection of vulnerable groups
+- Equal access to recourse
+:::
+
+::: {.fragment}
+**4. Transparency**
+- Explainable decisions
+- Accessible documentation
+- Clear communication
+:::
+
+## Ethical Frameworks Across Cultures {.smaller}
+
+```{r}
+#| echo: false
+# Create a comparison of ethical frameworks
+frameworks <- tibble(
+  Framework = c("Belmont Report (US)", "FATML", "UK Data Ethics", "China TC260"),
+  Principles = c(
+    "Respect, Beneficence, Justice",
+    "Responsibility, Explainability, Accuracy, Auditability, Fairness",
+    "Transparency, Accountability, Fairness",
+    "Harmony, Justice, Privacy, Safety, Collaboration"
+  ),
+  Context = c(
+    "Research Ethics",
+    "Machine Learning",
+    "Government Data",
+    "Information Systems"
+  )
+)
+
+knitr::kable(frameworks)
+```
+
+::: {.fragment}
+**Common themes:**
+- Fairness and justice
+- Transparency
+- Responsibility
+- Protection of rights
+:::
+
+# Part III: Practical Ethics in Data Projects
+
+## The Ethics Canvas: A Tool for Teams {.smaller}
+
+::: {.fragment}
+**Step 1: Stakeholder Analysis**
+- Who is affected?
+- What are their interests?
+- Where are potential conflicts?
+:::
+
+::: {.fragment}
+**Step 2: Risk Assessment**
+- Privacy risks
+- Bias potential
+- Unintended consequences
+:::
+
+::: {.fragment}
+**Step 3: Mitigation Planning**
+- Technical safeguards
+- Process controls
+- Monitoring systems
+:::
+
+::: {.fragment}
+**Step 4: Documentation**
+- Decision rationale
+- Trade-off analysis
+- Impact assessment
+:::
+
+## Interactive Exercise: Ethical Decision Making {.smaller}
+
+::: {.fragment}
+**Scenario**: City wants to use utility data to identify households for targeted social services.
+
+**Your task (5 minutes):**
+1. List stakeholders
+2. Identify ethical concerns
+3. Propose safeguards
+4. Consider trade-offs
+:::
+
+::: {.fragment}
+**Discussion points:**
+- Privacy vs. public good
+- Consent requirements
+- Data security
+- Fairness in targeting
+:::
+
+## Privacy: Beyond PII {.smaller}
+
+::: {.fragment}
+**Traditional approach:**
+- Remove names, SSNs, addresses
+- Aggregate data
+- Basic anonymization
+:::
+
+::: {.fragment}
+**Modern challenges:**
+- Re-identification through linkage
+- Behavioral fingerprints
+- Location data risks
+- Temporal patterns
+:::
+
+```{r}
+#| echo: false
+# Create example of how seemingly anonymous data can be identifying
+anonymous_data <- tibble(
+  ZIP = c("92101", "92101", "92101", "92101"),
+  Age = c(45, 45, 45, 45),
+  Income = c("High", "High", "High", "High"),
+  Visits = c(12, 15, 8, 10)
+)
+
+knitr::kable(anonymous_data, 
+             caption = "Even 'anonymous' data can identify individuals when combined")
+```
+
+## Bias and Fairness: A Framework {.smaller}
+
+::: {layout-ncol=2}
+### Types of Bias
+- **Selection bias**
+  + Non-representative data
+  + Sampling issues
+- **Measurement bias**
+  + Poor data quality
+  + Inconsistent collection
+- **Algorithm bias**
+  + Model assumptions
+  + Feature selection
+- **Deployment bias**
+  + Context mismatch
+  + Feedback loops
+
+### Fairness Metrics
+- **Group fairness**
+  + Equal error rates
+  + Demographic parity
+- **Individual fairness**
+  + Similar cases
+  + Similar outcomes
+- **Process fairness**
+  + Transparent
+  + Contestable
+- **Outcome fairness**
+  + Impact analysis
+  + Long-term effects
+:::
+
+## Hypothetical Case: Predictive Policing {.smaller}
+
+::: {.fragment}
+**The system:**
+- Predicts crime hotspots
+- Allocates police resources
+- Uses historical crime data
+:::
+
+::: {.fragment}
+**Ethical concerns:**
+- Reinforcing historical biases
+- Over-policing communities
+- Self-fulfilling predictions
+:::
+
+::: {.fragment}
+**Mitigation strategies:**
+- Community input
+- Multiple data sources
+- Regular bias audits
+- Clear oversight
+:::
+
+# Part IV: Building Ethical Data Science Teams
+
+## Team Composition and Roles {.smaller}
+
+::: {.fragment}
+**Core competencies needed:**
+- Data ethics expertise
+- Legal knowledge
+- Domain understanding
+- Technical skills
+- Communication ability
+:::
+
+::: {.fragment}
+**Key roles:**
+- Ethics lead
+- Privacy officer
+- Domain experts
+- Technical team
+- Stakeholder liaison
+:::
+
+::: {.fragment}
+**Team effectiveness factors:**
+- Complementary skill sets
+- Cross-disciplinary expertise
+- Domain knowledge depth
+- Professional experience breadth
+:::
+
+## Ethics Review Process {.smaller}
+
+::: {.fragment}
+**Stage 1: Planning**
+- Impact assessment
+- Stakeholder consultation
+- Risk identification
+:::
+
+::: {.fragment}
+**Stage 2: Development**
+- Regular ethics reviews
+- Bias testing
+- Privacy checks
+:::
+
+::: {.fragment}
+**Stage 3: Deployment**
+- Monitoring plan
+- Feedback mechanisms
+- Update procedures
+:::
+
+::: {.fragment}
+**Stage 4: Evaluation**
+- Impact analysis
+- Stakeholder feedback
+- Lessons learned
+:::
+
+## Practical Tools for Ethical Practice {.smaller}
+
+::: {.fragment}
+**Documentation templates:**
+- Ethics canvas
+- Risk register
+- Decision log
+:::
+
+::: {.fragment}
+**Technical tools:**
+- Fairness metrics
+- Privacy-preserving techniques
+- Bias detection
+:::
+
+::: {.fragment}
+**Process tools:**
+- Ethics review checklist
+- Stakeholder mapping
+- Impact assessment
+:::
+
+::: {.fragment}
+**Communication tools:**
+- Plain language summaries
+- Visual decision trees
+- Stakeholder briefs
+:::
+
+# Part V: Future Challenges and Opportunities
+
+## Emerging Ethical Challenges {.smaller}
+
+::: {.fragment}
+**AI and Automation**
+- Algorithmic accountability
+- Human oversight
+- Automation bias
+:::
+
+::: {.fragment}
+**Privacy Evolution**
+- Data sovereignty
+- Right to be forgotten
+- Privacy-preserving ML
+:::
+
+::: {.fragment}
+**Global Governance**
+- Cross-border data flows
+- Cultural differences
+- Regulatory alignment
+:::
+
+::: {.fragment}
+**Environmental Impact**
+- Computing resources
+- Energy consumption
+- Sustainability
+:::
+
+## Building Public Trust {.smaller}
+
+::: {.fragment}
+**Key elements:**
+- Transparent processes
+- Clear communication
+- Meaningful oversight
+- Public engagement
+:::
+
+::: {.fragment}
+**Best practices:**
+- Regular audits
+- Public reporting
+- Stakeholder feedback
+- Continuous improvement
+:::
+
+::: {.fragment}
+::: callout-note
+**Remember**: Trust is earned through consistent ethical practice, not just good intentions.
+:::
+:::
+
+## Next Steps {.smaller}
+
+::: {.fragment}
+**Important Dates:**
+
+- **Assignment 2 Due**: Friday, October 31st at 11:59 PM
+- Next week we move on to algorithmic thinking.
+- Following that, we advance to core machine learning algorithms.
+:::
+
+
+## Questions?
+
+::: {.fragment}
+**Remember**: Ethics isn't a constraint on data science—it's a foundation for building better, more trustworthy systems.
+:::
