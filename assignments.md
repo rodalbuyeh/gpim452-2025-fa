@@ -25,7 +25,7 @@ The **Labor Action Tracker (LAT)** is maintained by Cornell University’s Schoo
 Since 2021, the LAT project has combined **public data sources** and **crowdsourced reports** to track strikes, protests, and other labor actions across the United States.
 
 For this project, you will use LAT data **up to December 5, 2023** to train and validate your predictive models.  
-You will then test your models on **new data from December 4, 2023 through February 1, 2025**.
+You will then test your models on **new data from December 6, 2023 through February 1, 2025**.
 
 ---
 
