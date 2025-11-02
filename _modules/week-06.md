@@ -4,7 +4,7 @@
     days:
       - date: 2025-11-03
         events:
-          "**LEC 6**{: .label .label-lecture } Intro to Algorithmic Thinking": 
+          "**LEC 6**{: .label .label-lecture } [Intro to Algorithmic Thinking](_lectures/lec06_algorithms.html)": 
           "**Read**{: .label .label-read } [Algorithmic Thinking](https://learntocodewith.me/posts/algorithmic-thinking/)":
 
       - date: 2025-11-05

@@ -1,0 +1,774 @@
+---
+title: "Algorithmic Thinking for Policy Data Science"
+subtitle: "Designing Efficient Approaches"
+author: "Rod Albuyeh"
+date: "11/03/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+    code-block-height: 300px
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(microbenchmark)
+library(patchwork)
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Distinguish** between algorithms and their implementations
+- **Analyze** computational complexity and its policy implications
+- **Design** efficient approaches to common policy problems
+- **Evaluate** trade-offs between different algorithmic strategies
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: In policy work, the choice of algorithm affects not just performance, but also fairness, transparency, and scalability of solutions.
+:::
+:::
+
+# Part I: What Is Algorithmic Thinking?
+
+## Algorithm vs. Implementation: A Policy Example {.smaller}
+
+::: {.fragment}
+**Scenario**: City needs to assign students to schools based on preferences and capacity
+:::
+
+::: columns
+::: {.column width="50%"}
+### The Algorithm (Recipe)
+1. Collect student preferences
+2. Check school capacities  
+3. Apply matching rules
+4. Handle conflicts fairly
+5. Produce final assignments
+:::
+
+::: {.column width="50%"}
+### The Implementation (Code)
+::: {.fragment}
+```r
+assign_students <- function(student_prefs, school_caps) {
+  assignments <- tibble()
+  
+  for(i in 1:nrow(student_prefs)) {
+    # Find best available school
+    # Check capacity constraints
+    # Make assignment
+  }
+  
+  return(assignments)
+}
+```
+:::
+:::
+:::
+
+::: {.fragment}
+**Key distinction**: The algorithm is the logical approach; the implementation is how we code it in a specific language.
+:::
+
+## Why Algorithmic Thinking Matters in Policy {.smaller}
+
+::: {.fragment}
+**Real-world stakes:**
+- **Efficiency**: Can we process 100,000 applications in reasonable time?
+- **Fairness**: Does our approach treat all applicants equally?
+- **Transparency**: Can stakeholders understand how decisions are made?
+- **Scalability**: Will this work as the city grows?
+:::
+
+::: {.fragment}
+**Policy examples where algorithms matter:**
+- Vaccine distribution during emergencies
+- Emergency response resource allocation
+- Benefit eligibility determination
+- Traffic light optimization
+:::
+
+::: {.fragment}
+::: callout-important
+**Remember**: In policy contexts, "good enough" algorithms that are transparent and fair often beat "optimal" algorithms that are opaque.
+:::
+:::
+
+# Part II: Measuring Algorithm Quality
+
+## The Three Dimensions of Algorithm Quality {.smaller}
+
+::: {layout-ncol=3}
+### Correctness
+- Does it solve the problem?
+- Are results accurate?
+- Does it handle edge cases?
+
+### Efficiency
+- **Time**: How long does it take?
+- **Space**: How much memory?
+- **Resources**: What does it cost?
+
+### Maintainability
+- Can others understand it?
+- Is it easy to modify?
+- Can we audit decisions?
+:::
+
+::: {.fragment}
+**Policy reality**: We often trade some efficiency for transparency and maintainability.
+:::
+
+## Case Study: Finding the Maximum Value {.smaller}
+
+Let's compare different approaches to a simple problem: finding the largest value in a dataset.
+
+::: {.fragment}
+**Policy context**: Finding the county with the highest unemployment rate for targeted intervention.
+:::
+
+```{r}
+# Create sample unemployment data
+set.seed(42)
+unemployment_data <- tibble(
+  county = paste("County", 1:1000),
+  unemployment_rate = runif(1000, 0.02, 0.15)  # 2% to 15%
+)
+
+# Show first few rows
+head(unemployment_data, 3)
+```
+
+## Approach 1: The Straightforward Method {.smaller}
+
+```{r}
+# Method 1: Simple and clear
+find_max_simple <- function(data) {
+  max_rate <- data$unemployment_rate[1]  # Start with first value
+  max_county <- data$county[1]
+  
+  for(i in 2:nrow(data)) {
+    if(data$unemployment_rate[i] > max_rate) {
+      max_rate <- data$unemployment_rate[i]
+      max_county <- data$county[i]
+    }
+  }
+  
+  return(list(county = max_county, rate = max_rate))
+}
+
+# Test it
+result1 <- find_max_simple(unemployment_data)
+cat("Highest unemployment:", result1$county, "at", 
+    scales::percent(result1$rate, accuracy = 0.1))
+```
+
+::: {.fragment}
+**Pros**: Easy to understand, memory efficient, straightforward approach
+**Cons**: Requires writing a loop, more verbose than built-in functions
+:::
+
+## Approach 2: Using Built-in Functions {.smaller}
+
+```{r}
+# Method 2: Leverage R's optimized functions
+find_max_builtin <- function(data) {
+  max_idx <- which.max(data$unemployment_rate)
+  return(list(
+    county = data$county[max_idx],
+    rate = data$unemployment_rate[max_idx]
+  ))
+}
+
+# Test it
+result2 <- find_max_builtin(unemployment_data)
+cat("Highest unemployment:", result2$county, "at", 
+    scales::percent(result2$rate, accuracy = 0.1))
+```
+
+::: {.fragment}
+**Pros**: Concise, leverages optimized code, less error-prone
+**Cons**: Less transparent about what's happening internally
+:::
+
+## Approach 3: The Sorting Method {.smaller}
+
+```{r}
+# Method 3: Sort first, then take the top
+find_max_sort <- function(data) {
+  sorted_data <- data %>%
+    arrange(desc(unemployment_rate))
+  
+  return(list(
+    county = sorted_data$county[1],
+    rate = sorted_data$unemployment_rate[1]
+  ))
+}
+
+# Test it
+result3 <- find_max_sort(unemployment_data)
+cat("Highest unemployment:", result3$county, "at", 
+    scales::percent(result3$rate, accuracy = 0.1))
+```
+
+::: {.fragment}
+**Pros**: Very readable, gives us sorted data as a bonus
+**Cons**: Does more work than necessary (sorts entire dataset)
+:::
+
+## Performance Comparison {.smaller}
+
+Let's measure how these approaches perform with different data sizes:
+
+```{r}
+# Create datasets of different sizes
+create_test_data <- function(n) {
+  tibble(
+    county = paste("County", 1:n),
+    unemployment_rate = runif(n, 0.02, 0.15)
+  )
+}
+
+# Test with 1000 rows
+test_data <- create_test_data(1000)
+
+# Compare performance
+benchmark_results <- microbenchmark(
+  simple = find_max_simple(test_data),
+  builtin = find_max_builtin(test_data),
+  sorting = find_max_sort(test_data),
+  times = 100
+)
+
+print(benchmark_results)
+```
+
+## Visualizing Performance Differences {.smaller}
+
+```{r}
+#| echo: false
+# Convert benchmark results to a more readable format
+benchmark_summary <- benchmark_results %>%
+  group_by(expr) %>%
+  summarise(
+    median_time_ms = median(time) / 1e6,  # Convert to milliseconds
+    .groups = 'drop'
+  ) %>%
+  mutate(
+    method = case_when(
+      expr == "simple" ~ "Simple Loop",
+      expr == "builtin" ~ "Built-in Function", 
+      expr == "sorting" ~ "Sort Method"
+    )
+  )
+
+ggplot(benchmark_summary, aes(x = reorder(method, median_time_ms), y = median_time_ms)) +
+  geom_col(fill = "steelblue", alpha = 0.7) +
+  geom_text(aes(label = paste0(round(median_time_ms, 2), " ms")), 
+            vjust = -0.5, size = 4) +
+  labs(title = "Performance Comparison: Finding Maximum Value",
+       subtitle = "Median time across 100 runs (1,000 counties)",
+       x = "Method", y = "Time (milliseconds)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+::: {.fragment}
+**Key insight**: The built-in function is dramatically faster! Even though sorting does extra work, R's optimized sorting is still faster than our simple loop.
+:::
+
+# Part III: Understanding Computational Complexity
+
+## Big O Notation: The Language of Efficiency {.smaller}
+
+::: {.fragment}
+**Big O describes how runtime grows as input size increases**
+:::
+
+::: {layout-ncol=2}
+### Common Complexities
+- **O(1)**: Constant time
+- **O(log n)**: Logarithmic
+- **O(n)**: Linear  
+- **O(n log n)**: Log-linear
+- **O(n²)**: Quadratic
+- **O(2ⁿ)**: Exponential
+
+### Policy Translation
+- **O(1)**: Checking eligibility rules
+- **O(log n)**: Finding a record in sorted database
+- **O(n)**: Processing all applications once
+- **O(n²)**: Comparing every pair of cases
+- **O(2ⁿ)**: Trying all possible combinations
+:::
+
+::: {.fragment}
+**Critical insight**: The difference between O(n) and O(n²) can mean the difference between real-time and overnight processing.
+:::
+
+## Complexity in Action: Sorting Algorithms {.smaller}
+
+Let's implement and compare two sorting approaches:
+
+```{r}
+# Bubble Sort: O(n²) - compares every pair
+bubble_sort <- function(x) {
+  n <- length(x)
+  for(i in 1:(n-1)) {
+    for(j in 1:(n-i)) {
+      if(x[j] > x[j+1]) {
+        # Swap elements
+        temp <- x[j+1]
+        x[j+1] <- x[j]
+        x[j] <- temp
+      }
+    }
+  }
+  return(x)
+}
+
+# Test with small dataset
+small_data <- c(64, 34, 25, 12, 22, 11, 90)
+cat("Original:", paste(small_data, collapse = ", "), "\n")
+cat("Sorted:  ", paste(bubble_sort(small_data), collapse = ", "), "\n")
+```
+
+## The Dramatic Impact of Complexity {.smaller}
+
+Let's see how different complexities perform as data size grows:
+
+```{r}
+#| code-overflow: scroll
+#| output-location: fragment
+# Test sorting performance with different sizes
+test_sorting_performance <- function(sizes) {
+  results <- tibble()
+  
+  for(n in sizes) {
+    # Create random data - ensure we have enough values to sample from
+    max_val <- max(1000, n)  # Use at least 1000 or n, whichever is larger
+    test_data <- sample(1:max_val, n)
+    
+    # Time bubble sort (O(n²))
+    bubble_time <- system.time({
+      bubble_sort(test_data)
+    })["elapsed"]
+    
+    # Time R's built-in sort (O(n log n))
+    builtin_time <- system.time({
+      sort(test_data)
+    })["elapsed"]
+    
+    results <- bind_rows(results, tibble(
+      n = n,
+      bubble_sort = bubble_time,
+      builtin_sort = builtin_time
+    ))
+  }
+  
+  return(results)
+}
+
+# Test with increasing sizes (be careful not to make too large!)
+performance_data <- test_sorting_performance(c(100, 300, 500, 800))
+performance_data
+```
+
+## Visualizing the Complexity Explosion {.smaller}
+
+```{r}
+#| echo: false
+# Reshape data for plotting
+performance_long <- performance_data %>%
+  pivot_longer(cols = c(bubble_sort, builtin_sort), 
+               names_to = "algorithm", 
+               values_to = "time_seconds") %>%
+  mutate(
+    algorithm = case_when(
+      algorithm == "bubble_sort" ~ "Bubble Sort O(n²)",
+      algorithm == "builtin_sort" ~ "Built-in Sort O(n log n)"
+    )
+  )
+
+ggplot(performance_long, aes(x = n, y = time_seconds, color = algorithm)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  scale_y_continuous(labels = function(x) paste0(x, "s")) +
+  scale_color_manual(values = c("Bubble Sort O(n²)" = "red", 
+                               "Built-in Sort O(n log n)" = "blue")) +
+  labs(title = "The Dramatic Impact of Algorithm Choice",
+       subtitle = "How sorting time grows with data size",
+       x = "Number of Items to Sort",
+       y = "Time (seconds)",
+       color = "Algorithm") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Policy implication**: With 10,000 records, bubble sort might take hours while efficient sorting takes milliseconds!
+:::
+
+# Part IV: Policy-Relevant Algorithm Design
+
+## Case Study: Emergency Resource Allocation {.smaller}
+
+::: {.fragment}
+**Scenario**: During a natural disaster, we need to allocate emergency supplies to affected areas.
+:::
+
+::: {.fragment}
+**Constraints**:
+- Limited supplies (trucks, medical kits, food)
+- Different areas have different needs and priorities
+- Time is critical
+- Decisions must be auditable and fair
+:::
+
+::: {.fragment}
+**Algorithm design questions**:
+1. How do we prioritize areas?
+2. How do we ensure fair distribution?
+3. How do we handle real-time updates?
+4. How do we make decisions transparent?
+:::
+
+## Algorithm 1: Simple Priority Queue {.smaller}
+
+```{r}
+# Create sample emergency data
+set.seed(123)
+emergency_data <- tibble(
+  area_id = paste("Area", LETTERS[1:10]),
+  population = sample(1000:50000, 10),
+  severity_score = sample(1:10, 10, replace = TRUE),  # 1 = low, 10 = critical
+  distance_km = sample(5:100, 10),
+  supplies_needed = sample(10:500, 10)
+) %>%
+  # Calculate priority score (higher = more urgent)
+  mutate(
+    priority_score = (severity_score * population) / distance_km,
+    priority_rank = rank(-priority_score)  # Negative for descending order
+  )
+
+head(emergency_data)
+```
+
+## Simple Allocation Algorithm {.smaller}
+
+```{r}
+# GREEDY ALLOCATION ALGORITHM
+# Input: areas (tibble with priority_score, supplies_needed, etc.)
+#        total_supplies (integer: total units available)
+# Output: tibble with area_id, allocated, needed, priority_rank
+
+allocate_supplies_simple <- function(areas, total_supplies) {
+  
+  # STEP 1: Sort areas by priority (highest priority first)
+  # This creates our "queue" - we'll serve highest priority areas first
+  sorted_areas <- areas %>%
+    arrange(desc(priority_score))  # desc() = descending order
+  
+  # STEP 2: Initialize our tracking variables
+  remaining_supplies <- total_supplies  # How many supplies we have left
+  allocations <- tibble()              # Empty table to store results
+  
+  # STEP 3: Go through each area in priority order
+  for(i in 1:nrow(sorted_areas)) {
+    current_area <- sorted_areas[i, ]  # Get data for this area
+    
+    # STEP 4: Give this area as much as possible (but not more than needed)
+    # Example: Area needs 500, we have 300 left → give 300
+    # Example: Area needs 200, we have 300 left → give 200
+    allocated_to_this_area <- min(current_area$supplies_needed, remaining_supplies)
+    
+    # STEP 5: Record what we gave to this area
+    allocations <- bind_rows(allocations, tibble(
+      area_id = current_area$area_id,           # Which area (character)
+      allocated = allocated_to_this_area,       # How much we gave (integer)
+      needed = current_area$supplies_needed,    # How much they needed (integer)
+      priority_rank = current_area$priority_rank # Their rank (integer)
+    ))
+    
+    # STEP 6: Update how many supplies we have left
+    remaining_supplies <- remaining_supplies - allocated_to_this_area
+    
+    # STEP 7: If we're out of supplies, stop (no point continuing)
+    if(remaining_supplies <= 0) break
+  }
+  
+  # STEP 8: Add areas that got nothing (for complete reporting)
+  # Find areas we never got to (ran out of supplies before reaching them)
+  unallocated_areas <- sorted_areas %>%
+    filter(!area_id %in% allocations$area_id) %>%  # Areas not in our results yet
+    select(area_id, supplies_needed, priority_rank) %>%
+    mutate(
+      allocated = 0,                    # They got 0 supplies
+      needed = supplies_needed          # Their original request
+    ) %>%
+    select(area_id, allocated, needed, priority_rank)  # Keep only the columns we want
+  
+  # STEP 9: Combine allocated and unallocated areas into final result
+  final_allocations <- bind_rows(allocations, unallocated_areas)
+  
+  return(final_allocations)
+}
+
+# TEST: Run the algorithm with 1000 supply units
+allocation_result <- allocate_supplies_simple(emergency_data, 1000)
+allocation_result
+```
+
+## Evaluating Our Algorithm {.smaller}
+
+```{r}
+# Add allocation results back to original data for analysis
+analysis_data <- allocation_result %>%
+  mutate(
+    percent_satisfied = allocated / needed,
+    unmet_need = needed - allocated
+  )
+
+# Summary statistics
+cat("Algorithm Performance Summary:\n")
+cat("- Areas fully served:", sum(analysis_data$percent_satisfied >= 1), "out of", nrow(analysis_data), "\n")
+cat("- Total supplies allocated:", sum(analysis_data$allocated, na.rm = TRUE), "out of 1000\n")
+cat("- Average satisfaction rate:", scales::percent(mean(analysis_data$percent_satisfied, na.rm = TRUE)), "\n")
+cat("- Highest priority area satisfaction:", 
+    scales::percent(analysis_data$percent_satisfied[analysis_data$priority_rank == 1]), "\n")
+```
+
+## Algorithm Transparency and Auditability {.smaller}
+
+```{r}
+#| echo: false
+# Create visualization of allocation decisions
+ggplot(analysis_data, aes(x = reorder(area_id, -priority_rank))) +  # Negative to sort by priority
+  geom_col(aes(y = needed), fill = "lightcoral", alpha = 0.7, width = 0.7) +
+  geom_col(aes(y = allocated), fill = "steelblue", alpha = 0.9, width = 0.7) +
+  geom_text(aes(y = pmax(needed, allocated) + 15, 
+                label = paste("Rank", priority_rank)), 
+            size = 3, angle = 45, hjust = 0) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +  # Add 15% buffer at top
+  labs(title = "Emergency Supply Allocation Results",
+       subtitle = "Red = Total Need, Blue = Actually Allocated (sorted by priority: Rank 1 = highest)",
+       x = "Area (sorted by priority)", y = "Supply Units") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+::: {.fragment}
+**Transparency benefits**: Stakeholders can see exactly how priorities were calculated and why certain areas received more resources.
+:::
+
+# Part V: Algorithm Design Principles for Policy
+
+## The Policy Algorithm Design Framework {.smaller}
+
+::: {.fragment}
+**1. Define Success Clearly**
+- What outcomes matter most? Often referred to as KPIs. 
+- How do we measure fairness?
+- What are acceptable trade-offs?
+:::
+
+::: {.fragment}
+**2. Consider Stakeholder Needs**
+- Who is affected by decisions?
+- What information do they need?
+- How can they contest decisions?
+:::
+
+::: {.fragment}
+**3. Plan for Scale and Change**
+- Will this work with 10x more data?
+- How do we handle new requirements?
+- Can we update the algorithm safely?
+:::
+
+::: {.fragment}
+**4. Build in Accountability**
+- Can we explain every decision?
+- Can we audit the process?
+- How do we detect and fix problems?
+:::
+
+## Common Algorithmic Patterns in Policy {.smaller}
+
+::: {layout-ncol=2}
+### Matching Problems
+- **Examples**: School assignment, organ donation, job placement
+- **Key considerations**: Stability, fairness, efficiency
+- **Typical complexity**: O(n²) to O(n³)
+
+### Optimization Problems
+- **Examples**: Budget allocation, route planning, scheduling
+- **Key considerations**: Multiple objectives, constraints
+- **Typical complexity**: Often NP-hard, need approximations
+
+### Classification Problems
+- **Examples**: Fraud detection, risk assessment, eligibility
+- **Key considerations**: False positive/negative rates, bias
+- **Typical complexity**: O(n) for prediction, varies for training
+
+### Search and Retrieval
+- **Examples**: Finding records, matching cases, recommendations
+- **Key considerations**: Accuracy, speed, privacy
+- **Typical complexity**: O(log n) with good indexing
+:::
+
+## When Simple Algorithms Win {.smaller}
+
+::: {.fragment}
+**Policy contexts often favor simple approaches because:**
+
+- **Transparency**: Stakeholders can understand the logic
+- **Auditability**: Easier to verify correct implementation  
+- **Maintainability**: Fewer bugs, easier to modify
+- **Fairness**: Less likely to have hidden biases
+- **Robustness**: Fail gracefully, predictable behavior
+:::
+
+::: {.fragment}
+**Example**: Linear scoring models vs. complex ML for benefit eligibility
+- Linear model: Each factor has clear weight, easy to explain
+- Complex ML: Might be more accurate but creates "black box" decisions
+:::
+
+::: {.fragment}
+::: callout-important
+**Policy principle**: Choose the simplest algorithm that meets your accuracy and fairness requirements.
+:::
+:::
+
+## Interactive Exercise: Algorithm Design Challenge {.smaller}
+
+::: {.fragment}
+**Scenario**: Design an algorithm for COVID-19 vaccine distribution during initial shortage.
+
+**Constraints**:
+- Limited doses (1000 per week)
+- Multiple priority groups (healthcare workers, elderly, high-risk)
+- Geographic equity concerns
+- Need to track and report decisions
+
+**Your task (5 minutes)**:
+1. What factors should determine priority?
+2. How would you handle ties?
+3. What data would you need?
+4. How would you ensure fairness?
+:::
+
+::: {.fragment}
+**Discussion questions**:
+- How do you balance individual risk vs. community benefit?
+- What happens when priorities conflict?
+- How do you maintain public trust in the process?
+:::
+
+# Part VI: Practical Implementation Considerations
+
+## From Algorithm to Production System {.smaller}
+
+::: {.fragment}
+**Development considerations**:
+
+- **Testing**: How do we verify correctness?
+- **Performance**: Will it scale to real data sizes?
+- **Monitoring**: How do we detect problems in production?
+- **Updates**: How do we safely modify the algorithm?
+:::
+
+::: {.fragment}
+**Policy-specific considerations**:
+
+- **Documentation**: Can auditors understand the process?
+- **Reproducibility**: Can we recreate any decision?
+- **Compliance**: Does it meet legal requirements?
+- **Public communication**: How do we explain it to citizens?
+:::
+
+## Algorithm Documentation Template {.smaller}
+
+::: {.fragment}
+**Essential documentation for policy algorithms:**
+
+```markdown
+## Algorithm: Emergency Supply Allocation
+
+### Purpose
+Allocate limited emergency supplies to affected areas during disasters
+
+### Inputs
+- Area data: population, severity, distance, needs
+- Available supplies: total units available
+
+### Logic
+1. Calculate priority score: (severity × population) / distance
+2. Sort areas by priority (highest first)  
+3. Allocate supplies greedily until exhausted
+
+### Assumptions
+- Higher population areas need proportionally more supplies
+- Closer areas can be served more efficiently
+- Severity scores are accurate and comparable
+
+### Limitations
+- Does not consider supply chain constraints
+- May not achieve optimal global allocation
+- Assumes all supply units are equivalent
+
+### Testing
+- Verified with historical disaster data
+- Stress tested with 10,000+ areas
+- Edge cases: no supplies, no areas, invalid data
+```
+:::
+
+## Looking Ahead: Advanced Topics {.smaller}
+
+::: {.fragment}
+**Next week and beyond, we'll explore:**
+
+- **Machine learning algorithms**: When and how to use them in policy
+- **Optimization techniques**: Finding the best solutions under constraints
+- **Fairness-aware algorithms**: Ensuring equitable outcomes
+- **Real-time systems**: Handling streaming data and immediate decisions
+:::
+
+::: {.fragment}
+**Key preparation for ML topics:**
+
+- Understanding of basic algorithmic complexity
+- Appreciation for trade-offs between accuracy and interpretability
+- Framework for evaluating algorithm quality in policy contexts
+:::
+
+## Questions?
+
+::: {.fragment}
+**Remember**: Good algorithmic thinking in policy isn't about finding the most sophisticated solution—it's about finding the right balance of accuracy, fairness, transparency, and efficiency for your specific context.
+:::

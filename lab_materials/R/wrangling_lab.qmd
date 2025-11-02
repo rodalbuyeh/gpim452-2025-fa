@@ -369,6 +369,44 @@ projects <- tibble(
 
 # Your code here
 
+# 1. Join projects with employees to get project lead names
+project_leads <- projects %>%
+  left_join(
+    employees %>% select(id, name, department),
+    by = c("lead_id" = "id")
+  ) %>%
+  select(project_id, project_name, lead_id, name, department)
+
+# 2. Calculate total budget managed by each department
+dept_budgets <- projects %>%
+  left_join(
+    employees %>% select(id, department),
+    by = c("lead_id" = "id")
+  ) %>%
+  group_by(department) %>%
+  summarize(
+    total_project_budget = sum(budget),
+    n_projects = n()
+  ) %>%
+  arrange(desc(total_project_budget))
+
+# 3. Find projects without valid leads
+invalid_leads <- projects %>%
+  anti_join(
+    employees,
+    by = c("lead_id" = "id")
+  )
+
+# Print results
+print("Project Leads:")
+print(project_leads)
+
+print("\nDepartment Project Budgets:")
+print(dept_budgets)
+
+print("\nProjects with Invalid Leads:")
+print(invalid_leads)
+
 
 
 ```
