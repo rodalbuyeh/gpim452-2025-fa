@@ -337,7 +337,11 @@ Let's implement and compare two sorting approaches:
 # Bubble Sort: O(n²) - compares every pair
 bubble_sort <- function(x) {
   n <- length(x)
+  # Outer loop: we need n-1 passes to sort n elements
+  # Each pass moves the largest unsorted element to its correct position
   for(i in 1:(n-1)) {
+    # Inner loop: compare adjacent pairs from start to end of unsorted portion
+    # We use (n-i) because after i passes, the last i elements are already sorted
     for(j in 1:(n-i)) {
       if(x[j] > x[j+1]) {
         # Swap elements

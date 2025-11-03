@@ -473,10 +473,10 @@ Rod Albuyeh
 <span id="cb10-20"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(benchmark_results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-    expr     min      lq      mean   median       uq      max neval
-  simple 417.503 431.689 477.83942 448.3350 497.8835 1375.591   100
- builtin   4.428   4.674  13.20528   4.8585   5.1250  811.841   100
- sorting 326.114 336.938 387.23639 352.0260 386.0560 1669.520   100</code></pre>
+    expr     min       lq      mean   median      uq      max neval
+  simple 411.968 426.4000 467.51234 438.8025 455.920 1394.738   100
+ builtin   4.428   4.6330  12.92238   4.7970   5.002  804.420   100
+ sorting 327.508 334.5805 374.39970 340.5665 365.966 1636.925   100</code></pre>
 </div>
 </div>
 </section>
@@ -534,22 +534,26 @@ Rod Albuyeh
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Bubble Sort: O(n²) - compares every pair</span></span>
 <span id="cb12-2"><a href="" aria-hidden="true" tabindex="-1"></a>bubble_sort <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb12-3"><a href="" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">length</span>(x)</span>
-<span id="cb12-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(n<span class="dv">-1</span>)) {</span>
-<span id="cb12-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(n<span class="sc">-</span>i)) {</span>
-<span id="cb12-6"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(x[j] <span class="sc">&gt;</span> x[j<span class="sc">+</span><span class="dv">1</span>]) {</span>
-<span id="cb12-7"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Swap elements</span></span>
-<span id="cb12-8"><a href="" aria-hidden="true" tabindex="-1"></a>        temp <span class="ot">&lt;-</span> x[j<span class="sc">+</span><span class="dv">1</span>]</span>
-<span id="cb12-9"><a href="" aria-hidden="true" tabindex="-1"></a>        x[j<span class="sc">+</span><span class="dv">1</span>] <span class="ot">&lt;-</span> x[j]</span>
-<span id="cb12-10"><a href="" aria-hidden="true" tabindex="-1"></a>        x[j] <span class="ot">&lt;-</span> temp</span>
-<span id="cb12-11"><a href="" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb12-12"><a href="" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb12-13"><a href="" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb12-14"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(x)</span>
-<span id="cb12-15"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-16"><a href="" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Test with small dataset</span></span>
-<span id="cb12-18"><a href="" aria-hidden="true" tabindex="-1"></a>small_data <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">34</span>, <span class="dv">25</span>, <span class="dv">12</span>, <span class="dv">22</span>, <span class="dv">11</span>, <span class="dv">90</span>)</span>
-<span id="cb12-19"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Original:"</span>, <span class="fu">paste</span>(small_data, <span class="at">collapse =</span> <span class="st">", "</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Outer loop: we need n-1 passes to sort n elements</span></span>
+<span id="cb12-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Each pass moves the largest unsorted element to its correct position</span></span>
+<span id="cb12-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(n<span class="dv">-1</span>)) {</span>
+<span id="cb12-7"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Inner loop: compare adjacent pairs from start to end of unsorted portion</span></span>
+<span id="cb12-8"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We use (n-i) because after i passes, the last i elements are already sorted</span></span>
+<span id="cb12-9"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(n<span class="sc">-</span>i)) {</span>
+<span id="cb12-10"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(x[j] <span class="sc">&gt;</span> x[j<span class="sc">+</span><span class="dv">1</span>]) {</span>
+<span id="cb12-11"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Swap elements</span></span>
+<span id="cb12-12"><a href="" aria-hidden="true" tabindex="-1"></a>        temp <span class="ot">&lt;-</span> x[j<span class="sc">+</span><span class="dv">1</span>]</span>
+<span id="cb12-13"><a href="" aria-hidden="true" tabindex="-1"></a>        x[j<span class="sc">+</span><span class="dv">1</span>] <span class="ot">&lt;-</span> x[j]</span>
+<span id="cb12-14"><a href="" aria-hidden="true" tabindex="-1"></a>        x[j] <span class="ot">&lt;-</span> temp</span>
+<span id="cb12-15"><a href="" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-16"><a href="" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-17"><a href="" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-18"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(x)</span>
+<span id="cb12-19"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-20"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Test with small dataset</span></span>
+<span id="cb12-22"><a href="" aria-hidden="true" tabindex="-1"></a>small_data <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">34</span>, <span class="dv">25</span>, <span class="dv">12</span>, <span class="dv">22</span>, <span class="dv">11</span>, <span class="dv">90</span>)</span>
+<span id="cb12-23"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Original:"</span>, <span class="fu">paste</span>(small_data, <span class="at">collapse =</span> <span class="st">", "</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Original: 64, 34, 25, 12, 22, 11, 90 </code></pre>
 </div>
@@ -601,10 +605,10 @@ Rod Albuyeh
 <pre><code># A tibble: 4 × 3
       n bubble_sort builtin_sort
   &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
-1   100     0.00100            0
+1   100     0                  0
 2   300     0.00200            0
 3   500     0.00600            0
-4   800     0.0150             0</code></pre>
+4   800     0.0140             0</code></pre>
 </div>
 </div>
 </section>
