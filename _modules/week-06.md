@@ -6,6 +6,7 @@
         events:
           "**LEC 6**{: .label .label-lecture } [Intro to Algorithmic Thinking](_lectures/lec06_algorithms.html)": 
           "**Read**{: .label .label-read } [Algorithmic Thinking](https://learntocodewith.me/posts/algorithmic-thinking/)":
+          "**Video**{: .label .label-watch } [Bubble Sort in 2 minutes](https://www.youtube.com/watch?v=xli_FI7CuzA)":
 
       - date: 2025-11-05
         events:
