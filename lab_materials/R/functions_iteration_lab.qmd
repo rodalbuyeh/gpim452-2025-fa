@@ -1,0 +1,461 @@
+---
+title: "Lab 6: Don't Repeat Yourself (Unless You're a Politician)"
+subtitle: "Functions and Iteration"
+author: "Rod Albuyeh"
+date: today
+format: pdf
+execute:
+  echo: true
+  eval: true
+  warning: false
+  error: false
+  cache: true
+  tidy: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+```
+
+## Learning Objectives
+
+By the end of this lab, you will be able to:
+
+- **Design** custom functions to solve policy-relevant problems
+- **Apply** iteration techniques (for loops and functional programming) to automate repetitive tasks
+- **Evaluate** trade-offs between different approaches to iteration
+- **Implement** efficient workflows for processing multiple datasets or scenarios
+
+## Setup
+
+```{r libraries}
+library(tidyverse)
+library(scales)
+library(here)
+
+# Set a seed for reproducibility
+set.seed(42)
+```
+
+# Part I: The Power of Functions in Policy Work
+
+## Why Functions Matter for Data Science
+
+In data science work, we often need to:
+
+- Apply the same analysis to multiple datasets or groups
+- Test different parameters or scenarios systematically
+- Ensure consistent calculations across different parts of our analysis
+- Make our work reproducible and easy to modify
+- Reduce errors by eliminating copy-paste coding
+
+Functions help us achieve all of these goals by encapsulating logic that we use repeatedly.
+
+## The Function Development Workflow
+
+**You don't necessarily have to startby writing a function!** Instead, follow this practical approach:
+
+1. **Start with working code** for a specific case
+2. **Identify what varies** between different uses
+3. **Turn the varying parts into arguments**
+4. **Wrap it in a function**
+
+### Example: From Concrete to Abstract
+
+Let's say we want to analyze unemployment data for different states:
+
+```{r function-development, eval=FALSE}
+# Step 1: Start with concrete code that works
+california_data <- unemployment_data %>%
+  filter(state == "CA") %>%
+  summarise(
+    avg_rate = mean(unemployment_rate),
+    max_rate = max(unemployment_rate),
+    trend = cor(year, unemployment_rate)
+  )
+
+# Step 2: Copy and modify for another state - notice what changes
+texas_data <- unemployment_data %>%
+  filter(state == "TX") %>%  # This changes!
+  summarise(
+    avg_rate = mean(unemployment_rate),  # This stays the same
+    max_rate = max(unemployment_rate),   # This stays the same
+    trend = cor(year, unemployment_rate) # This stays the same
+  )
+
+# Step 3: The varying part (state) becomes the function argument
+analyze_state_unemployment <- function(data, state_code) {
+  data %>%
+    filter(state == state_code) %>%
+    summarise(
+      avg_rate = mean(unemployment_rate),
+      max_rate = max(unemployment_rate),
+      trend = cor(year, unemployment_rate)
+    )
+}
+
+# Step 4: Now we can easily analyze any state
+california_data <- analyze_state_unemployment(unemployment_data, "CA")
+texas_data <- analyze_state_unemployment(unemployment_data, "TX")
+```
+
+**Key insight**: Start with copy-paste code, then look for patterns. The parts that change become your function arguments.
+
+## Anatomy of a Function
+
+```{r function-anatomy, eval=FALSE}
+function_name <- function(input1, input2 = default_value) {
+  # Do something with the inputs
+  result <- some_calculation(input1, input2)
+  
+  # Return the result
+  return(result)
+}
+```
+
+## Example: Policy Impact Calculator
+
+Let's create a function to calculate the impact of a minimum wage increase:
+
+```{r wage-impact-function}
+calculate_wage_impact <- function(current_wage, new_wage, affected_workers) {
+  # Calculate the wage increase
+  wage_increase <- new_wage - current_wage
+  
+  # Calculate total additional wages per year (assuming full-time work)
+  annual_hours <- 40 * 52  # 40 hours/week * 52 weeks/year
+  total_impact <- wage_increase * affected_workers * annual_hours
+  
+  # Create a summary
+  impact_summary <- list(
+    wage_increase = wage_increase,
+    affected_workers = affected_workers,
+    total_annual_impact = total_impact,
+    impact_per_worker = wage_increase * annual_hours
+  )
+  
+  return(impact_summary)
+}
+
+# Test the function
+impact_result <- calculate_wage_impact(
+  current_wage = 15.00,
+  new_wage = 18.00,
+  affected_workers = 50000
+)
+
+# Display results nicely
+cat("Minimum Wage Impact Analysis\n")
+cat("============================\n")
+cat("Wage increase per hour: $", impact_result$wage_increase, "\n")
+cat("Workers affected: ", scales::comma(impact_result$affected_workers), "\n")
+cat("Additional income per worker annually: $", scales::comma(impact_result$impact_per_worker), "\n")
+cat("Total additional wages annually: $", scales::comma(impact_result$total_annual_impact), "\n")
+```
+
+## Your Turn: Housing Affordability Function
+
+**Task 1**: Inspect this function called `assess_housing_affordability()` that:
+
+- Takes median income and median rent as inputs
+- Calculates the percentage of income spent on rent (assume rent × 12 for annual)
+- Returns "Affordable" if < 30%, "Moderately Unaffordable" if 30-50%, "Severely Unaffordable" if > 50%
+- Also returns the exact percentage
+
+```{r housing-function}
+
+assess_housing_affordability <- function(median_income, median_rent) {
+  # Calculate annual rent
+  annual_rent <- median_rent * 12
+  
+  # Calculate percentage of income spent on rent
+  rent_percentage <- (annual_rent / median_income) * 100
+  
+  # Determine affordability category
+  if (rent_percentage < 30) {
+    category <- "Affordable"
+  } else if (rent_percentage <= 50) {
+    category <- "Moderately Unaffordable"
+  } else {
+    category <- "Severely Unaffordable"
+  }
+  
+  # Return results
+  return(list(
+    rent_percentage = rent_percentage,
+    category = category,
+    annual_rent = annual_rent,
+    median_income = median_income
+  ))
+}
+
+test_result <- assess_housing_affordability(median_income = 60000, median_rent = 2000)
+cat("Housing affordability: ", test_result$category, "\n")
+cat("Rent as % of income: ", round(test_result$rent_percentage, 1), "%\n")
+```
+
+# Part II: Iteration - Doing Things Repeatedly
+
+## The For Loop: When You Need Sequential Control
+
+For loops are the right choice when you need to:
+- **Build results incrementally** where each iteration depends on the previous one
+- **Access both the value and its position** in the data
+- **Handle complex conditional logic** that varies by iteration
+- **Modify objects in place** (though this should be used sparingly)
+
+**When NOT to use for loops in R:**
+- Applying the same function to each element (use `map()` instead)
+- Simple transformations of vectors (use vectorized operations)
+- Filtering or summarizing data (use `dplyr` verbs)
+
+### Example: Analyzing Multiple Counties
+
+```{r county-analysis-setup}
+# Create sample county data
+county_data <- tibble(
+  county = c("Alameda", "Orange", "San Diego", "Los Angeles", "Riverside"),
+  population = c(1671329, 3186989, 3298634, 10014009, 2418185),
+  median_income = c(94588, 84223, 70824, 68044, 63948),
+  unemployment_rate = c(0.034, 0.029, 0.031, 0.041, 0.038)
+)
+
+print(county_data)
+```
+
+```{r for-loop-analysis}
+# Initialize storage for results
+county_analysis <- tibble(
+  county = character(),
+  economic_score = numeric(),
+  risk_level = character()
+)
+
+# Loop through each county
+for (i in 1:nrow(county_data)) {
+  # Get current county data
+  current_county <- county_data[i, ]
+  
+  # Calculate economic health score (higher income = better, lower unemployment = better)
+  # Normalize income (divide by 100,000) and subtract unemployment rate
+  economic_score <- (current_county$median_income / 100000) - (current_county$unemployment_rate * 10)
+  
+  # Determine risk level
+  if (economic_score > 0.5) {
+    risk_level <- "Low Risk"
+  } else if (economic_score > 0) {
+    risk_level <- "Moderate Risk"
+  } else {
+    risk_level <- "High Risk"
+  }
+  
+  # Add to results
+  county_analysis <- county_analysis %>%
+    add_row(
+      county = current_county$county,
+      economic_score = economic_score,
+      risk_level = risk_level
+    )
+}
+
+# Display results
+county_analysis %>%
+  arrange(desc(economic_score)) %>%
+  mutate(economic_score = round(economic_score, 2))
+```
+
+## The map() Family: Functional Programming
+
+The `map()` functions from `purrr` are perfect when you want to:
+
+- Apply the same function to multiple inputs
+- Work with lists or vectors efficiently
+- Write more concise, readable code
+
+### Basic map() Usage
+
+```{r map-basics}
+# Apply our housing affordability function to multiple scenarios
+income_scenarios <- c(50000, 75000, 100000, 125000)
+rent_scenarios <- c(1500, 2000, 2500, 3000)
+
+# Using map to apply function to multiple incomes (with fixed rent)
+affordability_by_income <- map(
+  .x = income_scenarios,  # .x = the vector we want to iterate over
+  .f = ~ assess_housing_affordability(.x, median_rent = 2000)  # .f = the function to apply to each element
+  # The ~ creates a formula/anonymous function
+  # Inside the formula, .x refers to each individual element from the input vector
+  # So this calls assess_housing_affordability(50000, 2000), then (75000, 2000), etc.
+)
+
+# Extract just the categories for easy viewing
+# map_chr() is like map() but returns a character vector instead of a list
+# It takes each result from affordability_by_income (which are lists) and extracts the $category element
+income_categories <- map_chr(affordability_by_income, ~ .x$category)
+names(income_categories) <- paste0("$", scales::comma(income_scenarios))
+print(income_categories)
+```
+
+
+# Part IV: Advanced Techniques
+
+## Error Handling in Functions
+
+When working with real data, things can go wrong. Here's how to make your functions robust:
+
+```{r error-handling}
+safe_calculate_rate <- function(numerator, denominator) {
+  # Check for invalid inputs
+  if (!is.numeric(numerator) || !is.numeric(denominator)) {
+    stop("Both inputs must be numeric")
+  }
+  
+  if (denominator == 0) {
+    warning("Denominator is zero, returning NA")
+    return(NA)
+  }
+  
+  if (denominator < 0) {
+    warning("Negative denominator detected")
+  }
+  
+  rate <- numerator / denominator
+  return(rate)
+}
+
+# Test error handling
+safe_calculate_rate(100, 200)  # Normal case
+safe_calculate_rate(100, 0)    # Division by zero
+
+# Demonstrate error handling (wrapped in try() so it doesn't break the document)
+cat("Testing with invalid input:\n")
+result <- try(safe_calculate_rate("100", 200), silent = TRUE)
+if (inherits(result, "try-error")) {
+  cat("Error caught:", attr(result, "condition")$message, "\n")
+}
+```
+
+# Part V: Functions and Iteration in Machine Learning
+
+The skills you've learned in this lab are the foundation for machine learning workflows. Here's a preview of how these concepts will be essential in upcoming weeks:
+
+### Cross-Validation and Model Selection
+```{r preview-cv, eval=FALSE}
+# You'll use map() for k-fold cross-validation
+cv_folds <- 1:5
+cv_results <- map(cv_folds, function(fold) {
+  # Split data, train model, evaluate
+  train_elastic_net(train_data, test_data)
+})
+
+# Combine results to select best model
+best_model <- cv_results %>% 
+  map_dbl(~ .x$rmse) %>% 
+  which.min()
+```
+
+### Hyperparameter Tuning
+```{r preview-tuning, eval=FALSE}
+# Grid search using the iteration skills from today
+alpha_values <- seq(0, 1, by = 0.1)
+tuning_results <- map(alpha_values, function(alpha) {
+  evaluate_elastic_net(alpha = alpha, data = train_data)
+})
+```
+
+### Robust ML Pipelines
+```{r preview-robust, eval=FALSE}
+# Error handling prevents crashes during model training
+safe_xgboost <- possibly(train_xgboost, otherwise = NULL)
+model_results <- map(param_combinations, safe_xgboost)
+```
+
+**Key insight**: Machine learning is fundamentally about applying the same analysis (data pipeline, model training and evaluation) across many different scenarios (hyperparameters, cross-validation folds, feature sets). The iteration skills you've learned today make this efficient and reproducible.
+
+
+
+# Part V: Lab Assignment
+
+## Assignment: Labor Action Tracker Code Review and Optimization
+
+**Context**: In your LAT pipeline, you're likely encountering repetitive code that could benefit from functions and iteration.
+
+### Part A: Team Collaboration (Work with your teammates)
+
+**Step 1: Code Review**
+Consult with your team and review your current Labor Action Tracker code together. Look for:
+
+- **Repetitive analysis patterns**: Are you applying the same analysis to different states, time periods, or action types?
+- **Copy-paste code**: Do you have similar code blocks with only small variations?
+- **Manual processes**: Are you manually filtering, summarizing, or visualizing data in repetitive ways?
+- **Hard-coded values**: Are there magic numbers or repeated calculations that could be parameterized?
+
+**Step 2: Identify Opportunities**
+As a team, identify at least 3-5 instances where functions or iteration could improve your workflow. Examples might include:
+
+- Analyzing labor actions by state (same analysis, different state filter)
+- Creating summary statistics for different time periods
+- Generating similar plots for different variables
+- Cleaning or processing data in repetitive ways
+- Calculating metrics across different subgroups
+
+**Step 3: Divide and Conquer**
+Assign each team member 1-2 different optimization tasks. **Each person should work on different functions/iterations** - no duplicate work!
+
+### Part B: Individual Implementation (Work independently)
+
+**Your Task**: Implement your assigned function(s) or iteration pattern(s) to solve one of the repetitive code problems your team identified.
+
+**Requirements**:
+
+1. **Create at least one function** that eliminates repetitive code from your team's LAT analysis
+2. **Use iteration if applicable** (and it very often will be) to apply your function across multiple scenarios
+3. **Include error handling** where appropriate (consider using `possibly()` if some iterations might fail)
+4. **Document your function** with clear comments explaining parameters and return values
+5. **Test your function** with simulated data or real LAT data (ideally both) to show it works
+
+**Example Structure**:
+```{r your-function, eval=FALSE}
+# Example: Function to count actions by state
+count_state_actions <- function(lat_data, state_name) {
+  state_data <- lat_data %>%
+    filter(state == state_name)
+  
+  total_actions <- nrow(state_data)
+  
+  return(total_actions)
+}
+
+# Use a for loop to apply across multiple states
+target_states <- c("California", "Texas", "New York", "Florida")
+state_counts <- c()  # Initialize empty vector
+
+for(i in 1:length(target_states)) {
+  state_name <- target_states[i]
+  count <- count_state_actions(lat_data, state_name)
+  state_counts[i] <- count
+  
+  cat("State:", state_name, "- Actions:", count, "\n")
+}
+
+# Name the results
+names(state_counts) <- target_states
+```
+
+### Part C: Individual Submission
+
+**What to submit**:
+
+1. **Your optimized code** with the function(s) and iteration you implemented (10 points)
+2. **Before/after comparison** showing the repetitive code you replaced (5 points)
+3. **Brief explanation** (2-3 sentences) of how your function improves your team's workflow (5 points)
+
+**Submission format**: Submit your individual `.qmd` file with your specific optimization work.
+
+
+**Due**: November 10, 2025
+
+
