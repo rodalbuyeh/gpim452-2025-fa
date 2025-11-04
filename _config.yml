@@ -105,4 +105,4 @@ callouts:
     color: yellow
   success:
     title: "Important Announcement"
-    color: green
+    color: purple
