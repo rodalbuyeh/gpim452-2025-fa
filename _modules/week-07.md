@@ -11,8 +11,10 @@
 
       - date: 2025-11-12
         events:
-          "**LAB 7**{: .label .label-lab } Model Validation and Evaluation":
+          "**LAB 7**{: .label .label-lab } Machine Learning Workflows and Evaluation":
           "**Read**{: .label .label-read } [A Short Introduction to the caret Package](https://cran.r-project.org/web/packages/caret/vignettes/caret.html)":
-          "**Read**{: .label .label-read } [Train Test Validation Split: How To & Best Practices](https://www.v7labs.com/blog/train-validation-test-set)":
+          "**Read**{: .label .label-read } [Thresholds and the Confusion Matrix](https://developers.google.com/machine-learning/crash-course/classification/thresholding)":
+          "**Read**{: .label .label-read } [Accuracy, Recall, Precision, and Related Metrics](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall)":
+          "**Read**{: .label .label-read } [ROC and AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc)":
           "**Video**{: .label .label-watch } [Introduction to Caret](https://www.youtube.com/watch?v=1Sw8JcJRm8Y)":
 ---

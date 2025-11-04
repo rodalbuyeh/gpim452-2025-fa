@@ -14,6 +14,7 @@
         events:
           "**Lab 3**{: .label .label-lab } [Data Loading and Validation Strategies](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/validation_lab.qmd) [📑](https://posit.cloud/content/11223388)": 
           "**Read**{: .label .label-read } [MDSR Appendix D: Reproducible Analysis and Workflow](https://mdsr-book.github.io/mdsr3e/D-reproducible.html)":
+          "**Read**{: .label .label-read } [Train Test Validation Split: How To & Best Practices](https://www.v7labs.com/blog/train-validation-test-set)":
           "**Video**{: .label .label-watch } [Store Your R Data in Apache Parquet Big Data Format](https://www.youtube.com/watch?v=JBUTDyD4UrY)":
 
 ---
