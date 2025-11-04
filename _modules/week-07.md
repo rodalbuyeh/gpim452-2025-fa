@@ -11,10 +11,11 @@
 
       - date: 2025-11-12
         events:
-          "**LAB 7**{: .label .label-lab } Machine Learning Workflows and Evaluation":
+          "**LAB 7**{: .label .label-lab } ML Workflows, Feature Engineering, Selection, and Evaluation":
           "**Read**{: .label .label-read } [A Short Introduction to the caret Package](https://cran.r-project.org/web/packages/caret/vignettes/caret.html)":
           "**Read**{: .label .label-read } [Thresholds and the Confusion Matrix](https://developers.google.com/machine-learning/crash-course/classification/thresholding)":
           "**Read**{: .label .label-read } [Accuracy, Recall, Precision, and Related Metrics](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall)":
           "**Read**{: .label .label-read } [ROC and AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc)":
+          "**Read**{: .label .label-read } SKIM Kuhn and Johnson Chapters [5](http://www.feat.engineering/encoding-categorical-predictors), [6](http://www.feat.engineering/engineering-numeric-predictors), [10](http://www.feat.engineering/selection), [11](http://www.feat.engineering/greedy-search)":
           "**Video**{: .label .label-watch } [Introduction to Caret](https://www.youtube.com/watch?v=1Sw8JcJRm8Y)":
 ---
