@@ -18,7 +18,7 @@ nav_order: 1
 <!-- Below, you can open "static" versions of each lecture by clicking the ✏️ emojis and watch podcasts by clicking the 🎥 emojis. -->
 
 {: .success }
-Final exam will only require conceptual knowledge of the lectures, not the labs or anything specific to R programming. Sample finals have been posted in campuswire.
+Students may elect to have one lab exercise scored as a perfect score (100%), regardless of actual performance. This election must be made by the end of week 9 and cannot be changed. Send Rod your election via email. 
 
 
 
