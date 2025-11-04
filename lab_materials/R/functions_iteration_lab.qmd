@@ -1,5 +1,5 @@
 ---
-title: "Lab 6: Don't Repeat Yourself (Unless You're a Politician)"
+title: "Don't Repeat Yourself (Unless You're a Politician)"
 subtitle: "Functions and Iteration"
 author: "Rod Albuyeh"
 date: today
