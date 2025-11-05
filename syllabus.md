@@ -87,7 +87,7 @@ Office hours are your chance to ask for clarification on assignments and concept
 
 * **Prof. Rod Albuyeh** (ralbuyeh@ucsd.edu)
     * **Hours**: Mondays & Wednesdays, 9:30 AM - 10:30 AM
-    * **Location**: [TEC Cafe](https://map.concept3d.com/?id=1005#!ct/18312?m/165696?s/TEC%20Cafe)
+    * **Location**: GPIM 3130
     * **Sign-up**: [Sign up for slots here](https://calendly.com/ralbuyeh-sandiego/15min)
 
 
