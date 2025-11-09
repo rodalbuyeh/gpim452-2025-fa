@@ -1,0 +1,1239 @@
+---
+title: "Introduction to Machine Learning"
+subtitle: "From Algorithms to Predictive Models"
+author: "Rod Albuyeh"
+date: "11/10/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(patchwork)
+library(caret)
+set.seed(42)
+```
+
+```{css echo=FALSE}
+.scrollable-code {
+  max-height: 400px;
+  overflow-y: auto;
+}
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Distinguish** between supervised and unsupervised learning
+- **Apply** the machine learning workflow to policy problems
+- **Evaluate** model performance using appropriate metrics
+- **Recognize** and address overfitting in practice
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Machine learning is not magic. It's algorithmic pattern recognition applied systematically to data, with careful attention to validation and generalization.
+:::
+:::
+
+# Part I: What Is Machine Learning?
+
+## From Algorithms to Learning {.smaller}
+
+::: {.fragment}
+**Last week we learned**: Algorithms are step-by-step procedures that solve specific problems
+:::
+
+::: {.fragment}
+**This week**: What if we want the algorithm to *discover* the steps from data?
+:::
+
+::: {.fragment}
+**Traditional programming**:
+```
+Rules + Data → Answers
+```
+:::
+
+::: {.fragment}
+**Machine learning**:
+```
+Data + Answers → Rules
+```
+:::
+
+::: {.fragment}
+**Policy example**: 
+
+- Traditional: "Send inspection letters to all 10,000 properties annually"
+- ML: "Given past violations, predict which 500 properties most likely need inspection this month, prioritize those"
+:::
+
+## A General Model of the World {.smaller}
+
+::: {.fragment}
+**The fundamental equation**:
+
+$$y_i = g(\mathbf{x}_i,\epsilon_i) = \underbrace{f(\mathbf{x}_i)}_\text{signal} + \underbrace{\epsilon_i}_\text{noise}$$
+:::
+
+::: {.fragment}
+Where:
+
+- $y_i$ = outcome we observe (e.g., did someone get a job? what's the crime rate?)
+- $\mathbf{x}_i$ = features/predictors (e.g., education, age, location)
+- $f(\mathbf{x}_i)$ = **signal**: the systematic relationship we want to learn
+- $\epsilon_i$ = **noise**: random variation we can't explain or predict
+:::
+
+::: {.fragment}
+**Machine learning goal**: Find $\hat{f}(\mathbf{x})$ that approximates $f(\mathbf{x})$ as closely as possible
+:::
+
+::: {.fragment}
+::: callout-important
+**Key assumption**: We can group different events and treat them as instances of some more fundamental process. Each $y_i$ is an example of the class $Y$.
+:::
+:::
+
+## Why Build Models? Two Distinct Purposes {.smaller}
+
+::: {layout-ncol=2}
+### Prediction
+- **Question**: What will happen next?
+- **Goal**: Make $|y-\hat{y}|$ as small as possible
+- **Example**: Which families will enroll in childcare subsidies? Which buildings will have code violations?
+- **Focus**: Accuracy on new, unseen data
+- **What matters**: Out-of-sample performance
+
+### Causal Inference
+- **Question**: What would happen if we intervene?
+- **Goal**: Estimate $E[Y|do(X=x)]$ not just $E[Y|X=x]$
+- **Example**: Did the job training program *cause* higher earnings, or did motivated people self-select? Does education *cause* income, or do they share common causes?
+- **Focus**: Isolating treatment effects, understanding mechanisms, ruling out confounders
+- **What matters**: Unbiased causal estimates, identification strategy
+:::
+
+## Prediction vs Causation: A Critical Distinction {.smaller}
+
+::: {.fragment}
+**Machine learning is almost always used for prediction, not causal inference.**
+:::
+
+::: {.fragment}
+**Why the distinction matters:**
+
+- **Prediction**: "What will happen?" — Optimize for accuracy on new cases
+- **Causation**: "Does X cause Y?" — Isolate causal effects, understand mechanisms
+:::
+
+::: {.fragment}
+**Some methods work for both, but many don't:**
+
+- **Both**: OLS regression, logistic regression, linear models
+- **Prediction only**: Random forests, XGBoost, deep learning, k-NN
+- **Inference only**: Difference-in-differences, instrumental variables
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Even when the same model (e.g., OLS) can be used for both, the *objectives differ*. Prediction cares about $\hat{y}$ accuracy. Causation cares about unbiased $\hat{\beta}$ estimates.
+:::
+:::
+
+
+## The Fundamental Trade-off {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create comparison of model types
+model_types <- tibble(
+  method = c("Linear Regression", "Elastic Net", "Decision Trees", "Random Forest", 
+            "XGBoost", "Neural Networks", "Simple Rules"),
+  interpretability = c(9, 7, 7, 3, 2, 1, 10),
+  flexibility = c(4, 5, 6, 9, 9.5, 10, 2),
+  typical_use = c("Prediction + Inference", "Prediction + Some Inference", 
+                 "Prediction + Some Interpretation", "Pure Prediction", 
+                 "Pure Prediction", "Pure Prediction", "Policy Rules")
+)
+
+ggplot(model_types, aes(x = flexibility, y = interpretability)) +
+  geom_point(aes(color = typical_use), size = 5, alpha = 0.7) +
+  geom_text(aes(label = method), vjust = -0.8, size = 3) +
+  scale_x_continuous(name = "Flexibility / Predictive Power", limits = c(0, 11)) +
+  scale_y_continuous(name = "Interpretability", limits = c(0, 11)) +
+  scale_color_viridis_d(name = "Typical Use") +
+  labs(title = "The Machine Learning Trade-off",
+       subtitle = "More flexible models predict better but explain less") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Policy implication**: Often we need to sacrifice some accuracy for interpretability and stakeholder trust.
+:::
+
+# Part II: Supervised vs Unsupervised Learning
+
+## Two Fundamentally Different Tasks {.smaller}
+
+::: {layout-ncol=2}
+### Supervised Learning
+**We have labels**: $(y_i, \mathbf{x}_i)$
+
+**Goal**: Learn $\hat{f}(\mathbf{x})$ to predict $y$
+
+**Process**:
+1. Show algorithm examples with answers
+2. Algorithm learns patterns
+3. Use learned patterns on new data
+
+**Examples**:
+- Predicting housing prices
+- Fraud detection
+- Medical diagnosis
+- Loan default prediction
+
+### Unsupervised Learning  
+**No labels**: just $(\mathbf{x}_i)$
+
+**Goal**: Find hidden structure
+
+**Process**:
+1. Show algorithm data
+2. Algorithm finds patterns
+3. Human interprets patterns
+
+**Examples**:
+- Customer segmentation
+- Community detection
+- Topic modeling
+- Anomaly detection
+:::
+
+## Supervised Learning: The Core Workflow {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Create flowchart data
+flowchart_steps <- tibble(
+  step = 1:8,
+  x = c(1, 2, 3, 4, 5, 6, 7, 8),
+  y = c(1, 1, 1, 1, 1, 1, 1, 1),
+  label = c("Collect\nLabeled Data", "Split Data\n(Train/Val/Test)", 
+           "Feature\nEngineering", "Choose\nAlgorithm", "Train\nModel", 
+           "Validate &\nTune", "Test\nPerformance", "Deploy &\nMonitor"),
+  phase = factor(c("Data", "Data", "Data", "Model", "Model", "Evaluation", "Evaluation", "Production"),
+                levels = c("Data", "Model", "Evaluation", "Production"))
+)
+
+ggplot(flowchart_steps, aes(x = x, y = y)) +
+  geom_segment(aes(xend = x + 0.8, yend = y), 
+               arrow = arrow(length = unit(0.3, "cm")),
+               size = 1, color = "gray40",
+               data = flowchart_steps %>% filter(step < 8)) +
+  geom_label(aes(label = label, fill = phase), 
+            size = 3.5, fontface = "bold", 
+            label.padding = unit(0.3, "lines"),
+            color = "white") +
+  scale_fill_manual(values = c("Data" = "#4575b4", 
+                              "Model" = "#91bfdb", 
+                              "Evaluation" = "#fee090", 
+                              "Production" = "#fc8d59")) +
+  theme_void() +
+  theme(legend.position = "none") +
+  labs(title = "The Supervised Learning Pipeline",
+       subtitle = "Blue = Data phase, Light blue = Model phase, Yellow = Evaluation phase, Orange = Production phase")
+```
+
+::: {.fragment}
+**Each step has policy implications**: Who labels? How do we split? Which features to engineer? What algorithm is transparent enough? What loss function and evaluation metrics match policy goals? How do we monitor for drift?
+:::
+
+## Case Study: Predicting Program Enrollment {.smaller}
+
+::: {.fragment}
+**Policy scenario**: City wants to predict which eligible families will enroll in a new childcare subsidy program to better plan capacity.
+:::
+
+::: {.scrollable-code}
+```{r}
+# Create synthetic program enrollment data
+set.seed(123)
+n_families <- 1000
+
+program_data <- tibble(
+  family_id = 1:n_families,
+  household_income = rnorm(n_families, 45000, 15000),
+  num_children = sample(1:4, n_families, replace = TRUE, prob = c(0.4, 0.3, 0.2, 0.1)),
+  distance_miles = rexp(n_families, rate = 0.2),
+  previously_used_services = sample(0:1, n_families, replace = TRUE, prob = c(0.7, 0.3)),
+  parent_age = rnorm(n_families, 32, 6)
+) %>%
+  mutate(
+    # True enrollment probability depends on these factors
+    enroll_prob = plogis(-3 + 
+                        -0.00003 * household_income +  # Lower income → higher enrollment
+                        0.4 * num_children +            # More kids → higher enrollment
+                        -0.15 * distance_miles +        # Farther away → lower enrollment
+                        1.2 * previously_used_services),# Prior use → higher enrollment
+    enrolled = rbinom(n_families, 1, enroll_prob)
+  ) %>%
+  select(-enroll_prob)  # Remove true probability (we wouldn't know this in real life)
+
+# Show structure
+head(program_data, 4)
+```
+:::
+
+## Exploratory Analysis: Understanding Our Data {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Create exploratory visualizations
+p1 <- ggplot(program_data, aes(x = household_income, fill = factor(enrolled))) +
+  geom_density(alpha = 0.6) +
+  scale_fill_manual(values = c("0" = "coral", "1" = "steelblue"),
+                   labels = c("Did Not Enroll", "Enrolled")) +
+  scale_x_continuous(labels = dollar_format()) +
+  labs(title = "Income Distribution by Enrollment Status",
+       x = "Household Income", y = "Density", fill = "") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+p2 <- program_data %>%
+  group_by(num_children, enrolled) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(num_children) %>%
+  mutate(pct = count / sum(count)) %>%
+  filter(enrolled == 1) %>%
+  ggplot(aes(x = factor(num_children), y = pct)) +
+  geom_col(fill = "steelblue", alpha = 0.8) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Enrollment Rate by Number of Children",
+       x = "Number of Children", y = "Enrollment Rate") +
+  theme_minimal()
+
+p1 + p2
+```
+
+::: {.fragment}
+**Key patterns**: Lower income families and those with more children enroll at higher rates.
+:::
+
+## Supervised Learning in Action {.smaller}
+
+**Step 1: Split the data** (training, validation, test)
+
+```{r}
+# Set aside 20% for final testing (unseen data)
+test_indices <- createDataPartition(program_data$enrolled, p = 0.2, list = FALSE)
+test_data <- program_data[test_indices, ]
+train_val_data <- program_data[-test_indices, ]
+
+# Further split remaining 80% into 75% train, 25% validation
+train_indices <- createDataPartition(train_val_data$enrolled, p = 0.75, list = FALSE)
+train_data <- train_val_data[train_indices, ]
+validation_data <- train_val_data[-train_indices, ]
+
+cat("Training set:", nrow(train_data), "families\n")
+cat("Validation set:", nrow(validation_data), "families\n")
+cat("Test set:", nrow(test_data), "families (NEVER TOUCHED until final evaluation)\n")
+```
+
+::: {.fragment}
+::: callout-important
+**Critical rule**: The test set is locked away until the very end. We make ALL decisions using only training and validation data.
+:::
+:::
+
+## Why Split Data? The Overfitting Problem {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Generate example of overfitting vs good fit
+set.seed(456)
+x <- runif(100, -pi, pi)
+y <- sin(x) + rnorm(100, 0, 0.35)
+
+example_df <- tibble(x = x, y = y)
+
+ggplot(example_df, aes(x = x, y = y)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_smooth(method = 'lm', se = FALSE, linetype = "dashed", 
+              aes(color = "Simple (Underfit)"), size = 1) +
+  geom_smooth(method = 'loess', span = 0.05, se = FALSE,
+              aes(color = "Complex (Overfit)"), size = 1) +
+  geom_smooth(method = 'loess', span = 0.8, se = FALSE,
+              aes(color = "Just Right"), size = 1.2) +
+  scale_color_manual(values = c("Simple (Underfit)" = "red", 
+                               "Complex (Overfit)" = "orange",
+                               "Just Right" = "blue"),
+                    name = "Model Complexity") +
+  labs(title = "The Overfitting Problem",
+       subtitle = "Too simple misses patterns, too complex memorizes noise",
+       x = "Feature", y = "Outcome") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Policy risk**: An overfit model might perform perfectly on historical data but fail completely on new cases!
+:::
+
+## Training Our First Model {.smaller}
+
+```{r}
+# Train a logistic regression model (we'll learn more about this in Week 8)
+model_formula <- enrolled ~ household_income + num_children + 
+                           distance_miles + previously_used_services + parent_age
+
+# Fit the model on TRAINING data only
+logistic_model <- glm(model_formula, 
+                     data = train_data, 
+                     family = binomial(link = "logit"))
+
+# Get predictions on VALIDATION data
+validation_data <- validation_data %>%
+  mutate(
+    pred_prob = predict(logistic_model, newdata = validation_data, type = "response"),
+    pred_enrolled = ifelse(pred_prob > 0.5, 1, 0)
+  )
+
+# Show some predictions
+validation_data %>%
+  select(household_income, num_children, enrolled, pred_prob, pred_enrolled) %>%
+  slice_head(n = 5) %>%
+  mutate(household_income = dollar(household_income),
+         pred_prob = percent(pred_prob, accuracy = 0.1))
+```
+
+::: {.fragment}
+**Notice**: We trained on training data but evaluated on validation data (data the model hasn't seen).
+:::
+
+# Part III: Evaluating Model Performance
+
+## Classification vs Regression {.smaller}
+
+::: {.fragment}
+**The type of outcome determines the type of problem**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Classification Problems
+**Outcome is categorical**
+
+- Enrolled: Yes/No
+- Risk level: Low/Medium/High
+- Disease: Present/Absent
+:::
+
+::: {.fragment}
+**Common evaluation metrics**:
+- Accuracy
+- Precision & Recall
+- F1 Score
+- ROC-AUC
+:::
+
+::: {.fragment}
+### Regression Problems  
+**Outcome is continuous**
+
+- Income: $35,000
+- Crime rate: 4.2 per 1000
+- Wait time: 23 minutes
+:::
+
+::: {.fragment}
+**Common evaluation metrics**:
+- Mean Squared Error (MSE)
+- Root MSE (RMSE)
+- Mean Absolute Error (MAE)
+- R-squared
+:::
+:::
+
+## Loss Functions vs Evaluation Metrics {.smaller}
+
+::: {.fragment}
+::: callout-note
+**Important distinction**: Those were *evaluation* metrics (what we report). Models also use *loss functions* (what they optimize during training). Sometimes they're the same, often they're not!
+:::
+:::
+
+::: {.fragment}
+**Two related but distinct concepts**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Loss Functions
+**What the model optimizes during training**
+
+- Must be differentiable (for gradient descent)
+- Guides the learning process
+- Happens internally in the algorithm
+
+**Examples**:
+- **Cross-entropy loss** (classification)
+- **Mean Squared Error** (regression)
+:::
+
+::: {.fragment}
+### Evaluation Metrics
+**What we report to stakeholders**
+
+- Don't need to be differentiable
+- Match policy objectives
+- Human-interpretable
+
+**Examples**:
+- **Accuracy, Precision, Recall** (classification)
+- **RMSE, MAE** (regression)
+- **ROC-AUC** (classification)
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Policy implication**: The model might optimize cross-entropy loss, but you evaluate and report using accuracy or F1 score because stakeholders understand those better. Choose evaluation metrics that align with your policy goals!
+:::
+:::
+
+## The Confusion Matrix: Classification Foundation {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create a clean mock confusion matrix for demonstration
+conf_df <- tibble(
+  Predicted = c("0", "1", "0", "1"),
+  Actual = c("0", "0", "1", "1"),
+  count = c(120, 30, 25, 75),
+  label = c("True Negative\n(Correct)", 
+           "False Positive\n(Type I Error)",
+           "False Negative\n(Type II Error)", 
+           "True Positive\n(Correct)"),
+  correct = c(TRUE, FALSE, FALSE, TRUE)
+)
+
+ggplot(conf_df, aes(x = Actual, y = Predicted, fill = correct)) +
+  geom_tile(color = "white", size = 2) +
+  geom_text(aes(label = paste0(label, "\nn = ", count)), 
+           size = 4, fontface = "bold") +
+  scale_fill_manual(values = c("FALSE" = "coral", "TRUE" = "lightblue"),
+                   guide = "none") +
+  labs(title = "Confusion Matrix: Predicted vs Actual Enrollment",
+       subtitle = "Each cell shows what our model predicted vs reality (n = 250 families)",
+       x = "Actual Enrollment Status (0 = Not Enrolled, 1 = Enrolled)", 
+       y = "Predicted Enrollment Status") +
+  theme_minimal() +
+  theme(axis.text = element_text(size = 12, face = "bold"),
+        axis.title = element_text(size = 12))
+```
+
+## Key Classification Metrics {.smaller}
+
+```{r}
+#| echo: false
+
+metrics_df <- tibble(
+  Metric = c("Accuracy", "Precision", "Recall (Sensitivity)", "F1 Score"),
+  Formula = c(
+    "$\\frac{TP + TN}{TP + TN + FP + FN}$",
+    "$\\frac{TP}{TP + FP}$",
+    "$\\frac{TP}{TP + FN}$",
+    "$\\frac{2 \\times Precision \\times Recall}{Precision + Recall}$"
+  ),
+  Interpretation = c(
+    "Overall % correct",
+    "Of predicted positives, % actually positive",
+    "Of actual positives, % we correctly identified",
+    "Harmonic mean of precision and recall"
+  )
+)
+
+knitr::kable(metrics_df, align = c('l', 'c', 'l'))
+```
+
+::: {.fragment}
+**All metrics derived from the confusion matrix**: Use TP, TN, FP, FN to calculate each
+:::
+
+::: {.fragment}
+::: callout-important
+**Critical: These metrics depend on your classification threshold!** Many practitioners use 0.5 as a threshold (if predicted probability > 0.5 → predict "1"), but this is arbitrary and often suboptimal. You should tune the threshold based on the relative costs of false positives vs false negatives. 
+
+**Also note**: Model outputs (e.g., logit scores) are NOT necessarily calibrated probabilities—they're scores that rank predictions but may need calibration to interpret as true probabilities.
+:::
+:::
+
+::: {.fragment}
+**Policy question**: Which metric matters most? Depends on what errors cost more in your context!
+:::
+
+## The Policy Trade-off: False Positives vs False Negatives {.smaller}
+
+::: {.fragment}
+**Scenario**: We're allocating limited spots in the childcare program.
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### False Positive (Type I)
+**What it means**: Model predicts enrollment, but family doesn't enroll
+:::
+
+::: {.fragment}
+**Consequence**: 
+- Wasted capacity planning
+- Resources held for no-shows
+- Other families could have used spot
+
+**Cost**: Moderate inefficiency
+:::
+
+::: {.fragment}
+### False Negative (Type II)  
+**What it means**: Model predicts no enrollment, but family would have enrolled
+:::
+
+::: {.fragment}
+**Consequence**:
+- Turn away interested families
+- Program under-serves population
+- Families miss needed services
+- Bad PR, trust issues
+
+**Cost**: High social cost
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Policy principle**: The "right" metric depends on which error is more costly in your context. There's no universal "best" metric!
+:::
+:::
+
+## Threshold Tuning: Balancing Errors {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Show how different thresholds affect predictions
+thresholds <- seq(0.1, 0.9, by = 0.05)
+
+threshold_performance <- map_df(thresholds, function(thresh) {
+  preds <- ifelse(validation_data$pred_prob > thresh, 1, 0)
+  
+  TP <- sum(preds == 1 & validation_data$enrolled == 1)
+  TN <- sum(preds == 0 & validation_data$enrolled == 0)
+  FP <- sum(preds == 1 & validation_data$enrolled == 0)
+  FN <- sum(preds == 0 & validation_data$enrolled == 1)
+  
+  tibble(
+    threshold = thresh,
+    precision = TP / (TP + FP),
+    recall = TP / (TP + FN),
+    accuracy = (TP + TN) / (TP + TN + FP + FN)
+  )
+})
+
+threshold_performance %>%
+  pivot_longer(cols = c(precision, recall, accuracy), 
+              names_to = "metric", values_to = "value") %>%
+  ggplot(aes(x = threshold, y = value, color = metric)) +
+  geom_line(size = 1.2) +
+  geom_vline(xintercept = 0.5, linetype = "dashed", alpha = 0.5) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_color_viridis_d(name = "Metric", 
+                       labels = c("Accuracy", "Precision", "Recall")) +
+  labs(title = "How Threshold Choice Affects Performance",
+       subtitle = "Default threshold = 0.5, but we can tune this!",
+       x = "Prediction Threshold (if probability > threshold, predict 'enrolled')",
+       y = "Metric Value") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Policy insight**: Lowering threshold increases recall (catch more enrollees) but decreases precision (more false positives).
+:::
+
+## ROC Curve: Visualizing All Thresholds at Once {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create a mock ROC curve with realistic shape
+# (Using actual model predictions can give messy results)
+roc_data <- tibble(
+  FPR = seq(0, 1, by = 0.01),
+  # Create a realistic ROC curve (above diagonal = good model)
+  TPR = pmin(1, 1.2 * FPR^0.5)  # Concave upward, good classifier
+)
+
+# Calculate AUC using trapezoidal rule
+auc <- 0
+for(i in 2:nrow(roc_data)) {
+  width <- roc_data$FPR[i] - roc_data$FPR[i-1]
+  height <- (roc_data$TPR[i] + roc_data$TPR[i-1]) / 2
+  auc <- auc + width * height
+}
+
+ggplot(roc_data, aes(x = FPR, y = TPR)) +
+  geom_line(size = 1.2, color = "steelblue") +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red", alpha = 0.5) +
+  annotate("text", x = 0.6, y = 0.3, 
+          label = paste0("AUC = ", round(auc, 3), "\n(closer to 1.0 is better)"),
+          size = 5) +
+  scale_x_continuous(labels = percent_format()) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "ROC Curve: Model Performance Across All Thresholds",
+       subtitle = "Shows trade-off between catching true positives and avoiding false positives",
+       x = "False Positive Rate (1 - Specificity)",
+       y = "True Positive Rate (Recall/Sensitivity)") +
+  theme_minimal()
+```
+
+## Interpreting the ROC Curve {.smaller}
+
+::: {.fragment}
+**Key terms defined**:
+
+- **Specificity** = $\frac{TN}{TN + FP}$ = True Negative Rate (how good at identifying negatives)
+- **Sensitivity** = $\frac{TP}{TP + FN}$ = Recall = True Positive Rate (how good at identifying positives)
+- **FPR** = 1 - Specificity = $\frac{FP}{FP + TN}$
+:::
+
+::: {.fragment}
+**What makes a good ROC curve?**
+
+- **Top-left corner is best**: High TPR (catch positives), low FPR (avoid false alarms)
+- **Diagonal line = random guessing**: No better than flipping a coin
+- **Below diagonal = worse than random**: Model is confused (predictions backwards!)
+:::
+
+::: {.fragment}
+**AUC interpretation varies by domain**:
+- **Medical diagnosis**: Often requires AUC > 0.95 (life-or-death stakes)
+- **Social science/policy**: AUC > 0.7 may be acceptable (human behavior is noisy!)
+- **Fraud detection**: AUC > 0.85 typical (need to minimize false positives)
+:::
+
+# Part IV: The Bias-Variance Trade-off
+
+## Understanding Reducible vs Irreducible Error {.smaller}
+
+::: {.fragment}
+**Remember our fundamental equation**:
+$$
+\begin{align}
+E[(y-\hat{y})^2] &= E[(f(\mathbf{x}) + \epsilon - \hat{f}(\mathbf{x}))^2]\\
+ &= \underbrace{E[(f(\mathbf{x}) - \hat{f}(\mathbf{x}))^2]}_\text{reducible error} + \underbrace{\text{Var}(\epsilon)}_\text{irreducible error}
+\end{align}
+$$
+:::
+
+::: {.fragment}
+**Reducible error breaks down further**:
+$$\text{Reducible Error} = \underbrace{\text{Bias}^2}_\text{systematic error} + \underbrace{\text{Variance}}_\text{sensitivity to training data}$$
+:::
+
+::: {.fragment}
+**Bias**: How far off is our model on average? (are we systematically wrong?). **Variance**: How much does our model change with different training data? (are we stable?). **Irreducible error**: Fundamental randomness we can never predict
+:::
+
+## Visualizing the Bias-Variance Trade-off {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create illustration of bias-variance tradeoff
+complexity_levels <- seq(1, 10, by = 0.1)
+
+bias_variance_data <- tibble(
+  complexity = complexity_levels,
+  bias_squared = 10 * exp(-0.5 * complexity),
+  variance = 0.5 * complexity^1.5,
+  irreducible = 2
+) %>%
+  mutate(
+    total_error = bias_squared + variance + irreducible
+  )
+
+# Find optimal complexity
+optimal_idx <- which.min(bias_variance_data$total_error)
+optimal_complexity <- bias_variance_data$complexity[optimal_idx]
+
+bias_variance_data %>%
+  pivot_longer(cols = c(bias_squared, variance, total_error), 
+              names_to = "error_type", values_to = "error") %>%
+  mutate(error_type = factor(error_type, 
+                            levels = c("bias_squared", "variance", "total_error"),
+                            labels = c("Bias²", "Variance", "Total Error"))) %>%
+  ggplot(aes(x = complexity, y = error, color = error_type, linetype = error_type)) +
+  geom_line(size = 1.2) +
+  geom_vline(xintercept = optimal_complexity, linetype = "dashed", alpha = 0.5) +
+  annotate("text", x = optimal_complexity + 0.5, y = 12, 
+          label = "Sweet Spot", angle = 90, size = 4) +
+  scale_color_manual(values = c("Bias²" = "red", "Variance" = "blue", "Total Error" = "darkgreen"),
+                    name = "") +
+  scale_linetype_manual(values = c("Bias²" = "dashed", "Variance" = "dashed", "Total Error" = "solid"),
+                       name = "") +
+  labs(title = "The Bias-Variance Trade-off",
+       subtitle = "Simple models have high bias, complex models have high variance",
+       x = "Model Complexity →",
+       y = "Error") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        axis.text.y = element_blank())
+```
+
+## Overfitting vs Underfitting: Training vs Validation Error {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create realistic training and validation error curves
+complexity_range <- seq(1, 100, by = 1)
+
+error_curves <- tibble(
+  complexity = complexity_range,
+  # Training error decreases as complexity increases
+  train_error = 5 * exp(-0.05 * complexity) + 0.5,
+  # Validation error: U-shaped (decreases then increases steeply)
+  validation_error = 5 * exp(-0.035 * complexity) + 0.055 * (complexity - 35)^2 / 100 + 2.2
+) %>%
+  pivot_longer(cols = c(train_error, validation_error),
+              names_to = "error_type",
+              values_to = "error") %>%
+  mutate(error_type = factor(error_type,
+                            levels = c("train_error", "validation_error"),
+                            labels = c("Training Error", "Validation Error")))
+
+# Find optimal complexity (minimum validation error)
+optimal_point <- error_curves %>%
+  filter(error_type == "Validation Error") %>%
+  slice_min(error, n = 1)
+
+# Define regions based on optimal point
+optimal_complexity <- optimal_point$complexity[1]
+underfit_end <- optimal_complexity - 10
+good_end <- optimal_complexity + 15
+
+ggplot(error_curves, aes(x = complexity, y = error, color = error_type, linetype = error_type)) +
+  # Shade regions
+  annotate("rect", xmin = 0, xmax = underfit_end, ymin = 0, ymax = Inf, 
+          fill = "red", alpha = 0.1) +
+  annotate("rect", xmin = underfit_end, xmax = good_end, ymin = 0, ymax = Inf, 
+          fill = "green", alpha = 0.1) +
+  annotate("rect", xmin = good_end, xmax = 100, ymin = 0, ymax = Inf, 
+          fill = "orange", alpha = 0.1) +
+  # Error curves
+  geom_line(size = 1.5) +
+  # Mark optimal point
+  geom_point(data = optimal_point, size = 4, color = "darkgreen") +
+  # Labels
+  annotate("text", x = underfit_end/2, y = 5.5, label = "Underfit\n(High Bias)", 
+          size = 4, fontface = "bold") +
+  annotate("text", x = optimal_complexity, y = 5.5, label = "Sweet Spot", 
+          size = 4, fontface = "bold") +
+  annotate("text", x = (good_end + 100)/2, y = 5.5, label = "Overfit\n(High Variance)", 
+          size = 4, fontface = "bold") +
+  scale_color_manual(values = c("Training Error" = "steelblue", 
+                               "Validation Error" = "coral"),
+                    name = "") +
+  scale_linetype_manual(values = c("Training Error" = "solid", 
+                                  "Validation Error" = "dashed"),
+                       name = "") +
+  labs(title = "Understanding Overfitting and Underfitting",
+       subtitle = "Training error always decreases, but validation error increases when overfitting",
+       x = "Model Complexity →",
+       y = "Error") +
+  scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
+  coord_cartesian(xlim = c(0, 100)) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        panel.grid.minor = element_blank())
+```
+
+::: {.fragment}
+- **Underfit (red zone)**: Both errors high - model too simple, doesn't learn the pattern
+- **Sweet spot (green zone)**: Validation error minimized - model complexity just right
+- **Overfit (orange zone)**: Training error keeps dropping, but validation error rises - model memorizes training data
+:::
+
+## Real-World Example: The Double-Descent Phenomenon {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Illustrate modern ML's "double descent" 
+model_complexity_extended <- seq(1, 200, by = 1)
+
+double_descent_data <- tibble(
+  n_parameters = model_complexity_extended,
+  train_error = case_when(
+    n_parameters < 50 ~ 10 * exp(-0.08 * n_parameters),
+    n_parameters >= 50 & n_parameters < 100 ~ 0.5 + 0.01 * (n_parameters - 50)^2 / 100,
+    n_parameters >= 100 ~ 0.5 * exp(-0.02 * (n_parameters - 100)) + 0.2
+  ),
+  test_error = case_when(
+    n_parameters < 50 ~ 10 * exp(-0.05 * n_parameters) + 2,
+    n_parameters >= 50 & n_parameters < 120 ~ 2 + 0.05 * (n_parameters - 50)^2 / 10,
+    n_parameters >= 120 ~ 2 + 8 * exp(-0.05 * (n_parameters - 120))
+  )
+) %>%
+  pivot_longer(cols = c(train_error, test_error), 
+              names_to = "error_type", values_to = "error") %>%
+  mutate(error_type = str_to_title(str_replace(error_type, "_", " ")))
+
+ggplot(double_descent_data, aes(x = n_parameters, y = error, color = error_type)) +
+  geom_line(size = 1.2) +
+  geom_vline(xintercept = 100, linetype = "dashed", alpha = 0.3) +
+  annotate("text", x = 100, y = 12, label = "Interpolation\nThreshold", 
+          size = 3, hjust = -0.1) +
+  scale_color_manual(values = c("Train Error" = "steelblue", "Test Error" = "coral"),
+                    name = "") +
+  labs(title = "Modern ML: The Double-Descent Phenomenon",
+       subtitle = "Classical wisdom: more parameters = overfitting. Modern reality: even more parameters can help again!",
+       x = "Number of Model Parameters",
+       y = "Error",
+       caption = "Belkin et al. (2019) - Reconciling modern machine-learning practice and the classical bias-variance tradeoff") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Interpolation threshold**: The point where the model has enough parameters to perfectly fit all training data (typically around n_parameters ≈ n_samples). This is where overfitting peaks in the classical view.
+:::
+
+::: {.fragment}
+**Surprising finding**: Beyond the interpolation threshold, adding even MORE parameters can improve generalization! Very large neural networks find smoother fits. But for policy ML, we usually stay in the classical regime (left of the threshold).
+:::
+
+# Part V: Hyperparameter Tuning and Model Selection
+
+## What Are Hyperparameters? {.smaller}
+
+::: {.fragment}
+**Two types of parameters in machine learning:**
+:::
+
+::: {.fragment}
+**1. Model Parameters** (learned from data during training)
+- Coefficients in linear regression: $\beta_0, \beta_1, ..., \beta_p$
+- Weights in neural networks
+- Split points in decision trees
+:::
+
+::: {.fragment}
+**2. Hyperparameters** (set *before* training)
+- Control *how* the algorithm learns
+- Cannot be learned directly from the training data
+- Must be chosen by the data scientist
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Different hyperparameter values lead to different models with different performance!
+:::
+:::
+
+## Common Hyperparameters Across ML Algorithms {.smaller}
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+**k-Nearest Neighbors**
+- $k$: Number of neighbors
+- Distance metric (Euclidean, Manhattan)
+:::
+
+::: {.fragment}
+**Random Forest**
+- Number of trees
+- Maximum tree depth
+- Minimum samples per leaf
+:::
+
+::: {.fragment}
+**Elastic Net**
+- $\alpha$: Balance between L1 and L2
+- $\lambda$: Regularization strength
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment}
+**Neural Networks**
+- Number of layers
+- Neurons per layer
+- Learning rate
+- Dropout rate
+:::
+
+::: {.fragment}
+**XGBoost**
+- Learning rate
+- Maximum depth
+- Number of estimators
+- Subsample ratio
+:::
+:::
+:::
+
+## The Role of the Validation Set in Hyperparameter Tuning {.smaller}
+
+::: {.fragment}
+**Remember our three-way split:**
+- **Training set**: Learn model parameters
+- **Validation set**: Tune hyperparameters and select best model
+- **Test set**: Final performance evaluation (never touched during development)
+:::
+
+::: {.fragment}
+**The hyperparameter tuning workflow:**
+
+1. Choose a set of hyperparameter values to try
+2. Train model on **training set** with those hyperparameters
+3. Evaluate performance on **validation set**
+4. Repeat steps 1-3 for different hyperparameter values
+5. Select hyperparameters that give best validation performance
+6. Train final model with best hyperparameters on training data
+7. Evaluate on **test set** (once, at the very end). The test set is sacred.
+:::
+
+
+# Part VI: Where Are the Humans?
+
+## Machine Learning Is Not Automatic {.smaller}
+
+::: {.fragment}
+**Human decisions at every step**:
+:::
+
+::: {layout-ncol=2}
+### Technical Decisions
+1. **What data to collect?**
+   - Which features matter?
+   - What's feasible to measure?
+
+2. **How to split data?**
+   - Random? Time-based? Geographic?
+   - What represents "deployment"?
+
+3. **Which algorithm?**
+   - Simple vs complex?
+   - Interpretable vs accurate?
+
+4. **Which metric matters?**
+   - Accuracy? Precision? Recall?
+
+### Policy Decisions
+5. **Who does this affect?**
+   - Stakeholder analysis
+   - Equity considerations
+
+6. **What are the costs of errors?**
+   - False positives vs negatives
+   - Short-term vs long-term
+
+7. **How transparent must we be?**
+   - Legal requirements
+   - Public trust needs
+
+8. **How will we monitor?**
+   - Data drift detection, performance degradation
+:::
+
+## Common Machine Learning Pitfalls in Policy {.smaller}
+
+::: {.fragment}
+**1. Data Leakage**: Using information not available at prediction time
+- Example: Using "program completion" to predict "program enrollment"
+:::
+
+::: {.fragment}
+**2. Target Leakage**: Feature is caused by the target
+- Example: Using "number of ER visits" to predict "has chronic illness" (ER visits might be how we diagnosed them!)
+:::
+
+::: {.fragment}
+**3. Historical Bias**: Training data reflects past discrimination
+- Example: Hiring algorithm trained on biased historical hiring decisions
+:::
+
+::: {.fragment}
+**4. Distribution Shift**: Training and deployment contexts differ
+- Example: COVID changed everything—models trained pre-2020 may not work now
+:::
+
+::: {.fragment}
+**5. Feedback Loops**: Model predictions change future data
+- Example: Predictive policing sends more police to predicted areas, generating more arrests there
+:::
+
+## Responsible ML Checklist {.smaller}
+
+::: {.fragment}
+**Before deployment, ask**:
+:::
+
+::: {layout-ncol=2}
+### Technical Validation
+- [ ] Appropriate validation strategy?
+- [ ] Multiple metrics examined (e.g. accuracy, precision, recall, ROC-AUC)?
+- [ ] Performance across subgroups checked?
+- [ ] Edge cases tested?
+- [ ] Monitoring plan in place?
+
+### Ethical Validation  
+- [ ] Stakeholders consulted?
+- [ ] Bias audit conducted?
+- [ ] Explainability sufficient?
+- [ ] Appeals process designed?
+- [ ] Impact assessment complete?
+- [ ] Documentation thorough?
+:::
+
+::: {.fragment}
+::: callout-important
+**Remember**: A technically perfect model that erodes public trust or perpetuates inequality is a failed model in policy contexts.
+:::
+:::
+
+# Part VII: Looking Ahead
+
+## Next Week: Supervised Learning Deep Dive {.smaller}
+
+::: {.fragment}
+We'll explore specific algorithms in detail
+
+- Linear models (OLS, Ridge, LASSO)
+- When regularization helps
+- Evaluating model performance
+- Feature scaling and transformation
+:::
+
+::: {.fragment}
+Tree-based methods and unsupervised learning
+
+- Decision trees and random forests
+- Gradient boosting
+- Clustering and dimensionality reduction
+:::
+
+::: {.fragment}
+**Week 10**: Modern tools and final exam
+- AI-augmented development
+- Integration with LLM APIs
+- Final exam
+:::
+
+## Key Takeaways {.smaller}
+
+::: {.fragment}
+1. **ML is pattern recognition from data**, not magic—it requires careful human judgment at every step
+:::
+
+::: {.fragment}
+2. **Proper validation is critical**—train/validation/test splits and cross-validation prevent overfitting
+:::
+
+::: {.fragment}
+3. **The "best" metric depends on policy context**—understand the costs of different types of errors
+:::
+
+::: {.fragment}
+4. **Bias-variance trade-off is fundamental**—simple models underfit, complex models overfit, need to find the sweet spot
+:::
+
+::: {.fragment}
+5. **Technical excellence ≠ policy success**—must also consider fairness, transparency, and stakeholder trust
+:::
+
+::: {.fragment}
+6. **ML is a tool, not a solution**—the hard part is formulating the right question and interpreting results for decision-makers
+:::
+
+## Next Steps {.smaller}
+
+::: {.fragment}
+**Next lab:**
+
+- Hands-on with caret package for ML workflows
+- Feature engineering and selection
+- Model evaluation in practice
+- Work on your LAT project predictions
+:::
+
+::: {.fragment}
+**Please read:**
+
+- **MDSR Ch. 10**: Predictive Modeling
+- **Binary Classifier Metrics**: General Performance Metrics paper
+- **Regression Metrics**: NVIDIA overview
+- **Caret Introduction**: Short introduction vignette
+- **Google ML Crash Course**: Thresholds, Confusion Matrix, Accuracy/Precision/Recall, ROC/AUC
+- **SKIM Feature Engineering**: Kuhn & Johnson Chapters 5, 6, 10, 11
+:::
+
+## Questions?
+
+::: {.fragment}
+**Remember**: Machine learning is a powerful tool for prediction, but it requires careful validation, ethical consideration, and human judgment to use responsibly in policy settings.
+:::
+
+---
+
