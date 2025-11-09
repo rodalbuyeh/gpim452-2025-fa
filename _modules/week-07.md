@@ -4,7 +4,7 @@
     days:
       - date: 2025-11-10
         events:
-          "**LEC 7**{: .label .label-lecture } Introduction to Machine Learning": 
+          "**LEC 7**{: .label .label-lecture } [Introduction to Machine Learning](_lectures/lec07_ml_intro.html)": 
           "**Read**{: .label .label-read } [MDSR 10: Predictive Modeling](https://mdsr-book.github.io/mdsr3e/10-modeling.html)":
           "**Read**{: .label .label-read } [General Performance Metrics of Binary Classifier Systems](https://arxiv.org/pdf/1410.5330)":
           "**Read**{: .label .label-read } [Overview of Regression Evaluation Metrics](https://developer.nvidia.com/blog/a-comprehensive-overview-of-regression-evaluation-metrics/)":
