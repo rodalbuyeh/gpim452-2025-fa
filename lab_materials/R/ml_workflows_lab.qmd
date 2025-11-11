@@ -1,0 +1,893 @@
+---
+title: "Machine Learning Workflows"
+subtitle: "From Features to Predictions with caret"
+author: "Rod Albuyeh"
+date: today
+format: pdf
+execute:
+  echo: true
+  eval: true
+  warning: false
+  error: false
+  cache: true
+  tidy: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Introduction
+
+This lab bridges the gap between machine learning theory and practice. In Lecture 7, we learned about supervised learning, the bias-variance tradeoff, and evaluation metrics. Now we'll apply these concepts to real data using the `caret` package—one of the most popular frameworks for machine learning in R.
+
+## Learning Objectives
+
+By the end of this lab, you will be able to:
+
+1. **Set up ML workflows** using the caret package
+2. **Engineer features** from raw data to improve model performance
+3. **Implement proper data preprocessing** within a validation framework
+4. **Train and evaluate models** using cross-validation
+5. **Compare multiple models** systematically
+6. **Interpret classification metrics** in policy contexts
+
+## Why caret?
+
+The `caret` package (Classification And REgression Training) provides:
+
+- **Unified interface**: Train 200+ different models with the same syntax
+- **Built-in preprocessing**: Scaling, centering, imputation, etc.
+- **Cross-validation**: Automated k-fold CV and other resampling methods
+- **Parallel processing**: Speed up training on multiple cores
+- **Feature selection**: Built-in methods for reducing dimensionality
+- **Consistent evaluation**: Same metrics across all models
+
+Think of caret as the "tidyverse for machine learning"—it standardizes what would otherwise be a mess of different packages and syntaxes.
+
+# Setup
+
+```{r}
+# Essential libraries
+library(tidyverse)      # Data manipulation
+library(caret)          # ML workflows
+library(readxl)         # Reading Excel files
+library(here)           # File paths
+library(janitor)        # Cleaning names
+library(scales)         # Pretty formatting
+
+# For reproducibility
+set.seed(452)
+
+# Configure caret to use multiple cores (speeds up cross-validation)
+library(doParallel)
+cl <- makePSOCKcluster(2)  # Use 2 cores (adjust based on your computer)
+registerDoParallel(cl)
+```
+
+# Part 1: Understanding the caret Workflow
+
+## The Big Picture
+
+Every machine learning workflow follows these steps:
+
+1. **Load and clean data**
+2. **Split into train/val/test sets**
+3. **Define preprocessing steps**
+4. **Train model(s)**
+5. **Evaluate and compare**
+6. **Make final predictions**
+
+caret helps us do all of this in a standardized, reproducible way. Let's see it in action with a simple example first.
+
+## A Simple Example: Policy Implementation Success
+
+Let's walk through a complete workflow with simpler data so you can see how all the pieces fit together.
+
+```{r}
+# Create sample policy data
+policy_data <- tibble(
+  city_id = 1:500,
+  population = rlnorm(500, log(100000), 1),
+  budget_per_capita = rlnorm(500, log(1000), 0.5),
+  staff_experience = runif(500, 1, 20),
+  community_support = runif(500, 0, 100),
+  prior_success = sample(c("Yes", "No"), 500, replace = TRUE, prob = c(0.3, 0.7))
+) %>%
+  mutate(
+    # Create outcome based on predictors
+    success_prob = plogis(-2 + 
+                         0.0001 * budget_per_capita + 
+                         0.1 * staff_experience + 
+                         0.02 * community_support +
+                         ifelse(prior_success == "Yes", 0.8, 0)),
+    success = factor(
+      ifelse(runif(500) < success_prob, "Success", "Failure"),
+      levels = c("Failure", "Success")  # "Failure" is reference level
+    )
+  ) %>%
+  select(-success_prob)  # Remove true probability
+
+# Look at our data
+glimpse(policy_data)
+```
+
+### Step 1: Train-Test Split
+
+```{r}
+# Create stratified split (maintains class proportions)
+trainIndex <- createDataPartition(
+  y = policy_data$success,    # Outcome variable
+  p = 0.75,                    # 75% for training
+  list = FALSE                 # Return indices, not list
+)
+
+# Split the data
+train_data <- policy_data[trainIndex, ]
+test_data <- policy_data[-trainIndex, ]
+
+# Check class balance
+cat("Training set class distribution:\n")
+prop.table(table(train_data$success))
+
+cat("\nTest set class distribution:\n")
+prop.table(table(test_data$success))
+```
+
+::: callout-note
+## Why Stratified Splitting?
+
+`createDataPartition()` ensures that class proportions are maintained in both train and test sets. This is crucial for imbalanced data—if we have 70% Failures and 30% Successes overall, we want roughly the same split in both sets.
+:::
+
+### Step 2: Define Preprocessing
+
+```{r}
+# Set up preprocessing steps
+preProc_values <- preProcess(
+  train_data %>% select(-city_id, -success),  # Only use training data!
+  method = c("center",      # Subtract mean
+             "scale",       # Divide by SD
+             "nzv")         # Remove near-zero variance predictors
+)
+
+# Apply to training data
+train_transformed <- predict(preProc_values, train_data)
+
+# Apply SAME transformation to test data (no data leakage!)
+test_transformed <- predict(preProc_values, test_data)
+
+# Show what happened
+cat("Original training data (first 3 rows):\n")
+print(head(train_data %>% select(budget_per_capita, staff_experience), 3))
+
+cat("\nTransformed training data (first 3 rows):\n")
+print(head(train_transformed %>% select(budget_per_capita, staff_experience), 3))
+
+cat("\nNote: Values are now centered (mean ≈ 0) and scaled (SD ≈ 1)")
+```
+
+::: callout-important
+## Preventing Data Leakage
+
+Notice that we:
+
+1. Fit `preProcess()` using **only training data**
+2. Apply the same transformation to test data using `predict()`
+
+This prevents test data from influencing our preprocessing!
+:::
+
+### Step 3: Set Up Cross-Validation
+
+```{r}
+# Define cross-validation strategy
+ctrl <- trainControl(
+  method = "cv",              # Use k-fold cross-validation
+  number = 5,                 # 5 folds
+  summaryFunction = twoClassSummary,  # Classification metrics
+  classProbs = TRUE,          # Need probabilities for ROC
+  savePredictions = "final"   # Save predictions for analysis
+)
+```
+
+**What does this control object do?**
+
+- **Method**: k-fold cross-validation (cv)
+- **Number of folds**: 5
+- **Metrics computed**: ROC-AUC, Sensitivity, Specificity
+- **Class probabilities**: Enabled for ROC curve calculation
+- **Predictions saved**: Final model predictions stored for later analysis
+
+### Step 4: Train a Model
+
+```{r}
+# Train a logistic regression model
+model_fit <- train(
+  success ~ budget_per_capita + staff_experience + 
+            community_support + prior_success,
+  data = train_transformed,
+  method = "glm",                    # Generalized linear model (logistic regression)
+  family = "binomial",               # For binary classification
+  trControl = ctrl,                  # Use our CV setup
+  metric = "ROC"                     # Optimize for ROC-AUC
+)
+
+# Look at results
+print(model_fit)
+```
+
+### Step 5: Evaluate Performance
+
+```{r}
+# Get predictions on test set
+test_preds <- predict(model_fit, newdata = test_transformed, type = "prob")
+test_class <- predict(model_fit, newdata = test_transformed)
+
+# Create confusion matrix
+conf_mat <- confusionMatrix(
+  data = test_class,
+  reference = test_transformed$success,
+  positive = "Success"  # Define which class is "positive"
+)
+
+print(conf_mat)
+```
+
+Let's break down what these metrics mean:
+
+```{r}
+# Extract key metrics
+accuracy <- conf_mat$overall['Accuracy']
+sensitivity <- conf_mat$byClass['Sensitivity']  # Recall / True Positive Rate
+specificity <- conf_mat$byClass['Specificity']  # True Negative Rate
+precision <- conf_mat$byClass['Precision']      # Positive Predictive Value
+
+cat("Model Performance on Test Set:\n")
+cat("================================\n")
+cat("Accuracy:    ", round(accuracy, 3), "- Overall % correct\n")
+cat("Sensitivity: ", round(sensitivity, 3), "- Of actual Successes, % we caught\n")
+cat("Specificity: ", round(specificity, 3), "- Of actual Failures, % we caught\n")
+cat("Precision:   ", round(precision, 3), "- Of predicted Successes, % were correct\n")
+```
+
+### Visualizing Performance
+
+```{r}
+# ROC curve
+library(pROC)
+
+roc_obj <- roc(
+  response = test_transformed$success,
+  predictor = test_preds$Success
+)
+
+# Plot ROC curve
+plot(roc_obj, 
+     main = "ROC Curve for Policy Success Prediction",
+     col = "steelblue",
+     lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "red")  # Random classifier line
+
+# Add AUC to plot
+text(0.5, 0.3, 
+     paste("AUC =", round(auc(roc_obj), 3)),
+     cex = 1.2)
+```
+
+::: callout-note
+## Interpreting ROC-AUC
+
+- **AUC = 0.5**: Model is no better than random guessing
+- **AUC = 0.6-0.7**: Acceptable for very hard problems or poor quality data—still better than nothing!
+- **AUC = 0.7-0.8**: Good discrimination for most policy applications
+- **AUC = 0.8-0.9**: Very good discrimination
+- **AUC > 0.9**: Excellent discrimination (be suspicious—might be data leakage!)
+
+**Policy reality**: Human behavior is inherently noisy. An AUC of 0.65 predicting labor strikes or program enrollment might be genuinely useful even though it wouldn't impress in a Kaggle competition. Context matters—if your baseline is random guessing (0.5), even 0.6 represents real predictive signal that can inform better decisions.
+:::
+
+
+# Part 2: Feature Engineering
+
+Feature engineering is the process of creating new variables from existing ones to improve model performance. Good features can make the difference between a mediocre model and a great one.
+
+## Types of Feature Engineering
+
+### 1. Transformations
+
+```{r}
+# Create demonstration data with skewed variables
+demo_data <- tibble(
+  income = rlnorm(1000, log(50000), 0.8),
+  population = rlnorm(1000, log(100000), 1)
+)
+
+# Compare distributions before and after log transformation
+par(mfrow = c(2, 2))
+
+hist(demo_data$income, main = "Income (Original)", 
+     xlab = "Income", col = "lightblue")
+hist(log(demo_data$income), main = "Income (Log Transformed)",
+     xlab = "log(Income)", col = "lightgreen")
+
+hist(demo_data$population, main = "Population (Original)",
+     xlab = "Population", col = "lightblue")
+hist(log(demo_data$population), main = "Population (Log Transformed)",
+     xlab = "log(Population)", col = "lightgreen")
+```
+
+**When to use log transformations:**
+- Variables that span multiple orders of magnitude (e.g., income, population)
+- Variables where proportional changes matter more than absolute changes
+- When you see severe right skew in histograms
+
+### 2. Interaction Terms
+
+```{r}
+# Interaction: effect of one variable depends on another
+policy_data_interact <- train_data %>%
+  mutate(
+    # Maybe budget per capita matters more in larger cities?
+    budget_pop_interact = budget_per_capita * log(population),
+    
+    # Maybe staff experience matters more with community support?
+    staff_support_interact = staff_experience * community_support
+  )
+
+# Train model with interactions
+model_interact <- train(
+  success ~ budget_per_capita + staff_experience + 
+            community_support + prior_success +
+            budget_pop_interact + staff_support_interact,
+  data = policy_data_interact,
+  method = "glm",
+  family = "binomial",
+  trControl = ctrl,
+  metric = "ROC"
+)
+
+cat("Model without interactions - CV ROC:", 
+    round(max(model_fit$results$ROC), 3), "\n")
+cat("Model with interactions - CV ROC:", 
+    round(max(model_interact$results$ROC), 3), "\n")
+```
+
+### 3. Binning Continuous Variables
+
+Sometimes it helps to group continuous variables into categories:
+
+```{r}
+# Create bins for staff experience
+policy_data_binned <- train_data %>%
+  mutate(
+    experience_level = cut(
+      staff_experience,
+      breaks = c(0, 5, 10, 20),
+      labels = c("Junior", "Mid-Level", "Senior"),
+      include.lowest = TRUE
+    )
+  )
+
+# Compare with continuous version
+model_binned <- train(
+  success ~ budget_per_capita + experience_level + 
+            community_support + prior_success,
+  data = policy_data_binned,
+  method = "glm",
+  family = "binomial",
+  trControl = ctrl,
+  metric = "ROC"
+)
+
+cat("Continuous experience - CV ROC:", 
+    round(max(model_fit$results$ROC), 3), "\n")
+cat("Binned experience - CV ROC:", 
+    round(max(model_binned$results$ROC), 3), "\n")
+```
+
+::: callout-note
+## Binning: When It Helps and Hurts
+
+**Helps when:**
+
+- Non-linear relationships that are approximately step-wise
+- Interpretability is crucial (easier to explain "senior staff" than "staff with 15.3 years experience")
+- You have domain knowledge about meaningful thresholds
+
+**Hurts when:**
+
+- Relationships are actually smooth and continuous
+- You lose information by grouping
+- Bins are arbitrary and not grounded in domain knowledge
+:::
+
+### 4. Domain-Specific Features
+
+The best features often come from domain knowledge. For policy data, consider:
+
+```{r}
+# Create policy-relevant features
+policy_data_domain <- train_data %>%
+  mutate(
+    # Resources per capita (maybe more meaningful than absolute budget)
+    resources_per_capita = budget_per_capita / population * 1000000,
+    
+    # Experience-to-complexity ratio
+    staff_readiness = staff_experience / log(population),
+    
+    # High-risk category: low support AND low experience
+    high_risk = factor(
+      ifelse(community_support < 50 & staff_experience < 10, "High Risk", "Lower Risk")
+    )
+  )
+
+glimpse(policy_data_domain)
+```
+
+
+# Part 3: Working with Real Data - Credit Default Prediction
+
+Now let's apply everything we've learned to real data: predicting credit card default using the `Default` dataset from the `ISLR` package. This is a classic dataset in statistical learning.
+
+## Loading and Exploring the Data
+
+```{r}
+# Load the ISLR package (install if needed)
+# install.packages("ISLR")
+library(ISLR)
+
+# Load the Default dataset
+data(Default)
+
+# Look at the data
+glimpse(Default)
+
+# Check the dataset
+cat("Dataset dimensions:", nrow(Default), "observations,", ncol(Default), "variables\n\n")
+
+# View first few rows
+head(Default)
+
+# Check outcome distribution
+cat("\nOutcome distribution:\n")
+table(Default$default)
+cat("\nProportions:\n")
+prop.table(table(Default$default))
+```
+
+::: callout-important
+## Class Imbalance
+
+Notice that our outcome is imbalanced (not 50-50). This is common in real-world data. We'll need to keep this in mind when:
+
+- Interpreting accuracy (might be misleading)
+- Choosing evaluation metrics (precision-recall curves often better than ROC)
+- Deciding on interventions (false positives vs false negatives have different costs)
+:::
+
+## Feature Engineering for Credit Default
+
+```{r}
+# Create features specific to credit risk
+credit_features <- Default %>%
+  mutate(
+    # Financial ratio features
+    balance_income_ratio = balance / income,
+    
+    # Log transformations for skewed variables
+    log_balance = log1p(balance),  # log1p(x) = log(x + 1), handles zeros
+    log_income = log1p(income),
+    
+    # Categorical indicators
+    is_student = factor(student),
+    
+    # Risk categories based on balance
+    balance_category = cut(
+      balance,
+      breaks = c(0, 500, 1000, 2000, Inf),
+      labels = c("Low", "Medium", "High", "Very High"),
+      include.lowest = TRUE
+    ),
+    
+    # Income categories
+    income_category = cut(
+      income,
+      breaks = quantile(income, probs = c(0, 0.25, 0.5, 0.75, 1)),
+      labels = c("Q1", "Q2", "Q3", "Q4"),
+      include.lowest = TRUE
+    ),
+    
+    # High-risk indicator: high balance AND low income
+    high_risk_flag = factor(
+      ifelse(balance > median(balance) & income < median(income), 
+             "High Risk", "Lower Risk")
+    )
+  )
+
+# Look at our engineered features
+glimpse(credit_features %>% select(default, balance_income_ratio, log_balance, 
+                                  balance_category, high_risk_flag))
+```
+
+## Model Training with Cross-Validation
+
+```{r}
+# Select features for modeling
+modeling_data <- credit_features %>%
+  select(
+    default,
+    balance,
+    income,
+    student,
+    log_balance,
+    log_income,
+    balance_income_ratio,
+    balance_category,
+    high_risk_flag
+  ) %>%
+  drop_na()  # Remove any remaining missing values
+
+# Create train-test split (stratified by outcome)
+set.seed(452)
+trainIndex <- createDataPartition(
+  modeling_data$default,
+  p = 0.75,
+  list = FALSE
+)
+
+train_credit <- modeling_data[trainIndex, ]
+test_credit <- modeling_data[-trainIndex, ]
+
+# Set up cross-validation with appropriate metrics for imbalanced data
+ctrl_credit <- trainControl(
+  method = "cv",
+  number = 5,
+  summaryFunction = twoClassSummary,
+  classProbs = TRUE,
+  savePredictions = "final"
+)
+
+# Train logistic regression
+model_credit <- train(
+  default ~ .,
+  data = train_credit,
+  method = "glm",
+  family = "binomial",
+  trControl = ctrl_credit,
+  metric = "ROC",
+  preProcess = c("center", "scale", "nzv")  # Preprocessing within caret
+)
+
+# View results
+print(model_credit)
+```
+
+## Evaluating Model Performance
+
+```{r}
+# Predictions on test set
+test_preds_credit <- predict(model_credit, newdata = test_credit, type = "prob")
+test_class_credit <- predict(model_credit, newdata = test_credit)
+
+# Confusion matrix
+conf_mat_credit <- confusionMatrix(
+  data = test_class_credit,
+  reference = test_credit$default,
+  positive = "Yes"  # "Yes" means defaulted
+)
+
+print(conf_mat_credit)
+```
+
+### Visualizing Results
+
+```{r}
+# ROC Curve
+roc_credit <- roc(
+  response = test_credit$default,
+  predictor = test_preds_credit$Yes
+)
+
+plot(roc_credit,
+     main = "ROC Curve: Predicting Credit Default",
+     col = "darkblue",
+     lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "red")
+text(0.5, 0.3,
+     paste("AUC =", round(auc(roc_credit), 3)),
+     cex = 1.2)
+```
+
+```{r}
+# Variable importance
+var_imp <- varImp(model_credit)
+plot(var_imp, main = "Feature Importance for Default Prediction")
+```
+
+::: callout-note
+## Interpreting Variable Importance
+
+In logistic regression, variable importance is based on the absolute value of the coefficients. Higher values mean the feature has more influence on predictions.
+
+**Financial policy insight**: Understanding which features matter most helps:
+
+- Guide data collection efforts (which customer info is most predictive?)
+- Identify key risk factors for intervention (target outreach to high-risk customers)
+- Explain model decisions to stakeholders (regulators, customers, executives)
+:::
+
+## Model Comparison
+
+Let's compare different modeling approaches:
+
+```{r}
+# Model 1: Simple logistic regression (already trained above)
+# Model 2: Regularized logistic regression (Ridge)
+model_ridge <- train(
+  default ~ .,
+  data = train_credit,
+  method = "glmnet",
+  family = "binomial",
+  trControl = ctrl_credit,
+  metric = "ROC",
+  preProcess = c("center", "scale", "nzv"),
+  tuneGrid = expand.grid(
+    alpha = 0,  # Ridge regression (alpha = 0)
+    lambda = seq(0.001, 0.1, length = 20)
+  )
+)
+
+# Model 3: Elastic Net (combination of Ridge and LASSO)
+model_enet <- train(
+  default ~ .,
+  data = train_credit,
+  method = "glmnet",
+  family = "binomial",
+  trControl = ctrl_credit,
+  metric = "ROC",
+  preProcess = c("center", "scale", "nzv"),
+  tuneGrid = expand.grid(
+    alpha = seq(0, 1, length = 5),  # Mix of L1 and L2
+    lambda = seq(0.001, 0.1, length = 20)
+  )
+)
+
+# Compare models using resamples
+results <- resamples(list(
+  Logistic = model_credit,
+  Ridge = model_ridge,
+  ElasticNet = model_enet
+))
+
+# Summary statistics
+summary(results)
+```
+
+```{r}
+# Visualize comparison
+bwplot(results, metric = "ROC")
+```
+
+```{r}
+# Test set performance for each model
+test_results <- tibble(
+  Model = c("Logistic", "Ridge", "Elastic Net"),
+  AUC = c(
+    auc(roc(test_credit$default, predict(model_credit, test_credit, type = "prob")$Yes)),
+    auc(roc(test_credit$default, predict(model_ridge, test_credit, type = "prob")$Yes)),
+    auc(roc(test_credit$default, predict(model_enet, test_credit, type = "prob")$Yes))
+  )
+) %>%
+  arrange(desc(AUC))
+
+print(test_results)
+```
+
+
+# Part 4: Production Considerations
+
+## Saving and Loading Models
+
+```{r}
+# Save your trained model
+saveRDS(model_credit, here("data", "processed", "credit_default_model.rds"))
+
+# Load it back
+# loaded_model <- readRDS(here("data", "processed", "credit_default_model.rds"))
+
+# Make predictions with loaded model
+# new_predictions <- predict(loaded_model, newdata = new_data, type = "prob")
+```
+
+## Model Documentation
+
+Every production model needs documentation:
+
+```{r}
+# Create a model card
+model_card <- list(
+  model_name = "Credit Default Risk Classifier",
+  version = "1.0",
+  date_trained = Sys.Date(),
+  training_data = "ISLR Default dataset (n = 10,000 customers)",
+  algorithm = "Logistic Regression",
+  features = names(train_credit)[-1],  # All except outcome
+  performance = list(
+    cv_auc = max(model_credit$results$ROC),
+    test_auc = auc(roc_credit),
+    accuracy = conf_mat_credit$overall['Accuracy'],
+    sensitivity = conf_mat_credit$byClass['Sensitivity'],
+    specificity = conf_mat_credit$byClass['Specificity']
+  ),
+  preprocessing = "Centering, Scaling, NZV removal",
+  notes = "Model trained for educational purposes. Not for production use without validation."
+)
+
+# Save model card
+saveRDS(model_card, here("data", "processed", "model_card.rds"))
+
+# Print it nicely
+cat("=== MODEL CARD ===\n")
+cat("Model:", model_card$model_name, "\n")
+cat("Version:", model_card$version, "\n")
+cat("Trained:", as.character(model_card$date_trained), "\n")
+cat("Algorithm:", model_card$algorithm, "\n")
+cat("\nPerformance:\n")
+cat("  CV AUC:", round(model_card$performance$cv_auc, 3), "\n")
+cat("  Test AUC:", round(model_card$performance$test_auc, 3), "\n")
+cat("  Accuracy:", round(model_card$performance$accuracy, 3), "\n")
+```
+
+## Monitoring for Drift
+
+In production, you need to monitor:
+
+1. **Data drift**: Are input distributions changing?
+2. **Concept drift**: Is the relationship between features and outcome changing?
+3. **Performance drift**: Is model accuracy degrading?
+
+```{r}
+# Example: Check if distributions are similar between train and test
+# Compare balance distributions
+par(mfrow = c(1, 2))
+hist(train_credit$balance, main = "Training Set",
+     xlab = "Credit Card Balance", col = "lightblue", breaks = 30)
+hist(test_credit$balance, main = "Test Set",
+     xlab = "Credit Card Balance", col = "lightgreen", breaks = 30)
+```
+
+```{r}
+# Statistical test for distribution difference
+ks_test <- ks.test(train_credit$balance, test_credit$balance)
+cat("Kolmogorov-Smirnov test p-value:", round(ks_test$p.value, 4), "\n")
+cat("Interpretation:", 
+    ifelse(ks_test$p.value > 0.05, 
+           "Distributions are similar (good!)",
+           "Distributions differ (potential drift!)"))
+```
+
+# Lab Assignment: Build Your Complete ML Workflow
+
+## Overview
+
+Your task is to build a complete machine learning workflow for a classification problem of your choice, incorporating everything you've learned in this lab. You may use:
+
+- The `Default` dataset (credit default prediction) - what we used in class
+- Your **Labor Action Tracker data** (strike vs protest classification) - recommended!
+- Another classification dataset that interests you (get approval first)
+
+## Requirements
+
+### Part 1: Data Preparation and Feature Engineering (8 points)
+
+1. **Load and clean your chosen data** (2 points)
+   - Handle missing values appropriately
+   - Create proper train/test splits (consider stratification!)
+   - Document your decisions
+
+2. **Engineer at least 5 meaningful features** (6 points)
+   - At least one transformation (e.g., log, polynomial)
+   - At least one interaction term
+   - At least one domain-specific feature
+   - At least one feature inspired by your skim of the Kuhn book.
+   - Explain the reasoning behind each feature
+
+### Part 2: Model Development (10 points)
+
+1. **Set up proper validation** (2 points)
+   - Choose appropriate validation strategy
+   - Justify your choice
+
+2. **Train at least 2 different models** (4 points)
+   - Use logistic regression as baseline
+   - Try at least one other approach (Ridge, Elastic Net, or something else)
+   - Use caret's unified interface
+
+3. **Implement proper preprocessing** (2 points)
+   - Scale/center where appropriate
+   - Handle categorical variables correctly
+   - Avoid data leakage
+
+4. **Compare models systematically** (2 points)
+   - Use cross-validation results
+   - Test on held-out data
+   - Visualize comparisons
+
+### Part 3: Evaluation and Interpretation (7 points)
+
+1. **Compute comprehensive metrics** (3 points)
+   - ROC-AUC
+   - Precision, Recall, F1
+   - Confusion matrix with interpretation
+
+2. **Create visualizations** (2 points)
+   - ROC curve
+   - Variable importance plot
+   - At least one custom visualization
+
+3. **Policy/Business interpretation** (2 points)
+   - Which factors most strongly predict your outcome?
+   - What are the policy or business implications?
+   - Discuss costs of false positives vs false negatives in your context
+   - How would you explain this model to a relevant stakeholder?
+
+### Part 4: Documentation (5 points)
+
+1. **Write a model card** (2 points)
+   - Document your model's key characteristics
+   - Include performance metrics
+   - Note limitations and assumptions
+
+2. **Code quality** (3 points)
+   - Clear, readable code with comments
+   - Reproducible (use set.seed())
+   - Follows best practices from the course
+
+## Submission Guidelines
+
+- Submit both `.qmd` and `.pdf` files
+- Include all code (but hide code with `echo: false` in final PDF where it improves readability)
+- Keep the report focused: aim for 8-12 pages including visualizations
+- Due: **November 17, 2025 at 11:59 PM**
+
+## Tips for Success
+
+1. **Start simple**: Get a baseline working first, then improve
+2. **Feature engineering is key**: This is where you'll see the biggest gains
+3. **Cross-validation is crucial**: Don't trust single train-test split results
+4. **Think like a policy maker**: How would you actually use this model?
+5. **Document as you go**: Don't wait until the end to write explanations
+
+## Academic Integrity
+
+If you use AI tools (ChatGPT, Claude, etc.):
+
+- Include an appendix stating which tools you used
+- Explain what help you requested
+- Describe how you verified and modified AI-generated content
+- Remember: You're responsible for understanding and explaining all code
+
+## Grading Rubric
+
+- **Feature Engineering (8 pts)**: Quality, creativity, and justification of features
+- **Model Development (10 pts)**: Technical correctness, proper validation, comparison
+- **Evaluation (7 pts)**: Comprehensive metrics, clear visualizations, thoughtful interpretation
+- **Documentation (5 pts)**: Code quality, reproducibility, clear explanations
+- **Total: 30 points**
+
+---
+
+**Good luck! Remember: The goal isn't to build a perfect model, but to demonstrate that you understand the ML workflow and can apply it thoughtfully to policy problems.**
+
+```{r}
+#| include: false
+
+# Clean up parallel processing (if still active)
+if (exists("cl") && inherits(cl, "cluster")) {
+  tryCatch(
+    stopCluster(cl),
+    error = function(e) message("Cluster already stopped or invalid")
+  )
+}
+```
+
