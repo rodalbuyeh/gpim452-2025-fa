@@ -11,7 +11,7 @@
 
       - date: 2025-11-12
         events:
-          "**LAB 7**{: .label .label-lab } [ML Workflows, Feature Engineering, and Evaluation]((https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/ml_workflows_lab.qmd))":
+          "**LAB 7**{: .label .label-lab } [ML Workflows, Feature Engineering, and Evaluation](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/ml_workflows_lab.qmd)":
           "**Read**{: .label .label-read } [A Short Introduction to the caret Package](https://cran.r-project.org/web/packages/caret/vignettes/caret.html)":
           "**Read**{: .label .label-read } [Thresholds and the Confusion Matrix](https://developers.google.com/machine-learning/crash-course/classification/thresholding)":
           "**Read**{: .label .label-read } [Accuracy, Recall, Precision, and Related Metrics](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall)":
