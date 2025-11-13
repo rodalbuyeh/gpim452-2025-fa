@@ -295,7 +295,10 @@ Feature engineering is the process of creating new variables from existing ones 
 
 ### 1. Transformations
 
-```{r}
+```{r transformations-plot}
+#| fig.height: 6
+#| fig.width: 8
+
 # Create demonstration data with skewed variables
 demo_data <- tibble(
   income = rlnorm(1000, log(50000), 0.8),
@@ -314,6 +317,9 @@ hist(demo_data$population, main = "Population (Original)",
      xlab = "Population", col = "lightblue")
 hist(log(demo_data$population), main = "Population (Log Transformed)",
      xlab = "log(Population)", col = "lightgreen")
+
+# Reset graphics parameters
+par(mfrow = c(1, 1))
 ```
 
 **When to use log transformations:**
@@ -746,7 +752,10 @@ In production, you need to monitor:
 2. **Concept drift**: Is the relationship between features and outcome changing?
 3. **Performance drift**: Is model accuracy degrading?
 
-```{r}
+```{r drift-check-plot}
+#| fig.height: 4
+#| fig.width: 8
+
 # Example: Check if distributions are similar between train and test
 # Compare balance distributions
 par(mfrow = c(1, 2))
@@ -754,6 +763,9 @@ hist(train_credit$balance, main = "Training Set",
      xlab = "Credit Card Balance", col = "lightblue", breaks = 30)
 hist(test_credit$balance, main = "Test Set",
      xlab = "Credit Card Balance", col = "lightgreen", breaks = 30)
+
+# Reset graphics parameters
+par(mfrow = c(1, 1))
 ```
 
 ```{r}
