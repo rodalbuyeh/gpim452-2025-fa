@@ -14,7 +14,7 @@
 
       - date: 2025-11-26
         events:
-          "**LAB 9**{: .label .label-lab } Dimension Reduction and Unsupervised Learning":
+          "**LAB 9**{: .label .label-lab } (REMOTE LAB VIA ZOOM) Dimension Reduction and Unsupervised Learning":
           "**Read**{: .label .label-read } [MDSR 12: Unsupervised Learning](https://mdsr-book.github.io/mdsr3e/12-learningII.html)":
           "**Video**{: .label .label-watch } [Andrew Ng: Clustering](https://www.youtube.com/watch?v=0D4LnsJr85Y)":
           "**Video**{: .label .label-watch } [StatQuest: Principal Components Analysis](https://www.youtube.com/watch?v=FgakZw6K1QQ)":
