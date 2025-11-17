@@ -4,7 +4,7 @@
     days:
       - date: 2025-11-17
         events:
-          "**LEC 8**{: .label .label-lecture } [Ridge, LASSO, and Elastic Net: Shrinkage vs Feature Selection]((_lectures/lec08_regularization.html))": 
+          "**LEC 8**{: .label .label-lecture } [Ridge, LASSO, and Elastic Net: Shrinkage vs Feature Selection](_lectures/lec08_regularization.html)": 
           "**Read**{: .label .label-read } [MDSR 11: Supervised Learning](https://mdsr-book.github.io/mdsr3e/11-learningI.html)":
       - date: 2025-11-19
         events:
