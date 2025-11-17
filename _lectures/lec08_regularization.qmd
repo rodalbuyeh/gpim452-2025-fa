@@ -1,0 +1,1303 @@
+---
+title: "Regularization Methods for High-Dimensional Data"
+subtitle: "Ridge, LASSO, and Elastic Net: Shrinkage vs Feature Selection"
+author: "Rod Albuyeh"
+date: "11/17/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(patchwork)
+library(glmnet)
+library(caret)
+set.seed(42)
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Explain** why ordinary least squares fails in high-dimensional settings
+- **Distinguish** between Ridge, LASSO, and Elastic Net regularization
+- **Apply** regularization techniques to policy prediction problems
+- **Interpret** regularization paths and select optimal tuning parameters
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: When you have many features relative to observations, regularization prevents overfitting by constraining model complexity—trading some bias for dramatically reduced variance.
+:::
+:::
+
+# Part I: The Problem with Many Features
+
+## Recall: The High-Dimensional Challenge {.smaller}
+
+::: {.fragment}
+**From Week 3, we learned about two faces of "big":**
+:::
+
+::: {layout-ncol=2}
+### Large n (Many Observations)
+- 100,000+ rows
+- Statistical power increases
+- More stable estimates
+- **Challenge**: Computational efficiency
+
+### Large p (Many Features)
+- 1,000+ variables
+- **Curse of dimensionality**
+- Overfitting risk explodes
+- **Challenge**: Model selection
+:::
+
+::: {.fragment}
+::: callout-important
+**Today's focus**: What happens when **p approaches n** or even **p > n**? Ordinary least squares breaks down completely!
+:::
+:::
+
+## When OLS Fails: A Simulation {.smaller}
+
+::: {.fragment}
+**Setup**: Predict county poverty rate using demographic features
+:::
+
+```{r}
+# Create high-dimensional policy data
+set.seed(123)
+n_counties <- 100  # Small sample
+p_features <- 80   # Many features
+
+# Generate feature matrix
+X <- matrix(rnorm(n_counties * p_features), nrow = n_counties, ncol = p_features)
+colnames(X) <- paste0("feature_", 1:p_features)
+
+# True model: Only 5 features actually matter
+true_coefficients <- rep(0, p_features)
+true_coefficients[c(1, 5, 10, 25, 50)] <- c(2, -1.5, 3, 1, -2)
+
+# Generate outcome with noise
+y <- X %*% true_coefficients + rnorm(n_counties, 0, 2)
+
+# Create data frame
+poverty_data <- as_tibble(X) %>%
+  mutate(poverty_rate = as.numeric(y))
+
+cat("Data dimensions:", n_counties, "observations,", p_features, "features\n")
+cat("Ratio p/n =", round(p_features/n_counties, 2), "\n")
+```
+
+## The OLS Disaster {.smaller}
+
+```{r}
+# Try to fit OLS
+X_df <- as.data.frame(X)
+X_df$poverty_rate <- y
+
+# Fit OLS (if possible)
+tryCatch({
+  ols_model <- lm(poverty_rate ~ ., data = X_df)
+  cat("OLS R-squared:", summary(ols_model)$r.squared, "\n")
+  cat("Number of coefficients:", length(coef(ols_model)) - 1, "\n")
+}, error = function(e) {
+  cat("OLS failed:", e$message, "\n")
+})
+```
+
+::: {.fragment}
+**Problem**: OLS can fit perfectly (R² ≈ 1.0) but is learning noise, not signal!
+:::
+
+```{r}
+#| echo: false
+# Show how OLS overfits
+set.seed(456)
+# Split data to demonstrate overfitting
+train_idx <- sample(1:n_counties, size = 70)
+X_train <- X[train_idx, ]
+y_train <- y[train_idx]
+X_test <- X[-train_idx, ]
+y_test <- y[-train_idx]
+
+# Fit OLS on training
+X_train_df <- as.data.frame(X_train)
+X_train_df$poverty_rate <- y_train
+
+ols_train <- lm(poverty_rate ~ ., data = X_train_df)
+
+# Predict on test
+X_test_df <- as.data.frame(X_test)
+pred_test <- predict(ols_train, newdata = X_test_df)
+
+# Calculate errors
+train_mse <- mean(residuals(ols_train)^2)
+test_mse <- mean((y_test - pred_test)^2)
+
+cat("\nOLS Performance:\n")
+cat("Training MSE:", round(train_mse, 3), "\n")
+cat("Test MSE:    ", round(test_mse, 3), "\n")
+cat("Test MSE is", round(test_mse/train_mse, 1), "times worse!\n")
+```
+
+::: {.fragment}
+**Classic overfitting**: Great on training data, terrible on new data!
+:::
+
+## Visualizing the Overfitting Problem {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create visualization of coefficient instability
+set.seed(789)
+n_simulations <- 50
+coefficient_matrix <- matrix(0, nrow = n_simulations, ncol = p_features)
+
+for(i in 1:n_simulations) {
+  # Resample training data
+  boot_idx <- sample(train_idx, replace = TRUE)
+  X_boot <- X[boot_idx, ]
+  y_boot <- y[boot_idx]
+  
+  X_boot_df <- as.data.frame(X_boot)
+  X_boot_df$poverty_rate <- y_boot
+  
+  tryCatch({
+    boot_model <- lm(poverty_rate ~ ., data = X_boot_df)
+    coefficient_matrix[i, ] <- coef(boot_model)[-1]  # Exclude intercept
+  }, error = function(e) {
+    coefficient_matrix[i, ] <- NA
+  })
+}
+
+# Plot coefficient distributions for first 10 features
+coef_df <- as_tibble(coefficient_matrix[, 1:10]) %>%
+  setNames(paste0("Feature ", 1:10)) %>%
+  mutate(simulation = 1:n()) %>%
+  pivot_longer(cols = -simulation, names_to = "feature", values_to = "coefficient") %>%
+  filter(!is.na(coefficient))
+
+ggplot(coef_df, aes(x = feature, y = coefficient)) +
+  geom_boxplot(fill = "coral", alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "OLS Coefficient Instability in High Dimensions",
+       subtitle = "Same data, different bootstrap samples → wildly different coefficients!",
+       x = "Feature", y = "Coefficient Estimate") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+::: {.fragment}
+**Problem**: Coefficients swing wildly with small changes in data. Model is unstable!
+:::
+
+## The Core Problem: Overfitting with Many Features {.smaller}
+
+::: {.fragment}
+**What we just saw**: OLS with 80 features and 100 observations
+- Training MSE: Very low ✓
+- Test MSE: Very high ✗
+- Coefficients: Unstable and meaningless
+:::
+
+::: {.fragment}
+**This is classic overfitting**, but why does it happen with many features?
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### The Problem
+With many features:
+- Model has **too much flexibility**
+- Can fit training noise perfectly
+- **High variance** (changes drastically with different samples)
+- **Low bias** (fits training data well)
+- **Poor generalization** to new data
+:::
+
+::: {.fragment}
+### The Solution: Regularization
+Constrain coefficient sizes:
+- Reduce model **flexibility**
+- Force focus on strong signals
+- **Lower variance** (more stable)
+- **Slightly higher bias** (won't fit training perfectly)
+- **Better generalization**
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Key insight**: Regularization **deliberately underfits** the training data a little bit to avoid overfitting. We accept small bias to dramatically reduce variance.
+:::
+:::
+
+## Ordinary Least Squares: A Quick Review {.smaller}
+
+::: {.fragment}
+**The goal of OLS**: Find coefficients $\beta$ that minimize squared prediction errors
+:::
+
+::: {.fragment}
+$$\hat{\beta}_{OLS} = \underset{\beta}{\arg\min} \sum_{i=1}^n (y_i - x_i^T\beta)^2$$
+:::
+
+::: {.fragment}
+**In matrix notation:**
+
+- **Data matrix** $X$: $n$ rows (observations) × $p$ columns (features)
+- **Outcome vector** $y$: $n$ values
+- **Coefficients** $\beta$: $p$ values (one per feature)
+:::
+
+::: {.fragment}
+**The OLS solution** (from calculus):
+$$\hat{\beta}_{OLS} = (X^TX)^{-1}X^Ty$$
+:::
+
+::: {.fragment}
+This requires **inverting** the matrix $(X^TX)$, which is a $p \times p$ matrix
+:::
+
+## Closed-Form vs Iterative Solutions {.smaller}
+
+::: {.fragment}
+**Two ways to find optimal coefficients:**
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Closed-Form (Analytical)
+$$\hat{\beta} = (X^TX)^{-1}X^Ty$$
+
+**Pros:**
+- Exact solution in one step
+- No tuning needed
+
+**Cons:**
+- Requires matrix inversion (slow for large $p$)
+- Fails when $(X^TX)$ singular
+- Memory intensive ($O(p^2)$ storage)
+:::
+
+::: {.fragment}
+### Gradient Descent (Iterative)
+Start with $\beta^{(0)}$, then repeat:
+$$\beta^{(t+1)} = \beta^{(t)} - \alpha \nabla L(\beta^{(t)})$$
+
+**Pros:**
+- Works for any dimension
+- Memory efficient
+- Handles large datasets
+
+**Cons:**
+- Requires convergence criteria
+- Needs learning rate $\alpha$
+- Takes multiple iterations
+:::
+:::
+
+::: {.fragment}
+::: callout-note
+**Reality check**: Modern ML software (including `glmnet`) uses **coordinate descent** or other iterative algorithms, not closed-form solutions, even though closed forms exist for Ridge!
+:::
+:::
+
+## What Does "Singular" Mean? {.smaller}
+
+::: {.fragment}
+**A matrix is singular when it cannot be inverted** (no $(X^TX)^{-1}$ exists)
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Mathematical View
+A matrix is singular when:
+
+- **Determinant = 0**
+- **Rows/columns are linearly dependent**
+- **Not full rank** (i.e. some columns are redundent linear combinations of others)
+
+:::
+
+::: {.fragment}
+### Geometric Intuition
+Think of columns as vectors:
+
+- **Non-singular**: Columns span full space
+- **Singular**: Columns collapse to lower dimension
+- **Near-singular**: Columns almost collinear
+
+Like trying to describe 3D space with vectors that all point in similar directions!
+:::
+:::
+
+::: {.fragment}
+**Why it matters for OLS:**
+
+When $(X^TX)$ is singular → infinitely many solutions for $\beta$ → no unique "best" model
+:::
+
+::: {.fragment}
+::: callout-important
+**In high dimensions**: Even if not exactly singular, $(X^TX)$ becomes "nearly singular" (determinant ≈ 0), making $\beta$ estimates **wildly unstable**
+:::
+:::
+
+## Why Does OLS Fail in High Dimensions? The Math {.smaller}
+
+::: {.fragment}
+**Recall the OLS formula**: $\hat{\beta}_{OLS} = (X^TX)^{-1}X^Ty$
+:::
+
+::: {.fragment}
+**When p ≈ n or p > n:**
+
+1. **Matrix $(X^TX)$ becomes singular or near-singular**
+   - Cannot invert reliably (determinant ≈ 0)
+   - Numerical instability
+   
+2. **Infinite solutions exist**
+   - Many coefficient vectors fit training data perfectly
+   - No unique "best" model
+   
+3. **Variance explodes**
+   - $\text{Var}(\hat{\beta}) = \sigma^2(X^TX)^{-1}$
+   - When $(X^TX)$ is near-singular, variance → ∞
+:::
+
+::: {.fragment}
+::: callout-important
+**Solution**: We need to **constrain** the coefficient space to prefer simpler, more stable models.
+:::
+:::
+
+# Part II: Ridge Regression (L2 Regularization)
+
+## The Ridge Solution: Shrink Everything {.smaller}
+
+::: {.fragment}
+**Ridge regression adds a penalty for large coefficients:**
+:::
+
+::: {.fragment}
+$$\hat{\beta}_{Ridge} = \underset{\beta}{\arg\min} \left\{ \sum_{i=1}^n (y_i - x_i^T\beta)^2 + \lambda \sum_{j=1}^p \beta_j^2 \right\}$$
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Loss Term (Left)
+- $\sum_{i=1}^n (y_i - x_i^T\beta)^2$
+- Standard OLS: minimize prediction error
+- Encourages good fit
+:::
+
+::: {.fragment}
+### Penalty Term (Right)
+- $\lambda \sum_{j=1}^p \beta_j^2$
+- **L2 penalty**: sum of squared coefficients
+- Encourages small coefficients
+- $\lambda$ controls trade-off
+:::
+:::
+
+::: {.fragment}
+**Closed-form solution**: $\hat{\beta}_{Ridge} = (X^TX + \lambda I)^{-1}X^Ty$
+
+Adding $\lambda I$ makes matrix invertible even when $p > n$!
+:::
+
+## The Lambda Parameter: Controlling Shrinkage {.smaller}
+
+::: {.fragment}
+**$\lambda$ (lambda) is the regularization parameter:**
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### When λ = 0
+- No penalty
+- **Ridge = OLS**
+- High variance, low bias
+- Overfits in high dimensions
+:::
+
+::: {.fragment}
+### When λ → ∞
+- Heavy penalty
+- **All coefficients → 0**
+- Low variance, high bias
+- Underfits everything
+:::
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.5
+
+# Visualize lambda's effect
+lambda_values <- tibble(
+  lambda = c(0, 0.01, 0.1, 1, 10, 100, 1000),
+  bias = c(0, 0.1, 0.3, 0.5, 0.7, 0.85, 0.95),
+  variance = c(1, 0.95, 0.8, 0.5, 0.3, 0.15, 0.05)
+)
+
+lambda_values %>%
+  pivot_longer(cols = c(bias, variance), names_to = "error_type", values_to = "value") %>%
+  ggplot(aes(x = log10(lambda + 0.001), y = value, color = error_type)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("bias" = "red", "variance" = "blue"),
+                     labels = c("Bias", "Variance"),
+                     name = "") +
+  labs(title = "Ridge Regression: The Bias-Variance Trade-off",
+       subtitle = "As λ increases, variance decreases but bias increases",
+       x = "log10(λ)", y = "Error Magnitude") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(size = 14),
+        plot.subtitle = element_text(size = 11))
+```
+
+::: {.fragment}
+**Key insight**: Optimal λ minimizes total error = bias² + variance
+:::
+
+## Ridge in Action: Step 1 - Cross-Validation {.smaller}
+
+```{r}
+# Fit Ridge regression with cross-validation
+# glmnet expects matrix X and vector y
+ridge_cv <- cv.glmnet(
+  x = X_train, 
+  y = y_train,
+  alpha = 0,  # alpha = 0 means Ridge
+  nfolds = 10
+)
+
+# Optimal lambda
+cat("Optimal lambda:", round(ridge_cv$lambda.min, 4), "\n")
+```
+
+::: {.fragment}
+**Cross-validation finds the λ that best balances bias and variance**
+:::
+
+## Ridge in Action: Step 2 - Fit Final Model {.smaller}
+
+```{r}
+# Fit final model with optimal lambda
+ridge_model <- glmnet(
+  x = X_train, 
+  y = y_train, 
+  alpha = 0, 
+  lambda = ridge_cv$lambda.min
+)
+
+# Check coefficients
+ridge_coefs <- coef(ridge_model)[-1]  # Exclude intercept
+cat("All", p_features, "features retained (none exactly zero)\n")
+cat("Coefficient range:", round(min(ridge_coefs), 3), "to", round(max(ridge_coefs), 3), "\n")
+```
+
+::: {.fragment}
+**Ridge shrinks all coefficients but keeps all features in the model**
+:::
+
+## Ridge in Action: Step 3 - Test Performance {.smaller}
+
+```{r}
+# Predictions on test set
+ridge_pred_test <- predict(ridge_model, newx = X_test)
+ridge_test_mse <- mean((y_test - ridge_pred_test)^2)
+
+cat("Test MSE Comparison:\n")
+cat("OLS:         ", round(test_mse, 3), "\n")
+cat("Ridge:       ", round(ridge_test_mse, 3), "\n")
+cat("Improvement: ", round((test_mse - ridge_test_mse)/test_mse * 100, 1), "%\n")
+```
+
+::: {.fragment}
+**Ridge dramatically reduces test error by stabilizing coefficients!**
+:::
+
+## The Ridge Regularization Path {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Fit ridge for many lambda values
+ridge_full <- glmnet(X_train, y_train, alpha = 0)
+
+# Extract coefficients for first 10 features
+coef_path <- as.matrix(coef(ridge_full))[-1, ]  # Remove intercept
+lambda_seq <- ridge_full$lambda
+
+# Plot for features that actually matter
+important_features <- c(1, 5, 10, 25, 50)
+coef_df <- as_tibble(coef_path[important_features, ]) %>%
+  mutate(feature = paste0("Feature ", important_features)) %>%
+  setNames(c(as.character(lambda_seq), "feature")) %>%
+  pivot_longer(cols = -feature, names_to = "lambda", values_to = "coefficient") %>%
+  mutate(lambda = as.numeric(lambda))
+
+ggplot(coef_df, aes(x = log(lambda), y = coefficient, color = feature)) +
+  geom_line(size = 1.2) +
+  geom_vline(xintercept = log(ridge_cv$lambda.min), linetype = "dashed", alpha = 0.5) +
+  annotate("text", x = log(ridge_cv$lambda.min), y = max(coef_df$coefficient),
+           label = "Optimal λ", vjust = -0.5, size = 4) +
+  labs(title = "Ridge Regularization Path",
+       subtitle = "Coefficients shrink smoothly toward zero as λ increases",
+       x = "log(λ)", y = "Coefficient Value",
+       color = "Feature") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Key observation**: Ridge shrinks all coefficients, but **never exactly to zero**
+:::
+
+## Ridge: Strengths and Limitations {.smaller}
+
+::: {layout-ncol=2}
+### Strengths ✓
+::: {.fragment}
+- **Stabilizes estimates** in high dimensions
+- **Always has solution** even when p > n
+- **Computationally efficient** (closed form)
+- **Works well** when many features are relevant
+- **Reduces variance** dramatically
+:::
+
+### Limitations ✗
+::: {.fragment}
+- **Keeps all features** in the model
+- **No feature selection** (all βs ≠ 0)
+- **Interpretation** remains difficult with many features
+- **Not sparse**: Cannot identify which features truly matter
+:::
+:::
+
+::: {.fragment}
+::: callout-note
+**Policy implication**: Ridge is great for prediction but doesn't help with **understanding** which policies or factors drive outcomes.
+:::
+:::
+
+# Part III: LASSO (L1 Regularization)
+
+## LASSO: Shrinkage AND Selection {.smaller}
+
+::: {.fragment}
+**LASSO** = **L**east **A**bsolute **S**hrinkage and **S**election **O**perator
+:::
+
+::: {.fragment}
+$$\hat{\beta}_{LASSO} = \underset{\beta}{\arg\min} \left\{ \sum_{i=1}^n (y_i - x_i^T\beta)^2 + \lambda \sum_{j=1}^p |\beta_j| \right\}$$
+:::
+
+::: {.fragment}
+**Key difference from Ridge**: Uses **L1 penalty** ($|\beta_j|$) instead of L2 ($\beta_j^2$)
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Ridge (L2)
+$$\lambda \sum_{j=1}^p \beta_j^2$$
+- **Smooth penalty**
+- Shrinks gradually
+- All coefficients stay non-zero
+:::
+
+::: {.fragment}
+### LASSO (L1)
+$$\lambda \sum_{j=1}^p |\beta_j|$$
+- **Sharp penalty**
+- Forces exact zeros
+- **Automatic feature selection**
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Key insight**: The L1 penalty's sharp corners at zero force many coefficients to be **exactly zero**, performing automatic feature selection!
+:::
+:::
+
+## LASSO in Action: Step 1 - Cross-Validation {.smaller}
+
+```{r}
+# Fit LASSO with cross-validation
+lasso_cv <- cv.glmnet(
+  x = X_train,
+  y = y_train,
+  alpha = 1,  # alpha = 1 means LASSO
+  nfolds = 10
+)
+
+cat("Optimal lambda:", round(lasso_cv$lambda.min, 4), "\n")
+```
+
+::: {.fragment}
+**Cross-validation finds the λ that balances fit and sparsity**
+:::
+
+## LASSO in Action: Step 2 - Feature Selection {.smaller}
+
+```{r}
+# Fit final LASSO model
+lasso_model <- glmnet(
+  x = X_train,
+  y = y_train,
+  alpha = 1,
+  lambda = lasso_cv$lambda.min
+)
+
+# Check how many coefficients are non-zero
+lasso_coefs <- coef(lasso_model)[-1]  # Exclude intercept
+n_nonzero <- sum(lasso_coefs != 0)
+
+cat("Number of non-zero coefficients:", n_nonzero, "out of", p_features, "\n")
+cat("Sparsity:", round((p_features - n_nonzero) / p_features * 100, 1), "%\n")
+```
+
+::: {.fragment}
+**LASSO automatically selected only ~18 features out of 80!**
+:::
+
+## LASSO in Action: Step 3 - Test Performance {.smaller}
+
+```{r}
+# Predictions on test set
+lasso_pred_test <- predict(lasso_model, newx = X_test)
+lasso_test_mse <- mean((y_test - lasso_pred_test)^2)
+
+cat("Test MSE Comparison:\n")
+cat("OLS:   ", round(test_mse, 3), "\n")
+cat("Ridge: ", round(ridge_test_mse, 3), "\n")
+cat("LASSO: ", round(lasso_test_mse, 3), "\n")
+```
+
+::: {.fragment}
+**Key result**: LASSO reduced 80 features to ~18 while dramatically improving prediction!
+:::
+
+## The LASSO Regularization Path {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Fit LASSO for many lambda values
+lasso_full <- glmnet(X_train, y_train, alpha = 1)
+
+# Extract coefficients
+coef_path_lasso <- as.matrix(coef(lasso_full))[-1, ]
+lambda_seq_lasso <- lasso_full$lambda
+
+# Focus on features that matter
+coef_df_lasso <- as_tibble(coef_path_lasso[important_features, ]) %>%
+  mutate(feature = paste0("Feature ", important_features)) %>%
+  setNames(c(as.character(lambda_seq_lasso), "feature")) %>%
+  pivot_longer(cols = -feature, names_to = "lambda", values_to = "coefficient") %>%
+  mutate(lambda = as.numeric(lambda))
+
+ggplot(coef_df_lasso, aes(x = log(lambda), y = coefficient, color = feature)) +
+  geom_line(size = 1.2) +
+  geom_vline(xintercept = log(lasso_cv$lambda.min), linetype = "dashed", alpha = 0.5) +
+  annotate("text", x = log(lasso_cv$lambda.min), y = max(coef_df_lasso$coefficient),
+           label = "Optimal λ", vjust = -0.5, size = 4) +
+  labs(title = "LASSO Regularization Path",
+       subtitle = "Coefficients hit exactly zero as λ increases (feature selection!)",
+       x = "log(λ)", y = "Coefficient Value",
+       color = "Feature") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Notice**: Coefficients hit zero abruptly, unlike Ridge's smooth shrinkage
+:::
+
+## LASSO: Strengths and Limitations {.smaller}
+
+::: {layout-ncol=2}
+### Strengths ✓
+::: {.fragment}
+- **Automatic feature selection** (sparse solutions)
+- **Interpretable** (fewer features)
+- **Good for exploration** (find important features)
+- **Computationally efficient**
+- **Works when p >> n**
+:::
+
+### Limitations ✗
+::: {.fragment}
+- **Unstable selection** when features are correlated
+- **Arbitrary selection** among correlated features
+- **May sacrifice prediction** for sparsity
+:::
+:::
+
+::: {.fragment}
+::: callout-note
+**Policy context**: LASSO is great for **discovery** and **variable screening**, but feature selection can be unstable across different samples.
+:::
+:::
+
+# Part IV: Elastic Net (Best of Both Worlds)
+
+## Elastic Net: Combining L1 and L2 {.smaller}
+
+::: {.fragment}
+**Elastic Net mixes Ridge and LASSO penalties:**
+:::
+
+::: {.fragment}
+$$\hat{\beta}_{ElasticNet} = \underset{\beta}{\arg\min} \left\{ \sum_{i=1}^n (y_i - x_i^T\beta)^2 + \lambda \left[ \alpha \sum_{j=1}^p |\beta_j| + (1-\alpha) \sum_{j=1}^p \beta_j^2 \right] \right\}$$
+:::
+
+::: {.fragment}
+**Two tuning parameters:**
+
+- **$\lambda$**: Overall regularization strength (like before)
+- **$\alpha$**: Mix between L1 and L2
+  - $\alpha = 0$ → Pure Ridge (L2)
+  - $\alpha = 1$ → Pure LASSO (L1)
+  - $0 < \alpha < 1$ → Elastic Net (combination)
+:::
+
+::: {.fragment}
+::: callout-tip
+**Common choice**: $\alpha = 0.5$ gives equal weight to L1 and L2 penalties. But you can tune this parameter.
+:::
+:::
+
+## Why Elastic Net? {.smaller}
+
+::: {.fragment}
+**Problem scenario**: Your policy dataset has correlated features (common in observational data!)
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### LASSO's Problem
+When features are correlated:
+- **Picks one arbitrarily** from the group
+- Sets others to exactly zero
+- Selection is unstable across samples
+- Which feature "wins" can change
+
+**Example**: Income and education correlated → LASSO picks one, zeros the other
+:::
+
+::: {.fragment}
+### Elastic Net's Advantage
+With correlated features:
+- **Tends to keep more** from correlated group
+- L2 penalty prevents domination by one feature
+- L1 penalty still provides some sparsity
+- **More stable** than LASSO, **sparser** than Ridge
+
+**Example**: Income and education both retained with moderate coefficients
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Practical advice**: When in doubt about feature correlations (common in policy data), start with Elastic Net!
+:::
+:::
+
+## Elastic Net in Action {.smaller}
+
+```{r}
+# Fit Elastic Net with cross-validation
+# Try alpha = 0.5 (equal mix of L1 and L2)
+enet_cv <- cv.glmnet(
+  x = X_train,
+  y = y_train,
+  alpha = 0.5,  # Elastic Net
+  nfolds = 10
+)
+
+# Fit final model
+enet_model <- glmnet(
+  x = X_train,
+  y = y_train,
+  alpha = 0.5,
+  lambda = enet_cv$lambda.min
+)
+
+# Check sparsity
+enet_coefs <- coef(enet_model)[-1]
+n_nonzero_enet <- sum(enet_coefs != 0)
+
+cat("Elastic Net selected", n_nonzero_enet, "features\n")
+cat("LASSO selected", n_nonzero, "features\n")
+
+# Predictions
+enet_pred_test <- predict(enet_model, newx = X_test)
+enet_test_mse <- mean((y_test - enet_pred_test)^2)
+
+cat("\nFinal Test MSE Comparison:\n")
+cat("OLS:         ", round(test_mse, 3), "\n")
+cat("Ridge:       ", round(ridge_test_mse, 3), "\n")
+cat("LASSO:       ", round(lasso_test_mse, 3), "\n")
+cat("Elastic Net: ", round(enet_test_mse, 3), "\n")
+```
+
+## Performance Comparison {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create comparison data frame
+comparison_df <- tibble(
+  Method = c("OLS", "Ridge", "LASSO", "Elastic Net"),
+  Test_MSE = c(test_mse, ridge_test_mse, lasso_test_mse, enet_test_mse),
+  N_Features = c(p_features, p_features, n_nonzero, n_nonzero_enet),
+  Sparsity = c(0, 0, (p_features - n_nonzero) / p_features, 
+               (p_features - n_nonzero_enet) / p_features)
+) %>%
+  mutate(Method = fct_inorder(Method))
+
+# Plot MSE comparison
+p1 <- ggplot(comparison_df, aes(x = Method, y = Test_MSE, fill = Method)) +
+  geom_col(alpha = 0.8) +
+  geom_text(aes(label = round(Test_MSE, 2)), vjust = -0.5, size = 4) +
+  scale_fill_viridis_d() +
+  labs(title = "Test Set Performance",
+       y = "Mean Squared Error (lower = better)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# Plot feature count
+p2 <- ggplot(comparison_df, aes(x = Method, y = N_Features, fill = Method)) +
+  geom_col(alpha = 0.8) +
+  geom_text(aes(label = N_Features), vjust = -0.5, size = 4) +
+  scale_fill_viridis_d() +
+  labs(title = "Model Complexity",
+       y = "Number of Non-Zero Features (lower = simpler)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p1 + p2
+```
+
+::: {.fragment}
+**Key insight**: Regularization methods dramatically improve over OLS while creating simpler, more interpretable models!
+:::
+
+# Part V: Practical Implementation in R
+
+## Hyperparameter Tuning: Selecting λ {.smaller}
+
+::: {.fragment}
+**Challenge**: How do we choose the optimal λ?
+:::
+
+::: {.fragment}
+**Solution**: **Cross-validation** (typically 10-fold)
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Visualize CV results for LASSO
+cv_results <- tibble(
+  lambda = lasso_cv$lambda,
+  mse = lasso_cv$cvm,
+  se = lasso_cv$cvsd
+) %>%
+  mutate(
+    lower = mse - se,
+    upper = mse + se
+  )
+
+ggplot(cv_results, aes(x = log(lambda), y = mse)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "lightblue", alpha = 0.5) +
+  geom_line(color = "steelblue", size = 1) +
+  geom_point(color = "steelblue", size = 2) +
+  geom_vline(xintercept = log(lasso_cv$lambda.min), linetype = "dashed", color = "red") +
+  geom_vline(xintercept = log(lasso_cv$lambda.1se), linetype = "dashed", color = "orange") +
+  annotate("text", x = log(lasso_cv$lambda.min), y = max(cv_results$mse),
+           label = "λ.min", vjust = -0.5, color = "red", size = 4) +
+  annotate("text", x = log(lasso_cv$lambda.1se), y = max(cv_results$mse),
+           label = "λ.1se", vjust = -0.5, color = "orange", size = 4) +
+  labs(title = "Cross-Validation for Lambda Selection",
+       subtitle = "λ.min = lowest error, λ.1se = simplest model within 1 SE of min",
+       x = "log(λ)", y = "Cross-Validated MSE") +
+  theme_minimal()
+```
+
+## Two Lambda Choices: λ.min vs λ.1se {.smaller}
+
+::: {layout-ncol=2}
+::: {.fragment}
+### λ.min
+**Definition**: Lambda with lowest CV error
+
+**When to use**:
+- Prediction is top priority
+- Want best possible accuracy
+- Don't need extreme parsimony
+
+**Trade-off**: More features, slight overfitting risk
+:::
+
+::: {.fragment}
+### λ.1se
+**Definition**: Largest lambda within 1 SE of minimum
+
+**When to use**:
+- Interpretability matters
+- Want simpler model
+- Suspicious of overfitting
+
+**Trade-off**: Slightly worse prediction, much simpler
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**Policy recommendation**: Use **λ.1se** for stakeholder-facing models (simpler, more robust), **λ.min** for internal prediction tasks.
+:::
+:::
+
+## Complete Workflow with caret {.smaller}
+
+```{r}
+#| eval: false
+
+# Alternative approach: Use caret for unified interface
+library(caret)
+
+# Set up training control
+train_control <- trainControl(
+  method = "cv",
+  number = 10,
+  savePredictions = "final"
+)
+
+# Train Elastic Net with caret
+enet_caret <- train(
+  x = X_train,
+  y = y_train,
+  method = "glmnet",  # Elastic Net
+  trControl = train_control,
+  tuneGrid = expand.grid(
+    alpha = seq(0, 1, by = 0.1),  # Try different mixes
+    lambda = 10^seq(-3, 1, length = 100)  # Try different strengths
+  )
+)
+
+# Best parameters
+cat("Best alpha:", enet_caret$bestTune$alpha, "\n")
+cat("Best lambda:", enet_caret$bestTune$lambda, "\n")
+
+# Predict
+predictions <- predict(enet_caret, newdata = X_test)
+```
+
+::: {.fragment}
+**Advantage**: caret automatically searches over both α and λ to find optimal combination!
+:::
+
+# Part VI: Policy Applications and Best Practices
+
+## Real-World Policy Use Cases {.smaller}
+
+::: {.fragment}
+**When to use regularization in policy settings:**
+:::
+
+::: {layout-ncol=2}
+### High-Dimensional Scenarios
+::: {.fragment}
+- **Program eligibility** with many criteria
+- **Risk assessment** with extensive surveys
+- **Geographic targeting** with census variables
+- **Text analysis** of policy documents
+- **Time series** with many lags/indicators
+:::
+
+### Method Selection Guide
+::: {.fragment}
+- **Ridge**: All features matter, need stability
+- **LASSO**: Few features matter, need interpretability
+- **Elastic Net**: Correlated features, balanced approach
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Default recommendation**: Start with **Elastic Net** (α = 0.5) and compare to pure Ridge and LASSO.
+:::
+:::
+
+## Practical Guidelines {.smaller}
+
+::: {.fragment}
+**Pre-processing essentials:**
+:::
+
+::: {.fragment}
+1. **Standardize features** (mean = 0, SD = 1)
+   - Regularization is scale-sensitive
+   - Features on different scales penalized unfairly
+   
+2. **Handle missing data** appropriately
+   - Impute before regularization
+   - Consider missingness as a feature
+   
+3. **Avoid data leakage**
+   - Standardize using training data only
+   - Apply same transformation to test data
+:::
+
+::: {.fragment}
+**Model selection:**
+:::
+
+::: {.fragment}
+4. **Try multiple α values** (0, 0.25, 0.5, 0.75, 1)
+
+5. **Compare to simple baselines** (mean, linear regression)
+:::
+
+## Common Mistakes to Avoid {.smaller}
+
+::: {layout-ncol=2}
+### Technical Mistakes
+::: {.fragment}
+1. **Not standardizing** features
+   - Penalty treats all features equally by scale
+   
+2. **Using test data** in λ selection
+   - CV should only use training data
+   
+3. **Interpreting coefficients** without standardization
+   - Can't compare magnitudes fairly
+   
+4. **Ignoring categorical variables**
+   - Need proper encoding (dummy variables)
+:::
+
+### Interpretation Mistakes
+::: {.fragment}
+5. **Treating selection as definitive**
+   - LASSO selection is unstable
+   
+6. **Ignoring excluded features**
+   - Zero ≠ unimportant (just not needed given others)
+   
+7. **Forgetting correlations**
+   - Selected feature may be proxy for others
+   
+8. **Overstating causality**
+   - Prediction ≠ causal inference
+:::
+:::
+
+## Regularization vs Other Approaches {.smaller}
+
+::: {fragment}
+**How does regularization compare to alternatives?**
+:::
+
+```{r}
+#| echo: false
+
+comparison_table <- tibble(
+  Approach = c("Regularization (Ridge/LASSO)", "Stepwise Selection", "Random Forest", 
+               "PCA then Regression", "Domain Expertise"),
+  Pros = c(
+    "Principled, stable, automatic",
+    "Simple, interpretable",
+    "High accuracy, robust",
+    "Reduces dimensions, interpretable",
+    "Uses substantive knowledge"
+  ),
+  Cons = c(
+    "Requires tuning, still somewhat arbitrary",
+    "Greedy, unstable, many false positives",
+    "Black box, no coefficients",
+    "Loses feature meaning",
+    "Time-intensive, subjective"
+  ),
+  "Best For" = c(
+    "p ≈ n, correlated features, prediction focus",
+    "Small p, exploratory analysis",
+    "Black box OK, pure prediction",
+    "p >> n, don't need individual features",
+    "Small p, domain theory exists"
+  )
+)
+
+knitr::kable(comparison_table, caption = "Comparing Feature Selection Approaches")
+```
+
+## When Regularization Isn't Enough {.smaller}
+
+::: {.fragment}
+**Regularization has limits:**
+:::
+
+::: {fragment}
+1. **Extremely high dimensions** (p = 100,000+)
+   - Consider other dimension reduction (PCA, embeddings)
+   - Use specialized methods 
+
+2. **Severe multicollinearity**
+   - Elastic Net helps but doesn't solve
+   - Consider feature engineering to reduce correlation
+
+3. **Complex nonlinear relationships**
+   - Regularization works on linear combinations
+   - May need tree-based methods, kernels, or neural networks
+
+4. **Causal inference goals**
+   - Regularization optimizes prediction, not causation
+   - Use proper causal inference methods (IV, DiD, etc.)
+:::
+
+# Part VII: Looking Forward
+
+## Integration with Modern ML {.smaller}
+
+::: {.fragment}
+**Regularization in modern ML pipelines:**
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Neural Networks
+- **Dropout**: Randomly drop neurons (implicit regularization)
+- **Weight decay**: L2 penalty on network weights
+- **Early stopping**: Stop before overfitting
+:::
+
+::: {.fragment}
+### Tree-Based Methods
+- **Maximum depth**: Limits model complexity
+- **Minimum samples**: Regularizes splits
+- **Shrinkage**: Reduces tree contributions (boosting)
+:::
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Regularization is a fundamental concept across all of machine learning, not just linear models!
+:::
+:::
+
+## Next Week Preview: Tree-Based Models {.smaller}
+
+::: {.fragment}
+**Week 9 topics:**
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Decision Trees & Random Forests
+- Non-linear decision boundaries
+- Automatic interaction detection
+- Built-in feature importance
+- No standardization needed
+:::
+
+::: {.fragment}
+### XGBoost & Ensembles
+- Gradient boosting
+- Regularized tree building
+- Handles missing data
+- Often wins competitions
+:::
+:::
+
+::: {.fragment}
+**How they connect to regularization:**
+
+- Trees have their own regularization (depth, samples, pruning)
+- Boosting includes shrinkage (like Ridge for trees)
+- Random Forests use feature subsampling (like dropout)
+:::
+
+## Key Takeaways {.smaller}
+
+::: {.fragment}
+1. **OLS fails in high dimensions** (p ≈ n) due to variance explosion and overfitting
+:::
+
+::: {.fragment}
+2. **Ridge (L2) shrinks all coefficients** smoothly toward zero but keeps all features
+:::
+
+::: {.fragment}
+3. **LASSO (L1) forces exact zeros**, performing automatic feature selection
+:::
+
+::: {.fragment}
+4. **Elastic Net combines both**, handling correlated features better than LASSO alone
+:::
+
+::: {.fragment}
+5. **Use hyperparameter tuning** to select λ
+:::
+
+::: {.fragment}
+6. **Always standardize features** before applying regularization
+:::
+
+::: {.fragment}
+7. **Regularization is about the bias-variance trade-off**: Accept small bias to dramatically reduce variance
+:::
+
+::: {.fragment}
+8. **Policy context matters**: Choose method based on whether you need interpretability, prediction, or both
+:::
+
+## Questions?
+
+::: {.fragment}
+**Remember**: Regularization is one of the most important tools in modern statistics and machine learning. When you have many features, it's not optional—it's essential for building models that generalize to new data!
+:::
+
+---
+
