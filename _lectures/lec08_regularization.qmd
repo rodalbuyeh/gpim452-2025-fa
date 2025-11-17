@@ -33,6 +33,32 @@ library(caret)
 set.seed(42)
 ```
 
+```{css echo=FALSE}
+.reveal {
+  font-size: 32px;
+}
+
+.reveal h2 {
+  font-size: 1.3em;
+}
+
+.reveal p, .reveal li {
+  font-size: 0.9em;
+}
+
+.reveal pre code {
+  font-size: 0.85em;
+}
+
+.reveal .slides {
+  text-align: center;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+```
+
 ## Today's Learning Goals {.smaller}
 
 ::: {.fragment}
