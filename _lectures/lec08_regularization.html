@@ -208,6 +208,36 @@ Rod Albuyeh
 
   <p class="date">2025-11-17</p>
 </section>
+<section class="slide level2">
+
+<div class="cell">
+<style type="text/css">
+.reveal {
+  font-size: 32px;
+}
+
+.reveal h2 {
+  font-size: 1.3em;
+}
+
+.reveal p, .reveal li {
+  font-size: 0.9em;
+}
+
+.reveal pre code {
+  font-size: 0.85em;
+}
+
+.reveal .slides {
+  text-align: center;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+</style>
+</div>
+</section>
 <section id="todays-learning-goals" class="slide level2 smaller">
 <h2>Today’s Learning Goals</h2>
 <div class="fragment">
@@ -366,7 +396,7 @@ OLS Performance:</code></pre>
 <section id="visualizing-the-overfitting-problem" class="slide level2 smaller">
 <h2>Visualizing the Overfitting Problem</h2>
 
-<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"><div class="fragment">
+<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-5-1.png" width="960" class="r-stretch"><div class="fragment">
 <p><strong>Problem</strong>: Coefficients swing wildly with small changes in data. Model is unstable!</p>
 </div>
 </section>
@@ -622,7 +652,7 @@ OLS Performance:</code></pre>
 </div>
 </div>
 
-<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-5-1.png" width="864" class="r-stretch"><div class="fragment">
+<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-6-1.png" width="864" class="r-stretch"><div class="fragment">
 <p><strong>Key insight</strong>: Optimal λ minimizes total error = bias² + variance</p>
 </div>
 </section>
@@ -705,7 +735,7 @@ OLS Performance:</code></pre>
 <section id="the-ridge-regularization-path" class="slide level2 smaller">
 <h2>The Ridge Regularization Path</h2>
 
-<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch"><div class="fragment">
+<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"><div class="fragment">
 <p><strong>Key observation</strong>: Ridge shrinks all coefficients, but <strong>never exactly to zero</strong></p>
 </div>
 </section>
@@ -873,7 +903,7 @@ OLS Performance:</code></pre>
 <section id="the-lasso-regularization-path" class="slide level2 smaller">
 <h2>The LASSO Regularization Path</h2>
 
-<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"><div class="fragment">
+<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"><div class="fragment">
 <p><strong>Notice</strong>: Coefficients hit zero abruptly, unlike Ridge’s smooth shrinkage</p>
 </div>
 </section>
@@ -1055,7 +1085,7 @@ Final Test MSE Comparison:</code></pre>
 <section id="performance-comparison" class="slide level2 smaller">
 <h2>Performance Comparison</h2>
 
-<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"><div class="fragment">
+<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-16-1.png" width="960" class="r-stretch"><div class="fragment">
 <p><strong>Key insight</strong>: Regularization methods dramatically improve over OLS while creating simpler, more interpretable models!</p>
 </div>
 </section></section>
@@ -1073,7 +1103,7 @@ Final Test MSE Comparison:</code></pre>
 <p><strong>Solution</strong>: <strong>Cross-validation</strong> (typically 10-fold)</p>
 </div>
 
-<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-16-1.png" width="960" class="r-stretch"></section>
+<img data-src="lec08_regularization_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"></section>
 <section id="two-lambda-choices-λ.min-vs-λ.1se" class="slide level2 smaller">
 <h2>Two Lambda Choices: λ.min vs λ.1se</h2>
 <div class="quarto-layout-panel" data-layout-ncol="2">
