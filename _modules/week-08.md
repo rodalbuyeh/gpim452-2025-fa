@@ -8,7 +8,7 @@
           "**Read**{: .label .label-read } [MDSR 11: Supervised Learning](https://mdsr-book.github.io/mdsr3e/11-learningI.html)":
       - date: 2025-11-19
         events:
-          "**LAB 8**{: .label .label-lab } [Regularization, Selection, and Interpretability](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/reg_select_int_lab.qmd)":
+          "**LAB 8**{: .label .label-lab } [Regularization, Selection, and Interpretability](https://github.com/rodalbuyeh/gpim452-2025-fa/blob/gh-pages/lab_materials/R/reg_select_int_lab.qmd) [📑](https://posit.cloud/content/11223388)":
           "**Video**{: .label .label-watch } [StatQuest: Linear Regression](https://www.youtube.com/watch?v=7ArmBVF2dCs)":
           "**Video**{: .label .label-watch } [StatQuest: Ridge Regression](https://www.youtube.com/watch?v=Q81RR3yKn30)":
           "**Video**{: .label .label-watch } [StatQuest: LASSO Regression](https://www.youtube.com/watch?v=NGf0voTMlcs)":
