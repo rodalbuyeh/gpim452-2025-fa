@@ -68,7 +68,7 @@ library(here)           # File paths
 set.seed(452)
 ```
 
-# Part 1: Feature Selection with Regularization Paths (20 min)
+# Part 1: Feature Selection with Regularization Paths 
 
 ## The Problem: Too Many Features
 
@@ -247,7 +247,7 @@ cat("\n", nrow(coef_df), "features selected out of", ncol(X), "total features\n"
 LASSO automatically identified the important features and set noise variables to zero **during training**. Unlike manual feature selection methods, LASSO does feature selection and model fitting simultaneously, optimizing prediction while removing irrelevant features!
 :::
 
-### 🎯 Exercise 1: Your Turn (5 minutes)
+### 🎯 Exercise 1: Your Turn 
 
 Now try **Elastic Net** (combining L1 + L2 regularization) on our mock data:
 
@@ -282,7 +282,7 @@ Elastic Net (alpha between 0 and 1) combines:
 When you have **correlated predictors** (like `union_density` and `bargaining_unit_size`), Elastic Net often performs better than pure LASSO! The L2 penalty helps with instability when features are highly correlated.
 :::
 
-# Part 2: Partial Dependence Plots (30 min)
+# Part 2: Partial Dependence Plots 
 
 ## The Question: How Do Features Affect Predictions?
 
@@ -424,7 +424,7 @@ plot(pd_interaction) +
 PDPs assume features are independent. If two features are highly correlated, PDPs can show unrealistic scenarios (e.g., "low income but high education" if those rarely occur together). Use ICE plots (below) to see individual-level variation!
 :::
 
-### 🎯 Exercise 2: Your Turn (10 minutes)
+### 🎯 Exercise 2: Your Turn 
 
 Create PDPs for your top 3 features:
 
@@ -442,7 +442,7 @@ Create PDPs for your top 3 features:
 # - Any interactions between features?
 ```
 
-# Part 3: SHAP Values for Individual Explanations (25 min)
+# Part 3: SHAP Values for Individual Explanations 
 
 ## The Ultimate Question: Why THIS Prediction?
 
@@ -530,7 +530,7 @@ When you find wrong predictions, use SHAP to understand why:
 Wrong predictions are learning opportunities!
 :::
 
-### 🎯 Exercise 3: Your Turn (8 minutes)
+### 🎯 Exercise 3: Your Turn 
 
 Generate SHAP values for your LAT model:
 
@@ -549,7 +549,7 @@ Generate SHAP values for your LAT model:
 # - Any patterns in the errors?
 ```
 
-# Part 4: Choosing the Right Tool (5 min)
+# Part 4: Choosing the Right Tool 
 
 ## Decision Guide
 
