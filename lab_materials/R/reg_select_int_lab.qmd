@@ -1,0 +1,699 @@
+---
+title: "Regularization, Selection, and Interpretability Lab"
+subtitle: "Making Sense of Your Predictions"
+author: "Rod Albuyeh"
+date: today
+format: pdf
+execute:
+  echo: true
+  eval: true
+  warning: false
+  error: false
+  cache: true
+  tidy: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Introduction
+
+You've built machine learning models that predict strikes vs. protests with decent accuracy. But now comes the critical question: **Why does your model make the predictions it does?** In policy contexts, "black box" models are rarely acceptable—stakeholders need to understand which factors drive predictions and how to act on that information.
+
+This lab teaches you three essential techniques for model interpretation:
+
+1. **Regularization paths** - Which features matter most?
+2. **Partial Dependence Plots (PDPs)** - How do features affect outcomes?
+3. **SHAP values** - Why did the model make THIS specific prediction?
+
+## Learning Objectives
+
+By the end of this lab, you will be able to:
+
+1. **Use LASSO regularization** for automated feature selection
+2. **Create and interpret partial dependence plots** to understand feature effects
+3. **Generate SHAP values** to explain individual predictions
+4. **Communicate model insights** to non-technical stakeholders
+5. **Choose the right interpretation tool** for different questions
+
+::: callout-note
+## Why Interpretability Matters in Policy
+
+Consider a model that predicts strikes with 75% accuracy. A union leader asks: "Should we focus on wage negotiations or working conditions?" Without interpretability tools, you can't answer. With them, you can say: "Our model shows wage issues increase strike probability by 30%, while working conditions add 15%—focus on wages first."
+:::
+
+# Setup
+
+::: callout-note
+## Install Required Packages
+
+If you haven't already, install these packages:
+
+```r
+install.packages(c("iml", "glmnet", "randomForest", "scales"))
+```
+
+:::
+
+```{r}
+# Essential libraries
+library(tidyverse)      # Data manipulation
+library(glmnet)         # Regularization (LASSO/Ridge/Elastic Net)
+library(iml)            # Model interpretability (PDPs, ICE, SHAP)
+library(randomForest)   # Example model (you can use any model)
+library(scales)         # Pretty formatting
+library(here)           # File paths
+
+# For reproducibility
+set.seed(452)
+```
+
+# Part 1: Feature Selection with Regularization Paths (20 min)
+
+## The Problem: Too Many Features
+
+Your LAT data might have 50+ features after engineering. Which ones actually matter? Which are just noise?
+
+**LASSO regression** automatically shrinks less important coefficients to zero, effectively performing feature selection.
+
+## Understanding the Regularization Path
+
+The "regularization path" shows how coefficients change as we vary the penalty $\lambda$:
+
+- **Large $\lambda$** (left side of plot): Heavy penalty → all coefficients near zero
+- **Small $\lambda$** (right side of plot): Little penalty → coefficients can grow
+- **Features with large coefficient magnitudes** = strong predictors
+- **Features that stay near zero** = weak/noisy predictors
+
+Look for features whose lines grow far from the zero line - those are your important predictors!
+
+## Demo: Feature Selection with LASSO
+
+Let's create some example labor action data:
+
+```{r}
+# Create simulated labor action data
+n <- 500
+
+labor_data <- tibble(
+  # Key predictors (these will be selected by LASSO)
+  bargaining_unit_size = rlnorm(n, log(5000), 1),
+  duration_days = rpois(n, 5),
+  prior_actions = rpois(n, 2),
+  
+  # Moderate predictors
+  union_density = runif(n, 0, 1),
+  unemployment_rate = rnorm(n, 0.05, 0.02),
+  
+  # Weak/noise predictors
+  city_population = rlnorm(n, log(100000), 1),
+  avg_temperature = rnorm(n, 60, 15),
+  random_noise_1 = rnorm(n),
+  random_noise_2 = rnorm(n),
+  random_noise_3 = rnorm(n)
+) %>%
+  mutate(
+    # Create outcome based on strong predictors
+    strike_prob = plogis(-2 + 
+                        0.0001 * bargaining_unit_size + 
+                        0.2 * duration_days + 
+                        0.3 * prior_actions +
+                        0.5 * union_density),
+    is_strike = factor(
+      rbinom(n, 1, strike_prob),
+      levels = c(0, 1),
+      labels = c("Protest", "Strike")
+    )
+  ) %>%
+  select(-strike_prob)
+
+# Check outcome balance
+table(labor_data$is_strike)
+```
+
+Now let's see which features LASSO selects:
+
+```{r}
+# Prepare data for glmnet (needs matrix format)
+X <- labor_data %>%
+  select(-is_strike) %>%
+  as.matrix()
+
+y <- labor_data$is_strike
+
+# Fit LASSO across many lambda values
+lasso_fit <- glmnet(
+  x = X,
+  y = y,
+  family = "binomial",  # For classification
+  alpha = 1,            # alpha = 1 means pure LASSO (alpha = 0 would be Ridge)
+  standardize = TRUE    # Standardize predictors (important!)
+)
+
+# Plot the regularization path using L1 norm (more intuitive!)
+plot(lasso_fit, xvar = "norm", label = TRUE, lwd = 2)
+abline(h = 0, lty = 2, col = "gray")
+title("LASSO Regularization Path: Feature Selection in Action",
+      sub = "Left = strong regularization, Right = weak regularization")
+```
+
+**How to read this plot:**
+
+- **X-axis**: L1 Norm (sum of absolute coefficient values) - increases left to right
+- **Y-axis**: Coefficient values
+- **Left side** (small L1 norm): Strong penalty → few features active
+- **Right side** (large L1 norm): Weak penalty → all features can enter
+- **Each colored line**: One feature's coefficient path
+- **Important features**: Have large coefficient magnitudes (lines far from zero)
+- **Weak/noisy features**: Stay close to zero even when penalty is weak
+- **Feature labels on right**: Show which feature each line represents
+
+In this example, feature #5 (cyan line) clearly dominates - it has by far the largest coefficient!
+
+
+## Finding the Optimal Lambda
+
+We use hyperparameter tuning to find the best $\lambda$:
+
+```{r}
+# Cross-validation to find optimal lambda
+cv_fit <- cv.glmnet(
+  x = X,
+  y = y,
+  family = "binomial",
+  alpha = 1,
+  nfolds = 5,
+  type.measure = "auc"  # Optimize for AUC
+)
+
+# Plot CV results
+plot(cv_fit)
+title("Finding Optimal Lambda via Cross-Validation")
+
+# Two important lambdas:
+cat("Lambda.min (best performance):", cv_fit$lambda.min, "\n")
+cat("Lambda.1se (simpler model, within 1 SE):", cv_fit$lambda.1se, "\n")
+```
+
+**Understanding this plot:**
+
+- **X-axis**: -Log($\lambda$) - moving RIGHT means smaller $\lambda$ (less penalty, more complex model)
+- **Y-axis**: Cross-validated performance (AUC in this case)
+- **Numbers at top**: How many features are active at each $\lambda$ value
+- **Error bars**: Standard error across CV folds
+- **Left dashed line**: `lambda.1se` (simplest model within 1 SE of best)
+- **Right dashed line**: `lambda.min` (best CV performance)
+- **The curve**: Shows how performance changes with model complexity
+
+```{r}
+# Compare the two lambdas
+cat("\nAt lambda.min, we select", 
+    sum(coef(cv_fit, s = "lambda.min") != 0) - 1, "features\n")
+cat("At lambda.1se, we select", 
+    sum(coef(cv_fit, s = "lambda.1se") != 0) - 1, "features\n")
+```
+
+::: callout-tip
+## Lambda.min vs Lambda.1se
+
+- **lambda.min**: Minimizes CV error (best prediction)
+- **lambda.1se**: Largest $\lambda$ within 1 standard error of minimum (simpler model)
+
+For interpretability and avoiding overfitting, **lambda.1se** is often better!
+:::
+
+## Extracting Selected Features
+
+```{r}
+# Get coefficients at lambda.1se (simpler model)
+selected_coefs <- coef(cv_fit, s = "lambda.1se")
+
+# Extract non-zero coefficients (selected features)
+coef_df <- tibble(
+  feature = selected_coefs@Dimnames[[1]][selected_coefs@i + 1],
+  coefficient = selected_coefs@x
+) %>%
+  filter(feature != "(Intercept)") %>%
+  arrange(desc(abs(coefficient)))
+
+print(coef_df)
+
+cat("\n", nrow(coef_df), "features selected out of", ncol(X), "total features\n")
+```
+
+::: callout-important
+## Key Takeaway: Automatic Feature Selection
+
+LASSO automatically identified the important features and set noise variables to zero **during training**. Unlike manual feature selection methods, LASSO does feature selection and model fitting simultaneously, optimizing prediction while removing irrelevant features!
+:::
+
+### 🎯 Exercise 1: Your Turn (5 minutes)
+
+Now try **Elastic Net** (combining L1 + L2 regularization) on our mock data:
+
+```{r}
+#| eval: false
+
+# Your task:
+# 1. Fit an Elastic Net model with alpha = 0.5 (50% LASSO + 50% Ridge)
+#    Use the same X and y from above
+# 2. Plot the regularization path (use xvar = "norm")
+# 3. Extract the selected features at lambda.1se
+# 4. Compare: How many features did Elastic Net select vs. LASSO?
+```
+
+**Questions to explore:**
+
+- Does Elastic Net select more or fewer features than LASSO?
+- Are the same features selected, or different ones?
+- What happens if you try alpha = 0.7 (more LASSO) or alpha = 0.3 (more Ridge)?
+- Which approach would you choose for your LAT project and why?
+
+**Hint:** Just change `alpha = 1` to `alpha = 0.5` in your LASSO code above!
+
+::: callout-tip
+## A reminder about Elastic Net
+
+Elastic Net (alpha between 0 and 1) combines:
+
+- **L1 penalty** (LASSO): Feature selection, sets coefficients to zero
+- **L2 penalty** (Ridge): Shrinks correlated features together, more stable
+
+When you have **correlated predictors** (like `union_density` and `bargaining_unit_size`), Elastic Net often performs better than pure LASSO! The L2 penalty helps with instability when features are highly correlated.
+:::
+
+# Part 2: Partial Dependence Plots (30 min)
+
+## The Question: How Do Features Affect Predictions?
+
+LASSO told us **which** features matter. Now we need to know **how** they affect outcomes:
+
+- Is the relationship linear?
+- Are there threshold effects?
+- Do effects plateau?
+
+**Partial Dependence Plots (PDPs)** answer these questions by showing the average predicted outcome as we vary one feature while holding others constant.
+
+## Demo: One-Variable PDP
+
+For this demo, we'll use a **Random Forest** model. We'll learn about tree-based models in detail next week, but for now, know that Random Forest is a "black box" model—it's hard to directly interpret coefficients like we can with linear models.
+
+**Key insight:** Once you have a good modeling workflow, swapping between models (logistic regression, Random Forest, XGBoost, etc.) is often just a configuration change. The interpretability tools we learn here work with **any model**, which is incredibly powerful!
+
+```{r}
+# Fit a Random Forest model
+rf_model <- randomForest(
+  is_strike ~ .,
+  data = labor_data,
+  ntree = 100,
+  importance = TRUE
+)
+
+# Check model performance using Out-of-Bag (OOB) error
+cat("OOB error rate:", round(rf_model$err.rate[100, "OOB"] * 100, 1), "%\n")
+```
+
+::: callout-note
+## What is OOB Error?
+
+Random Forest uses **bootstrap sampling** to build each tree, meaning ~63% of data is used for training each tree. The remaining ~37% (the "out-of-bag" samples) are used for validation. OOB error is like built-in cross-validation—no explicit validation set needed!
+
+**Note:** OOB error can be slightly optimistic if you did preprocessing on the full dataset before fitting the model. For production models, proper train/test splits are still important. But for exploratory analysis and quick model comparison, OOB error is very convenient!
+:::
+
+Now create a PDP for bargaining unit size:
+
+```{r}
+# Create predictor object for iml
+predictor <- Predictor$new(
+  model = rf_model,
+  data = labor_data %>% select(-is_strike),
+  y = labor_data$is_strike,
+  type = "prob"  # For classification probabilities
+)
+
+# Partial dependence for bargaining unit size
+pd_size <- FeatureEffect$new(
+  predictor,
+  feature = "bargaining_unit_size",
+  method = "pdp"
+)
+
+# Plot
+plot(pd_size) +
+  geom_rug(data = labor_data, 
+           aes(x = bargaining_unit_size, y = NULL),
+           sides = "b", alpha = 0.3, inherit.aes = FALSE) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(
+    title = "Partial Dependence: Bargaining Unit Size",
+    subtitle = "How strike probability changes with union size (other features held constant)",
+    x = "Bargaining Unit Size",
+    y = "Predicted Probability of Strike"
+  ) +
+  theme_minimal()
+```
+
+**What to look for:**
+
+- ✅ **Linear relationship**: Straight line (confirms linear model assumptions)
+- ✅ **Non-linear relationship**: Curves (suggests need for transformations)
+- ✅ **Threshold effect**: Sharp jump at some value
+- ✅ **Plateau**: Effect levels off after some point
+
+### Interpreting the PDP
+
+```{r}
+# Summarize the relationship
+pd_results <- pd_size$results
+pd_summary <- pd_results %>%
+  summarize(
+    min_prob = min(.value),
+    max_prob = max(.value),
+    range = max_prob - min_prob
+  )
+
+cat("Strike probability ranges from", 
+    round(pd_summary$min_prob * 100, 1), "% to",
+    round(pd_summary$max_prob * 100, 1), "%\n")
+cat("Total effect size:", 
+    round(pd_summary$range * 100, 1), "percentage points\n")
+```
+
+## Two-Variable PDPs: Detecting Interactions
+
+Does the effect of one variable depend on another? Two-variable PDPs reveal interactions:
+
+```{r}
+#| fig.height: 6
+#| fig.width: 8
+
+# Two-variable PDP
+pd_interaction <- FeatureEffect$new(
+  predictor,
+  feature = c("bargaining_unit_size", "union_density"),
+  method = "pdp"
+)
+
+# Plot with heatmap
+plot(pd_interaction) +
+  scale_fill_gradient2(
+    low = "blue", mid = "white", high = "red",
+    midpoint = 0.5,
+    labels = percent_format(),
+    name = "Strike\nProbability"
+  ) +
+  labs(
+    title = "Interaction: Unit Size × Union Density",
+    subtitle = "Do large unions with high density have different strike patterns?",
+    x = "Bargaining Unit Size",
+    y = "Union Density"
+  ) +
+  theme_minimal()
+```
+
+**Interpreting interactions:**
+
+- **Parallel lines** (or uniform color gradient) = No interaction
+- **Crossing lines** (or non-uniform pattern) = Interaction present
+- **Policy implication**: Effects of one variable depend on levels of another
+
+::: callout-note
+## PDP Limitations
+
+PDPs assume features are independent. If two features are highly correlated, PDPs can show unrealistic scenarios (e.g., "low income but high education" if those rarely occur together). Use ICE plots (below) to see individual-level variation!
+:::
+
+### 🎯 Exercise 2: Your Turn (10 minutes)
+
+Create PDPs for your top 3 features:
+
+```{r}
+#| eval: false
+
+# Your code here:
+# 1. Fit a model on the mock LAT data (RF, logistic, whatever you prefer)
+# 2. Create PDPs for your top 3 features from LASSO
+# 3. For at least one, create a two-variable PDP to check for interactions
+
+# Questions to answer:
+# - Are relationships linear or non-linear?
+# - Any threshold effects?
+# - Any interactions between features?
+```
+
+# Part 3: SHAP Values for Individual Explanations (25 min)
+
+## The Ultimate Question: Why THIS Prediction?
+
+You've predicted that Labor Action #237 will be a strike with 85% confidence. The union leader asks: "Why? What factors drove this prediction?"
+
+**SHAP (SHapley Additive exPlanations)** answers this by decomposing predictions into contributions from each feature.
+
+## SHAP Key Concepts
+
+- **Global importance**: Which features matter most on average?
+- **Local explanation**: For THIS observation, which features pushed prediction up/down?
+- **Additive**: Base prediction + sum of SHAP values = final prediction
+- **Model-agnostic**: Works with any ML model
+
+## Demo: Computing SHAP Values
+
+```{r}
+#| cache: true
+
+# Compute SHAP values using iml (this can be slow!)
+# Using a small sample for speed in lab
+sample_idx <- sample(1:nrow(labor_data), 100)
+sample_data <- labor_data[sample_idx, ]
+
+# Create SHAP explainer
+shap_explainer <- Shapley$new(
+  predictor,
+  x.interest = sample_data %>% select(-is_strike)
+)
+
+cat("SHAP values computed for", nrow(sample_data), "observations\n")
+```
+
+::: callout-warning
+## SHAP Computation Time
+
+SHAP can be slow for large datasets. For this lab, we use a small sample. For your assignment, you may need to:
+
+- Use a smaller sample (100-500 observations)
+- Use `sample.size` parameter in Shapley$new() to limit computation
+- Be patient - SHAP is computationally expensive but worth it!
+:::
+
+## Visualization 1: Global Feature Importance
+
+Which features matter most across all predictions?
+
+For a single observation:
+
+```{r}
+#| fig.height: 6
+#| fig.width: 8
+
+# Plot SHAP values for first observation
+plot(shap_explainer) +
+  labs(
+    title = "SHAP Feature Importance for Observation 1",
+    subtitle = "Which features contributed most to this prediction?"
+  )
+```
+
+**How to read this plot:**
+
+- **X-axis**: SHAP value (impact on prediction)
+  - Positive SHAP → increases strike probability
+  - Negative SHAP → decreases strike probability
+- **Each bar**: Contribution of that feature to THIS prediction
+
+**What to look for:**
+
+- `bargaining_unit_size`: Large positive value → this feature pushes toward Strike
+- `duration_days`: Magnitude shows importance for this case
+- Features near zero → didn't matter for this prediction
+
+::: callout-tip
+## Using SHAP for Model Debugging
+
+When you find wrong predictions, use SHAP to understand why:
+
+1. **Identify** confident wrong predictions
+2. **Examine** SHAP values: Which features misled the model?
+3. **Investigate** the data: Is this an outlier? Data error? Edge case?
+4. **Improve**: Add features, transform variables, or collect more data
+
+Wrong predictions are learning opportunities!
+:::
+
+### 🎯 Exercise 3: Your Turn (8 minutes)
+
+Generate SHAP values for your LAT model:
+
+```{r}
+#| eval: false
+
+# Your code here:
+# 1. Create a Predictor object with your model
+# 2. Compute SHAP values for a few test observations
+# 3. Compare high vs. low probability cases
+# 4. Find one confident wrong prediction and explain it
+
+# What did you learn?
+# - Which features drive predictions for different cases?
+# - Why did the model fail on that specific case?
+# - Any patterns in the errors?
+```
+
+# Part 4: Choosing the Right Tool (5 min)
+
+## Decision Guide
+
+Different questions require different tools:
+
+| Question | Tool | When to Use |
+|----------|------|-------------|
+| "Which features should I include?" | **LASSO paths** | Initial feature screening; reduce dimensionality |
+| "How does X affect Y?" | **PDPs** | Understand main effects; check for non-linearities |
+| "Why did we predict THIS?" | **SHAP** | Explain individual predictions; debug errors |
+| "What factors matter most?" | **LASSO + SHAP** | Both tell different stories - use together! |
+
+## Practical Workflow
+
+```r
+# Step 1: Feature selection
+lasso_model <- cv.glmnet(X, y, alpha = 1)
+selected_features <- get_selected_features(lasso_model)
+
+# Step 2: Train interpretable model with selected features
+final_model <- randomForest(y ~ selected_features, data = train_data)
+
+# Step 3: Understand relationships
+pdp_plots <- map(selected_features, ~partial(final_model, pred.var = .x))
+
+# Step 4: Explain predictions
+shap_values <- explain(final_model, X = test_data)
+
+# Step 5: Communicate to stakeholders
+write_interpretation_report()
+```
+
+::: callout-important
+## Interpretability Does Not Mean Accuracy
+
+Sometimes simpler, more interpretable models are better for policy even if slightly less accurate:
+
+- Logistic regression (AUC = 0.73, fully interpretable)
+- Random Forest (AUC = 0.77, harder to explain)
+
+**Policy context matters!** If stakeholders need to understand AND trust the model, choose interpretability.
+:::
+
+# Lab Assignment: Regularization & Interpretability for Labor Action Tracker (30 points)
+
+## Overview
+
+Apply regularization and interpretability techniques to your **Labor Action Tracker** project. Your goal is to build a well-regularized model and explain its predictions to stakeholders. This is an **exploratory analysis**—you'll experiment with different approaches and report what you learn.
+
+## Assignment Structure
+
+### Part 1: Regularization Comparison (12 points)
+
+Compare **LASSO, Ridge, and Elastic Net** on your LAT data:
+
+**What to do:**
+
+1. **Fit three models** using `cv.glmnet()`:
+
+   - LASSO (alpha = 1)
+   - Ridge (alpha = 0)
+   - Elastic Net (alpha = 0.5, or try multiple alpha values)
+
+2. **Create visualizations**:
+
+   - Regularization path for each (use `xvar = "norm"`)
+   - Hyperparameter tuning curves showing model performance vs. lambda
+   - Feature selection comparison table
+
+3. **Analysis** (written discussion):
+
+   - Which model performs best? (Compare performance at lambda.1se)
+   - How many features does each select? Why do the numbers differ?
+   - Do you have correlated predictors? How do the models handle them differently?
+   - Which would you recommend for your LAT project and why?
+
+**Grading:**
+
+- 4 pts: All three models correctly fitted and tuned
+- 4 pts: Clear visualizations with appropriate labels
+- 4 pts: Thoughtful comparison addressing the questions above
+
+### Part 2: Model Interpretability (12 points)
+
+Choose your **best model** from Part 1 and explain how it works:
+
+**What to do:**
+
+1. **Partial Dependence Plots** for your 3 most important features:
+
+   - Create PDPs showing how each feature affects strike probability
+   - Include data distribution (rug plots)
+   - Interpret: Are relationships linear? Thresholds? Plateaus?
+
+2. **Explore one interaction**:
+   - Create a 2-variable PDP for features you suspect interact
+   - What does it reveal? Parallel gradients (no interaction) or complex patterns (interaction)?
+
+3. **SHAP explanations** for 2-3 specific cases:
+
+   - Pick interesting cases (e.g., high confidence correct, high confidence wrong, or edge cases)
+   - Generate SHAP values and visualize
+   - Explain: Which features drove these specific predictions?
+
+**Grading:**
+
+- 4 pts: PDPs correctly created and clearly visualized
+- 4 pts: Interaction exploration with thoughtful interpretation
+- 4 pts: SHAP values generated and meaningfully explained
+
+### Part 3: Stakeholder Communication (6 points)
+
+Write a **policy brief** (2-3 paragraphs) for a labor organizer or policy maker:
+
+**Address these questions:**
+
+- What factors most strongly predict whether a labor action will escalate to a strike?
+- Are there actionable insights? (e.g., "Increasing X by Y raises strike probability by Z%")
+- What are the model's limitations? Where should stakeholders be cautious?
+- What surprised you? Any counterintuitive findings?
+
+**Requirements:**
+
+- Use plain language (no technical jargon like "lambda.1se" or "L1 penalty")
+- Reference specific findings from your analysis
+- Be honest about uncertainty and limitations
+- Make it **useful**—stakeholders should know what to do with this information
+
+**Grading:**
+
+- 3 pts: Clear, jargon-free communication
+- 3 pts: Actionable insights supported by your analysis
+
+## Submission Guidelines
+
+**What to submit:**
+
+1. `.qmd` file with all your code and analysis
+2. `.pdf` rendered output
+
+
+**Due: 11/24/2025 at 11:59 PM**
+
+---
+
+**Good luck! This assignment bridges theory and practice—you're building real skills for data-driven policy analysis.**
+
