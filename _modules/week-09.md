@@ -4,7 +4,7 @@
     days:
       - date: 2025-11-24
         events:
-          "**LEC 9**{: .label .label-lecture } Tree-Based Models for Complex Data": 
+          "**LEC 9**{: .label .label-lecture } [Tree-Based Models for Complex Data](_lectures/lec09_trees.html)": 
           "**Read**{: .label .label-read } [Review MDSR 11.1.1: Decision Trees](https://mdsr-book.github.io/mdsr3e/11-learningI.html#decision-trees)":
           "**Read**{: .label .label-read } [Review MDSR 11.1.2: Random Forests](https://mdsr-book.github.io/mdsr3e/11-learningI.html#random-forests)":
           "**Read**{: .label .label-read } [Hwang & Shaw: The (Random) Forests for the Trees](https://www.propublica.org/article/ebola-spillover-machine-learning-methodology-nigeria)":

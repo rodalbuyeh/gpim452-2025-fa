@@ -1,0 +1,1545 @@
+---
+title: "Tree-Based Models for Complex Data"
+subtitle: "Decision Trees, Random Forests, and Gradient Boosting"
+author: "Rod Albuyeh"
+date: "11/24/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(patchwork)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(ranger)
+library(caret)
+library(vip)
+set.seed(42)
+```
+
+```{css echo=FALSE}
+.reveal {
+  font-size: 32px;
+}
+
+.reveal h2 {
+  font-size: 1.3em;
+}
+
+.reveal p, .reveal li {
+  font-size: 0.9em;
+}
+
+.reveal pre code {
+  font-size: 0.85em;
+}
+
+.reveal .slides {
+  text-align: center;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Explain** how decision trees partition feature space through recursive splits
+- **Distinguish** between individual trees, bagging, and boosting approaches
+- **Apply** Random Forests and XGBoost to policy prediction problems
+- **Interpret** variable importance and partial dependence in tree models
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Tree-based models automatically capture non-linear relationships and interactions without feature engineering, making them powerful for complex policy data—but at the cost of some interpretability.
+:::
+:::
+
+# Part I: From Linear Models to Trees
+
+## Limitations of Linear Models {.smaller}
+
+::: {.fragment}
+**Last week we learned**: Regularization helps linear models handle many features
+:::
+
+::: {.fragment}
+**But linear models still assume**:
+
+- Relationships are linear (or manually transformed)
+- Interactions must be explicitly specified
+- Same relationship across all observations
+:::
+
+::: {.fragment}
+**Policy example**: Predicting program enrollment
+```r
+# Linear model assumes same income effect for everyone
+enrollment ~ income + age + children
+
+# But reality might be:
+# - Income matters more for families with children
+# - Age effect differs by income level
+# - Threshold effects (eligibility cutoffs)
+```
+:::
+
+::: {.fragment}
+::: callout-important
+**Problem**: We'd need to manually specify all interactions and non-linearities. With many features, this becomes impractical!
+:::
+:::
+
+## Enter Decision Trees: A Different Approach {.smaller}
+
+::: {.fragment}
+**Decision trees work by asking a series of yes/no questions:**
+:::
+
+::: {.fragment}
+```
+Q1: Does household have children? 
+    → No: Predict 15% enrollment
+    → Yes: Go to Q2
+    
+Q2: Is household income < $50K?
+    → No: Predict 35% enrollment  
+    → Yes: Go to Q3
+    
+Q3: Is distance to center < 5 miles?
+    → No: Predict 40% enrollment
+    → Yes: Predict 75% enrollment
+```
+:::
+
+::: {.fragment}
+**Key advantages**:
+
+- **Automatic interactions**: Questions naturally create interactions
+- **Non-linear relationships**: Different rules for different groups
+- **Interpretable rules**: Easy to explain to stakeholders
+- **No standardization needed**: Works with features on any scale
+:::
+
+## Visual Intuition: Partitioning Feature Space {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create synthetic data with clear non-linear pattern
+set.seed(123)
+n <- 300
+policy_data <- tibble(
+  income = runif(n, 20000, 120000),
+  distance_miles = runif(n, 0, 15)
+) %>%
+  mutate(
+    prob = case_when(
+      income < 50000 & distance_miles < 5 ~ 0.8,
+      income < 50000 & distance_miles >= 5 ~ 0.4,
+      income >= 50000 & distance_miles < 10 ~ 0.5,
+      income >= 50000 & distance_miles >= 10 ~ 0.2,
+      TRUE ~ 0.3
+    ),
+    enrolled = rbinom(n, 1, prob)
+  ) %>%
+  select(-prob)
+
+# Create visualization with decision boundaries
+ggplot(policy_data, aes(x = income, y = distance_miles, color = factor(enrolled))) +
+  geom_point(size = 2, alpha = 0.6) +
+  # Add tree partition lines
+  geom_vline(xintercept = 50000, linetype = "dashed", color = "black", size = 1) +
+  geom_segment(x = 20000, xend = 50000, y = 5, yend = 5, 
+               linetype = "dashed", color = "black", size = 1) +
+  geom_segment(x = 50000, xend = 120000, y = 10, yend = 10,
+               linetype = "dashed", color = "black", size = 1) +
+  # Add annotations for each partition
+  annotate("text", x = 35000, y = 12, label = "Low Income\nFar (≥5 mi): 40%", size = 3.5, fontface = "bold") +
+  annotate("text", x = 35000, y = 2.5, label = "Low Income\nNear (<5 mi): 80%", size = 3.5, fontface = "bold") +
+  annotate("text", x = 85000, y = 12.5, label = "High Income\nFar (≥10 mi): 20%", size = 3.5, fontface = "bold") +
+  annotate("text", x = 85000, y = 5, label = "High Income\nNear (<10 mi): 50%", size = 3.5, fontface = "bold") +
+  scale_color_manual(values = c("0" = "coral", "1" = "steelblue"),
+                     labels = c("Not Enrolled", "Enrolled"),
+                     name = "Status") +
+  scale_x_continuous(labels = dollar_format()) +
+  labs(title = "How Decision Trees Partition Feature Space",
+       subtitle = "Each rectangular region gets a different prediction",
+       x = "Household Income", y = "Distance to Center (miles)") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Key concept**: Trees create **rectangular partitions** in feature space, each with its own prediction.
+:::
+
+# Part II: How Decision Trees Work
+
+## The Tree Building Algorithm {.smaller}
+
+::: {.fragment}
+**Core idea**: Recursively split data to minimize prediction error
+:::
+
+::: {.fragment}
+**Algorithm (CART - Classification and Regression Trees)**:
+
+1. **Start with all data** at the root node
+2. **For each feature and each possible split point**:
+   - Calculate prediction error if we split there
+3. **Choose the split that reduces error the most**
+4. **Create two child nodes** with the split data
+5. **Repeat steps 2-4** for each child node
+6. **Stop when**: 
+   - Node is "pure" (all same outcome)
+   - Reaches minimum sample size
+   - Reaches maximum depth
+:::
+
+::: {.fragment}
+::: callout-note
+**Greedy algorithm**: At each step, makes the best split available *right now*, without looking ahead. Not guaranteed to find the globally optimal tree!
+:::
+:::
+
+## Measuring Split Quality: Classification {.smaller}
+
+::: {.fragment}
+**For classification (e.g., enrolled vs not), we need a measure of "impurity"**
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Gini Impurity
+$$\text{Gini} = \sum_{k=1}^K p_k(1-p_k)$$
+
+Where $p_k$ = proportion of class $k$
+
+**Interpretation**:
+
+- 0 = Pure (all same class)
+- 0.5 = Maximum impurity (50/50 split)
+
+**Most commonly used** in practice (default in most software)
+:::
+
+::: {.fragment}
+### Entropy (Information Gain)
+$$\text{Entropy} = -\sum_{k=1}^K p_k \log(p_k)$$
+
+**Interpretation**:
+
+- 0 = Pure
+- Higher = More mixed
+
+**From information theory**: Measures uncertainty
+:::
+:::
+
+::: {.fragment}
+**Example**: Node with 70% enrolled, 30% not enrolled
+
+- Gini = 0.7(1-0.7) + 0.3(1-0.3) = 0.42
+- Entropy = -0.7·log(0.7) - 0.3·log(0.3) ≈ 0.61
+:::
+
+## Split Selection Example {.smaller}
+
+::: {.fragment}
+**Scenario**: 100 families, 60 enrolled, 40 not enrolled
+:::
+
+```{r}
+#| echo: false
+
+split_comparison <- tibble(
+  Split = c("Parent Node", "Split A: Income < $50K", "Split A: Income ≥ $50K", 
+            "Split B: Has Children", "Split B: No Children"),
+  N = c(100, 70, 30, 55, 45),
+  Enrolled = c(60, 50, 10, 45, 15),
+  `Not Enrolled` = c(40, 20, 20, 10, 30),
+  Gini = c(0.48, 0.41, 0.44, 0.33, 0.44)
+)
+
+knitr::kable(split_comparison, 
+             caption = "Comparing Two Possible Splits",
+             digits = 2)
+```
+
+::: {.fragment}
+**Weighted Gini after split**:
+
+- **Split A**: (70/100)·0.41 + (30/100)·0.44 = 0.42
+- **Split B**: (55/100)·0.33 + (45/100)·0.44 = 0.38 ← **Better!**
+
+**Choose Split B** (has children?) because it reduces impurity more!
+:::
+
+## Building a Real Tree: Step-by-Step {.smaller}
+
+```{r}
+# Create sample enrollment data with clear patterns
+set.seed(456)
+n_families <- 200
+
+enrollment_data <- tibble(
+  family_id = 1:n_families,
+  household_income = rnorm(n_families, 55000, 20000),
+  has_children = sample(0:1, n_families, replace = TRUE, prob = c(0.5, 0.5)),
+  distance_miles = rexp(n_families, rate = 0.2),
+  previous_services = sample(0:1, n_families, replace = TRUE, prob = c(0.6, 0.4)),
+  parent_age = rnorm(n_families, 32, 6)
+) %>%
+  mutate(
+    household_income = pmax(15000, household_income),
+    # True enrollment depends on these factors with strong interactions
+    enroll_prob = plogis(-1.0 + 
+                        -0.00003 * household_income + 
+                        2.0 * has_children +
+                        -0.25 * distance_miles + 
+                        2.5 * previous_services +
+                        1.0 * has_children * (household_income < 50000)),
+    enrolled = rbinom(n_families, 1, enroll_prob)
+  ) %>%
+  select(-enroll_prob)
+
+# Quick look
+head(enrollment_data, 3)
+cat("\nClass balance in full data:\n")
+print(table(enrollment_data$enrolled))
+cat("Proportion enrolled:", round(mean(enrollment_data$enrolled), 3), "\n")
+```
+
+## Fitting Our First Tree {.smaller}
+
+```{r}
+# Split data
+set.seed(789)
+train_idx <- createDataPartition(enrollment_data$enrolled, p = 0.7, list = FALSE)
+train_data <- enrollment_data[train_idx, ]
+test_data <- enrollment_data[-train_idx, ]
+
+# Fit decision tree
+tree_model <- rpart(
+  enrolled ~ household_income + has_children + distance_miles + 
+             previous_services + parent_age,
+  data = train_data,
+  method = "class",  # Classification tree
+  control = rpart.control(
+    cp = 0.005,       # Complexity parameter (like regularization) - lower allows more splits
+    maxdepth = 5,     # Maximum tree depth
+    minsplit = 15     # Minimum observations to attempt split
+  )
+)
+
+cat("Tree structure created with", 
+    sum(tree_model$frame$var == "<leaf>"), "leaf nodes\n")
+```
+
+## Visualizing the Tree {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 7
+
+# Create beautiful tree plot
+rpart.plot(tree_model, 
+          type = 4,  # Fancy style
+          extra = 101,  # Show node probabilities and percentages
+          fallen.leaves = TRUE,
+          branch = 0.3,
+          under = TRUE,
+          box.palette = "auto",
+          shadow.col = "gray",
+          main = "Decision Tree for Program Enrollment",
+          cex.main = 1.2,
+          cex = 0.8)
+```
+
+::: {.fragment}
+**Reading the tree**: 
+- Each node shows: condition, predicted class, probability, % of data
+- Follow branches left (yes) or right (no) based on conditions
+:::
+
+## Tree Predictions: A Walkthrough {.smaller}
+
+::: {.fragment}
+**Example family**: Income = $45K, has children, 3 miles away, no previous services
+:::
+
+::: {.fragment}
+```
+Root: Everyone starts here (60% enrolled overall)
+
+├─ Previous services? NO → Go right
+│  └─ Has children? YES → Go left  
+│     └─ Distance < 5 miles? YES → Go left
+│        └─ Prediction: 75% probability of enrollment → PREDICT: Enrolled
+```
+:::
+
+::: {.fragment}
+```{r}
+# Make prediction for this family
+new_family <- tibble(
+  household_income = 45000,
+  has_children = 1,
+  distance_miles = 3,
+  previous_services = 0,
+  parent_age = 30
+)
+
+prediction <- predict(tree_model, new_family, type = "prob")
+cat("Predicted probability of enrollment:", 
+    round(prediction[1, "1"] * 100, 1), "%\n")
+```
+:::
+
+::: {.fragment}
+**Key insight**: Same prediction for ALL families in this leaf node!
+:::
+
+## Tree Performance {.smaller}
+
+```{r}
+# Predictions on test set
+test_pred_prob <- predict(tree_model, test_data, type = "prob")[, "1"]
+test_pred_class <- predict(tree_model, test_data, type = "class")
+
+# Confusion matrix
+conf_matrix <- table(Predicted = test_pred_class, Actual = test_data$enrolled)
+print(conf_matrix)
+
+# Calculate accuracy
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+
+# Compare to baseline (predict most common class)
+baseline_pred <- rep(names(which.max(table(train_data$enrolled))), nrow(test_data))
+baseline_accuracy <- mean(baseline_pred == test_data$enrolled)
+
+cat("\nPerformance Comparison:\n")
+cat("Baseline (always predict most common class):", round(baseline_accuracy * 100, 1), "%\n")
+cat("Decision Tree:                              ", round(accuracy * 100, 1), "%\n")
+cat("Improvement over baseline:                  ", round((accuracy - baseline_accuracy) * 100, 1), "percentage points\n")
+```
+
+::: {.fragment}
+**Pretty good for a simple tree!** But we can do much better...
+:::
+
+# Part III: The Problem with Single Trees
+
+## Overfitting and High Variance {.smaller}
+
+::: {.fragment}
+**Single trees have a critical weakness**: They overfit easily!
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Demonstrate tree instability with bootstrap samples
+set.seed(111)
+n_boots <- 5
+boot_predictions <- matrix(0, nrow = nrow(test_data), ncol = n_boots)
+
+for(i in 1:n_boots) {
+  # Bootstrap sample
+  boot_idx <- sample(1:nrow(train_data), replace = TRUE)
+  boot_data <- train_data[boot_idx, ]
+  
+  # Fit tree
+  boot_tree <- rpart(
+    enrolled ~ household_income + has_children + distance_miles + 
+               previous_services + parent_age,
+    data = boot_data,
+    method = "class",
+    control = rpart.control(cp = 0.01, maxdepth = 4, minsplit = 20)
+  )
+  
+  # Predict
+  boot_predictions[, i] <- predict(boot_tree, test_data, type = "prob")[, "1"]
+}
+
+# Calculate prediction variance for each test observation
+pred_variance <- apply(boot_predictions, 1, var)
+
+# Visualize
+variance_df <- tibble(
+  observation = 1:nrow(test_data),
+  avg_prediction = rowMeans(boot_predictions),
+  variance = pred_variance,
+  actual = test_data$enrolled
+) %>%
+  arrange(desc(variance))
+
+ggplot(variance_df, aes(x = observation, y = avg_prediction)) +
+  geom_point(aes(color = factor(actual)), size = 2) +
+  geom_errorbar(aes(ymin = avg_prediction - sqrt(variance), 
+                    ymax = avg_prediction + sqrt(variance)),
+                alpha = 0.4, width = 0.5) +
+  scale_color_manual(values = c("0" = "coral", "1" = "steelblue"),
+                     labels = c("Not Enrolled", "Enrolled"),
+                     name = "Actual Status") +
+  labs(title = "Single Trees Are Unstable Across Bootstrap Samples",
+       subtitle = "Error bars show prediction variance from 5 different bootstrap samples",
+       x = "Test Observation (sorted by variance)", 
+       y = "Average Predicted Probability") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Problem**: Small changes in training data → dramatically different trees → different predictions
+:::
+
+## The Bias-Variance Problem Revisited {.smaller}
+
+::: {.fragment}
+**Decision trees trade bias for variance**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Shallow Trees (High Bias)
+- Simple partitions
+- Smooth predictions
+- **Underfit** the data
+- Low variance, high bias
+- Poor train AND test performance
+:::
+
+::: {.fragment}
+### Deep Trees (High Variance)
+- Complex partitions
+- Jagged predictions  
+- **Overfit** the data
+- High variance, low bias
+- Great train, poor test performance
+:::
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4
+
+# Compare shallow vs deep trees
+shallow_tree <- rpart(enrolled ~ ., data = train_data, method = "class",
+                     control = rpart.control(maxdepth = 2, cp = 0.1))
+
+deep_tree <- rpart(enrolled ~ ., data = train_data, method = "class",
+                  control = rpart.control(maxdepth = 10, cp = 0.001, minsplit = 5))
+
+# Predictions
+shallow_train_acc <- mean(predict(shallow_tree, train_data, type = "class") == train_data$enrolled)
+shallow_test_acc <- mean(predict(shallow_tree, test_data, type = "class") == test_data$enrolled)
+
+deep_train_acc <- mean(predict(deep_tree, train_data, type = "class") == train_data$enrolled)
+deep_test_acc <- mean(predict(deep_tree, test_data, type = "class") == test_data$enrolled)
+
+comparison_df <- tibble(
+  Model = c("Shallow Tree (maxdepth=2)", "Deep Tree (maxdepth=10)"),
+  `Training Accuracy` = c(shallow_train_acc, deep_train_acc),
+  `Test Accuracy` = c(shallow_test_acc, deep_test_acc),
+  Gap = `Training Accuracy` - `Test Accuracy`
+) %>%
+  mutate(across(where(is.numeric), ~round(.x * 100, 1)))
+
+knitr::kable(comparison_df, 
+             caption = "The Overfitting Problem with Deep Trees")
+```
+
+::: {.fragment}
+::: callout-important
+**Solution**: Instead of building one perfect tree, build many imperfect trees and average them! This is called **ensemble learning**.
+:::
+:::
+
+# Part IV: Random Forests - Wisdom of Crowds
+
+## The Ensemble Idea {.smaller}
+
+::: {.fragment}
+**Key insight**: Many weak learners → one strong learner
+:::
+
+::: {.fragment}
+**Analogy**: Which is more accurate?
+
+1. **One expert's prediction** (single tree)
+2. **Average of 500 experts' predictions** (random forest)
+
+Usually #2, if experts have diverse perspectives!
+:::
+
+::: {.fragment}
+**Random Forest recipe**:
+
+1. **Bootstrap**: Create many random samples of training data (with replacement)
+2. **Build trees**: Fit a decision tree to each bootstrap sample
+3. **Randomize features**: At each split, only consider random subset of features
+4. **Average predictions**: For classification, take majority vote; for regression, average
+:::
+
+::: {.fragment}
+::: callout-note
+**Why it works**: Individual trees overfit in different ways. Averaging cancels out the noise, keeps the signal!
+:::
+:::
+
+## The Two Sources of Randomness {.smaller}
+
+::: {.fragment}
+**Random Forests use two types of randomness to create diversity**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### 1. Bootstrap Sampling (Bagging)
+**Each tree sees different data**:
+- Sample n observations with replacement
+- ~63% of data in each bootstrap
+- ~37% left out ("out-of-bag")
+
+**Effect**: Trees see different patterns
+:::
+
+::: {.fragment}
+### 2. Feature Randomness
+**Each split considers random features**:
+- Typically $\sqrt{p}$ features for classification
+- Typically $p/3$ features for regression
+
+**Effect**: Prevents strong features from dominating every tree
+:::
+:::
+
+::: {.fragment}
+```{r}
+#| echo: false
+
+tibble(
+  `Problem Size` = c("5 features", "50 features", "500 features"),
+  `Features per Split (Classification)` = c("√5 ≈ 2", "√50 ≈ 7", "√500 ≈ 22"),
+  `Features per Split (Regression)` = c("5/3 ≈ 2", "50/3 ≈ 17", "500/3 ≈ 167")
+) %>%
+  knitr::kable(caption = "Typical mtry Values (features considered per split)")
+```
+:::
+
+## Fitting a Random Forest {.smaller}
+
+```{r}
+# Fit Random Forest
+rf_model <- randomForest(
+  factor(enrolled) ~ household_income + has_children + distance_miles + 
+                     previous_services + parent_age,
+  data = train_data,
+  ntree = 500,         # Number of trees
+  mtry = 3,            # Features per split (try more than √5 for small data)
+  importance = TRUE,   # Track feature importance
+  nodesize = 5,        # Minimum node size (smaller for small dataset)
+  maxnodes = 15        # Limit tree complexity
+)
+
+# Print results
+print(rf_model)
+```
+
+::: {.fragment}
+**OOB error**: Prediction error on out-of-bag samples (like built-in cross-validation!)
+:::
+
+## Random Forest Performance {.smaller}
+
+```{r}
+# Predictions on test set
+rf_pred_prob <- predict(rf_model, test_data, type = "prob")[, "1"]
+rf_pred_class <- predict(rf_model, test_data, type = "class")
+
+# Confusion matrix
+rf_conf_matrix <- table(Predicted = rf_pred_class, Actual = test_data$enrolled)
+print(rf_conf_matrix)
+
+# Accuracy comparison
+rf_accuracy <- sum(diag(rf_conf_matrix)) / sum(rf_conf_matrix)
+
+cat("\nAccuracy Comparison:\n")
+cat("Baseline (most common class):  ", round(baseline_accuracy * 100, 1), "%\n")
+cat("Single Tree:                   ", round(accuracy * 100, 1), "%\n")
+cat("Random Forest:                 ", round(rf_accuracy * 100, 1), "%\n")
+cat("RF Improvement over baseline:  ", round((rf_accuracy - baseline_accuracy) * 100, 1), "pp\n")
+```
+
+::: {.fragment}
+**Note**: With small datasets (n=140 training), Random Forests may only marginally improve over a well-tuned single tree. The real power shows with larger datasets (n > 1000) where variance reduction is more substantial!
+:::
+
+## Variable Importance: What Matters Most? {.smaller}
+
+::: {.fragment}
+**One of the most useful features of Random Forests**: Variable importance scores
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Extract and plot variable importance
+importance_df <- as_tibble(randomForest::importance(rf_model), rownames = "Variable") %>%
+  arrange(desc(MeanDecreaseGini))
+
+ggplot(importance_df, aes(x = reorder(Variable, MeanDecreaseGini), 
+                          y = MeanDecreaseGini)) +
+  geom_col(fill = "steelblue", alpha = 0.8) +
+  coord_flip() +
+  labs(title = "Random Forest Variable Importance",
+       subtitle = "Mean Decrease in Gini impurity when feature is used for splitting",
+       x = "", y = "Importance Score") +
+  theme_minimal()
+```
+
+::: {.fragment}
+**Interpretation**: Household income and having children are the strongest predictors of enrollment.
+:::
+
+## How Variable Importance Works {.smaller}
+
+::: {.fragment}
+**Two main measures in Random Forests**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Mean Decrease Gini (MDG)
+**How it's calculated**:
+- For each tree, for each feature
+- Sum the decrease in Gini impurity when that feature is used to split
+- Average across all trees
+
+**Interpretation**:
+- Higher = feature creates purer nodes
+- Biased toward high-cardinality features
+
+**When to use**: Quick screening, exploratory analysis
+:::
+
+::: {.fragment}
+### Mean Decrease Accuracy (MDA)
+**How it's calculated**:
+- For each tree, for each feature
+- Randomly permute that feature in OOB data
+- Measure increase in prediction error
+- Average across all trees
+
+**Interpretation**:
+- Higher = feature is more important for accurate predictions
+- Less biased, more reliable
+
+**When to use**: Final importance ranking, reporting to stakeholders
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**Policy recommendation**: Report **Mean Decrease Accuracy** for stakeholder-facing documents—it's more interpretable.
+:::
+:::
+
+## Random Forest: Strengths and Limitations {.smaller}
+
+::: {layout-ncol=2}
+### Strengths ✓
+::: {.fragment}
+- **Excellent predictive accuracy** (often best off-the-shelf method)
+- **Handles non-linear relationships** automatically
+- **Captures interactions** without specification
+- **No feature standardization** needed
+- **Built-in variable importance**
+- **Robust to outliers**
+- **OOB error** (free validation estimate)
+- **Few hyperparameters** to tune
+:::
+
+### Limitations ✗
+::: {.fragment}
+- **Black box**: Can't explain individual predictions easily
+- **Computationally intensive** (500+ trees)
+- **Memory hungry** (stores all trees)
+- **Extrapolation poor** (can't predict outside training range)
+- **Biased toward continuous features** and high-cardinality features
+- **Less interpretable** than single trees or linear models
+:::
+:::
+
+::: {.fragment}
+::: callout-note
+**Policy trade-off**: Random Forests sacrifice interpretability for accuracy. Use when prediction matters more than explanation!
+:::
+:::
+
+# Part V: Gradient Boosting - Sequential Learning
+
+## A Different Ensemble Strategy {.smaller}
+
+::: {.fragment}
+**Random Forest**: Build many trees **in parallel**, each independent
+:::
+
+::: {.fragment}
+**Gradient Boosting**: Build trees **sequentially**, each learning from previous mistakes
+:::
+
+::: {.fragment}
+**The boosting algorithm**:
+
+1. **Start simple**: Fit shallow tree (just a few splits)
+2. **Find mistakes**: Calculate residuals (actual - predicted)
+3. **Learn from mistakes**: Fit new tree to predict the residuals
+4. **Add correction**: Update predictions = old predictions + (learning rate × new tree)
+5. **Repeat**: Keep adding trees that correct previous errors
+6. **Final prediction**: Sum of all tree contributions
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Instead of averaging independent trees (Random Forest), boosting creates a **committee** where each member focuses on what previous members got wrong!
+:::
+:::
+
+## Boosting Intuition: A Visual {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 6
+
+# Create simple visualization of boosting process
+set.seed(999)
+x <- seq(0, 10, length.out = 100)
+true_y <- sin(x) + 0.3 * x
+noisy_y <- true_y + rnorm(100, 0, 0.5)
+
+# Simulate boosting stages
+stage1 <- rep(mean(noisy_y), 100)  # Start with mean
+residuals1 <- noisy_y - stage1
+stage2 <- stage1 + 0.3 * (residuals1)  # Add first correction
+residuals2 <- noisy_y - stage2  
+stage3 <- stage2 + 0.3 * (residuals2)  # Add second correction
+
+boosting_df <- tibble(
+  x = rep(x, 4),
+  y = c(noisy_y, stage1, stage2, stage3),
+  stage = factor(rep(c("Data", "Stage 1 (mean)", "Stage 2 (+tree 1)", "Stage 3 (+tree 2)"),
+                     each = 100),
+                 levels = c("Data", "Stage 1 (mean)", "Stage 2 (+tree 1)", "Stage 3 (+tree 2)"))
+)
+
+ggplot(boosting_df, aes(x = x, y = y)) +
+  geom_point(data = filter(boosting_df, stage == "Data"), 
+             alpha = 0.3, color = "gray40") +
+  geom_line(data = filter(boosting_df, stage != "Data"),
+            aes(color = stage), size = 1.2) +
+  scale_color_viridis_d(begin = 0.3, end = 0.9) +
+  facet_wrap(~stage, ncol = 4) +
+  labs(title = "How Gradient Boosting Learns Sequentially",
+       subtitle = "Each stage adds a correction to reduce residual errors",
+       x = "Feature", y = "Outcome") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+::: {.fragment}
+**Notice**: Predictions get progressively better as we add more trees!
+:::
+
+## Key Hyperparameters in Gradient Boosting {.smaller}
+
+::: {.fragment}
+**Boosting has more knobs to turn than Random Forests**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Learning Rate (η)
+- **What**: How much each tree contributes
+- **Typical**: 0.01 to 0.3
+- **Small η**: Needs more trees, but better generalization
+- **Large η**: Fewer trees, but risks overfitting
+
+**Analogy**: Step size when walking toward solution
+:::
+
+::: {.fragment}
+### Number of Trees
+- **What**: How many sequential corrections
+- **Typical**: 100 to 10,000+
+- **Too few**: Underfits
+- **Too many**: Can overfit (but slowly with small η)
+
+**Analogy**: How many steps to take
+:::
+
+::: {.fragment}
+### Tree Depth (max_depth)
+- **What**: Complexity of each individual tree
+- **Typical**: 3 to 8
+- **Shallow**: Simple corrections, needs more trees
+- **Deep**: Complex corrections, risks overfitting
+
+**Analogy**: How complex each step is
+:::
+
+::: {.fragment}
+### Subsample
+- **What**: % of data used per tree
+- **Typical**: 0.5 to 1.0
+- **Adds randomness** (like Random Forest)
+- **Stochastic gradient boosting**
+
+**Analogy**: Practice on subset before full game
+:::
+:::
+
+## XGBoost: Extreme Gradient Boosting {.smaller}
+
+::: {.fragment}
+**XGBoost** = Most popular gradient boosting implementation
+:::
+
+::: {.fragment}
+**Why XGBoost dominates Kaggle competitions**:
+
+- **Regularization**: Built-in L1/L2 penalties (like LASSO/Ridge)
+- **Speed**: Highly optimized C++ implementation
+- **Handles missing data**: Built-in imputation strategy
+- **Parallel processing**: Distributes tree building
+- **Custom loss functions**: Optimize any objective
+- **Early stopping**: Automatically stops when validation error stops improving
+:::
+
+::: {.fragment}
+```{r}
+#| eval: false
+
+# XGBoost in R (using caret interface)
+library(xgboost)
+
+xgb_model <- train(
+  factor(enrolled) ~ .,
+  data = train_data,
+  method = "xgbTree",
+  trControl = trainControl(method = "cv", number = 5),
+  tuneGrid = expand.grid(
+    nrounds = c(100, 200, 500),          # Number of trees
+    max_depth = c(3, 5, 7),              # Tree depth
+    eta = c(0.01, 0.1, 0.3),             # Learning rate
+    gamma = 0,                            # Minimum split loss
+    colsample_bytree = 0.8,              # Feature sampling
+    min_child_weight = 1,                # Minimum sum of weights
+    subsample = 0.8                      # Row sampling
+  )
+)
+```
+:::
+
+## Random Forest vs Gradient Boosting {.smaller}
+
+```{r}
+#| echo: false
+
+comparison_table <- tibble(
+  Aspect = c("Building Strategy", "Tree Depth", "Bias-Variance Trade-off", 
+             "Training Speed", "Overfitting Risk", "Hyperparameter Tuning",
+             "Interpretability", "When to Use"),
+  `Random Forest` = c(
+    "Parallel (independent)",
+    "Deep trees",
+    "Reduces variance",
+    "Faster (parallelizable)",
+    "Low (averaging helps)",
+    "Easy (few parameters)",
+    "Moderate (variable importance)",
+    "General purpose, robust"
+  ),
+  `Gradient Boosting` = c(
+    "Sequential (learn from mistakes)",
+    "Shallow trees",
+    "Reduces bias",
+    "Slower (sequential)",
+    "Higher (needs careful tuning)",
+    "Complex (many parameters)",
+    "Lower (complex interactions)",
+    "Competitions, maximum accuracy"
+  )
+)
+
+knitr::kable(comparison_table, caption = "Comparing Ensemble Strategies")
+```
+
+::: {.fragment}
+::: callout-tip
+**Practical advice**: Start with **Random Forest** (easier, more robust). Try **XGBoost** if you need maximum accuracy and have time to tune.
+:::
+:::
+
+# Part VI: Model Interpretation for Policy
+
+## The Interpretability Challenge {.smaller}
+
+::: {.fragment}
+**Problem**: Random Forests and XGBoost are "black boxes"
+:::
+
+::: {.fragment}
+**Policy stakeholders ask**:
+
+- "Why did this family get flagged?"
+- "What should we change to improve enrollment?"
+- "Can you explain this in plain English?"
+:::
+
+::: {.fragment}
+**Three approaches to interpretability**:
+
+1. **Global importance**: Which features matter overall?
+2. **Partial dependence**: How does each feature affect predictions?
+3. **SHAP values**: Why did this specific prediction happen?
+:::
+
+::: {.fragment}
+::: callout-important
+**Policy reality**: You often need to sacrifice some accuracy for interpretability. A slightly worse model you can explain is better than a perfect model you can't defend!
+:::
+:::
+
+## Global Variable Importance {.smaller}
+
+::: {.fragment}
+**We've already seen this for Random Forest**:
+:::
+
+```{r}
+#| fig-width: 9
+#| fig-height: 4
+
+# Use vip package for better visualization
+library(vip)
+
+vip(rf_model, num_features = 5, geom = "col", 
+    aesthetics = list(fill = "steelblue", alpha = 0.8)) +
+  labs(title = "Top 5 Most Important Features",
+       subtitle = "Random Forest Variable Importance (Mean Decrease Accuracy)") +
+  theme_minimal()
+```
+
+::: {.fragment}
+**Stakeholder message**: "The strongest predictors of enrollment are previous service use and having children in the household."
+:::
+
+## Partial Dependence Plots (PDP) {.smaller}
+
+::: {.fragment}
+**Question**: How does enrollment probability change with income, *holding everything else constant*?
+:::
+
+::: {.fragment}
+**How PDPs work**:
+
+1. Pick a feature (e.g., income)
+2. For each value of income (e.g., $30K, $40K, $50K...):
+   - Set everyone's income to that value
+   - Keep all other features at their original values
+   - Make predictions for everyone
+   - Average the predictions
+3. Plot average prediction vs feature value
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Create manual PDP for income
+income_seq <- seq(min(train_data$household_income), 
+                  max(train_data$household_income), 
+                  length.out = 50)
+
+pdp_predictions <- map_dbl(income_seq, function(inc) {
+  temp_data <- train_data
+  temp_data$household_income <- inc
+  preds <- predict(rf_model, temp_data, type = "prob")[, "1"]
+  mean(preds)
+})
+
+pdp_df <- tibble(
+  household_income = income_seq,
+  enrollment_prob = pdp_predictions
+)
+
+ggplot(pdp_df, aes(x = household_income, y = enrollment_prob)) +
+  geom_line(color = "steelblue", size = 1.5) +
+  geom_ribbon(aes(ymin = enrollment_prob - 0.02, 
+                  ymax = enrollment_prob + 0.02),
+              alpha = 0.2, fill = "steelblue") +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Partial Dependence: Income Effect on Enrollment",
+       subtitle = "How predicted enrollment probability changes with income (holding other features constant)",
+       x = "Household Income", 
+       y = "Predicted Enrollment Probability") +
+  theme_minimal()
+```
+
+::: {.fragment}
+**Insight**: Enrollment probability decreases as income increases—wealthier families less likely to enroll.
+:::
+
+## Interaction Effects: 2D PDPs {.smaller}
+
+::: {.fragment}
+**Trees automatically capture interactions**. We can visualize them:
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create 2D PDP for income × children interaction
+income_grid <- seq(min(train_data$household_income), 
+                   max(train_data$household_income), length.out = 30)
+children_grid <- c(0, 1)
+
+pdp_2d <- expand.grid(
+  household_income = income_grid,
+  has_children = children_grid
+) %>%
+  mutate(
+    enrollment_prob = map2_dbl(household_income, has_children, function(inc, kids) {
+      temp_data <- train_data
+      temp_data$household_income <- inc
+      temp_data$has_children <- kids
+      mean(predict(rf_model, temp_data, type = "prob")[, "1"])
+    })
+  )
+
+ggplot(pdp_2d, aes(x = household_income, y = enrollment_prob, 
+                   color = factor(has_children), 
+                   linetype = factor(has_children))) +
+  geom_line(size = 1.5) +
+  scale_color_manual(values = c("0" = "coral", "1" = "steelblue"),
+                     labels = c("No Children", "Has Children"),
+                     name = "") +
+  scale_linetype_manual(values = c("0" = "dashed", "1" = "solid"),
+                        labels = c("No Children", "Has Children"),
+                        name = "") +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format(), limits = c(0, 1)) +
+  labs(title = "Interaction Effect: Income × Children",
+       subtitle = "Income matters more for families WITH children",
+       x = "Household Income",
+       y = "Predicted Enrollment Probability") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Key finding**: The income effect is stronger for families with children—an interaction the model discovered automatically!
+:::
+
+## Practical Interpretation Guidelines {.smaller}
+
+::: {.fragment}
+**For policy stakeholders, provide**:
+:::
+
+::: {.fragment}
+1. **Variable importance**: Top 5-10 drivers (bar chart)
+2. **Partial dependence**: 2-3 most important features (line charts)
+3. **Performance metrics**: Accuracy, precision, recall (confusion matrix)
+4. **Model card**: Summary document with use cases, limitations, bias audit
+:::
+
+::: {.fragment}
+**What NOT to do**:
+
+- Don't show tree diagrams for Random Forests (500 trees is overwhelming!)
+- Don't report coefficients (trees don't have them!)
+- Don't claim causality (still just correlations!)
+- Don't hide model limitations
+:::
+
+::: {.fragment}
+::: callout-note
+**Communication principle**: Focus on *what* the model learned, not *how* it learned it. Stakeholders care about insights, not algorithms!
+:::
+:::
+
+# Part VII: Practical Guidelines and Best Practices
+
+## Choosing the Right Tree Method {.smaller}
+
+```{r}
+#| echo: false
+
+decision_guide <- tibble(
+  Scenario = c(
+    "Need to explain to non-technical audience",
+    "Maximum predictive accuracy required",
+    "Limited computational resources",
+    "Many features, correlated",
+    "Many categorical features (high cardinality)",
+    "Very large datasets (millions of rows)",
+    "Non-linear relationships, unknown interactions",
+    "Regulatory/legal scrutiny expected",
+    "Lots of missing data",
+    "Need GPU acceleration"
+  ),
+  Recommendation = c(
+    "Single Decision Tree (shallow)",
+    "XGBoost or LightGBM (with tuning)",
+    "Single Tree or Random Forest (small)",
+    "Random Forest or Elastic Net",
+    "CatBoost (native categorical handling)",
+    "LightGBM (fastest for big data)",
+    "Random Forest or XGBoost",
+    "Interpretable model (Tree, Linear) + SHAP",
+    "XGBoost or CatBoost (native missing support)",
+    "LightGBM or XGBoost (GPU support)"
+  )
+)
+
+knitr::kable(decision_guide, caption = "Decision Guide: Which Tree Method?")
+```
+
+## Implementation Workflow {.smaller}
+
+::: {.fragment}
+**Best practices for tree-based models in policy**:
+:::
+
+::: {.fragment}
+**1. Start simple, add complexity**
+```r
+# Step 1: Fit baseline single tree
+single_tree <- rpart(outcome ~ ., data = train, maxdepth = 3)
+
+# Step 2: Try Random Forest with defaults  
+rf_default <- randomForest(outcome ~ ., data = train)
+
+# Step 3: Tune Random Forest
+rf_tuned <- train(outcome ~ ., data = train, method = "rf",
+                 tuneGrid = expand.grid(mtry = c(2, 5, 10)))
+
+# Step 4: If needed, try XGBoost
+xgb_model <- train(outcome ~ ., data = train, method = "xgbTree")
+```
+:::
+
+::: {.fragment}
+**2. Always compare to simpler baselines**
+- Logistic regression
+- Elastic net
+- Single decision tree
+:::
+
+::: {.fragment}
+**3. Validate thoroughly**
+- Cross-validation during training
+- Hold-out test set for final evaluation
+- Check performance across subgroups (fairness)
+:::
+
+## Common Pitfalls to Avoid {.smaller}
+
+::: {layout-ncol=2}
+### Technical Mistakes
+::: {.fragment}
+1. **Not tuning hyperparameters**
+   - Default settings rarely optimal
+   
+2. **Overfitting with deep trees**
+   - Use cross-validation to pick depth
+   
+3. **Ignoring class imbalance**
+   - Use class weights or SMOTE
+   
+4. **Not checking feature importance**
+   - May reveal data leakage
+   
+5. **Extrapolation beyond training range**
+   - Trees can't extrapolate!
+:::
+
+### Interpretation Mistakes
+::: {.fragment}
+6. **Confusing prediction with causation**
+   - Trees find correlations, not causes
+   
+7. **Over-interpreting variable importance**
+   - Rankings can be unstable
+   
+8. **Ignoring model uncertainty**
+   - Provide confidence intervals
+   
+9. **Forgetting about fairness**
+   - Check disparate impact across groups
+   
+10. **Not documenting model choices**
+    - Keep record of why you picked this model
+:::
+:::
+
+## Fairness and Bias Considerations {.smaller}
+
+::: {.fragment}
+**Tree models can encode and amplify bias**:
+:::
+
+::: {.fragment}
+**Example**: Historical lending data
+
+- Past discrimination → Biased training data
+- Model learns: "Deny loans to ZIP codes X, Y, Z"
+- These ZIP codes happen to be predominantly minority
+- **Result**: Model perpetuates historical discrimination
+:::
+
+::: {.fragment}
+**Mitigation strategies**:
+
+1. **Audit feature importance**: Do sensitive features (race, gender) matter directly or indirectly?
+2. **Check subgroup performance**: Does accuracy differ by protected groups?
+3. **Remove proxy features**: ZIP code, names, etc. that correlate with protected attributes
+4. **Fairness constraints**: Train with fairness-aware objectives
+5. **Human review**: Don't fully automate high-stakes decisions
+:::
+
+::: {.fragment}
+::: callout-important
+**Policy principle**: Higher accuracy doesn't excuse discrimination. Fairness is a constraint, not an optimization target!
+:::
+:::
+
+## When NOT to Use Tree Models {.smaller}
+
+::: {.fragment}
+**Trees aren't always the answer**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Better Alternatives Exist
+**Use linear models when**:
+- Relationships are roughly linear
+- Need coefficient interpretation
+- Want statistical inference (p-values)
+- Have few features (<20)
+- Need to extrapolate
+
+**Example**: Credit risk assessment
+:::
+
+::: {.fragment}
+### Other Considerations
+**Don't use trees when**:
+- Full transparency required by law
+- Stakeholders demand explainability
+- Computational resources very limited
+- Real-time prediction critical (<1ms)
+- Training data very small (n < 100)
+
+**Example**: Medical diagnosis requiring FDA approval
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**Decision rule**: If linear/logistic regression achieves 90% of tree performance, use the simpler model for policy work!
+:::
+:::
+
+# Part VIII: Looking Forward
+
+## Trees in Modern ML Pipelines {.smaller}
+
+::: {.fragment}
+**Tree-based models are often just one component**:
+:::
+
+::: {.fragment}
+**Typical policy ML pipeline**:
+
+1. **Feature engineering** (manual + automated)
+2. **Try multiple model families**:
+   - Elastic Net (interpretable baseline)
+   - Random Forest (robust default)
+   - XGBoost (maximum accuracy)
+3. **Ensemble different models** (stack them)
+4. **Select based on trade-offs** (accuracy vs interpretability vs computational cost)
+5. **Deploy with monitoring** (detect drift, retrain)
+:::
+
+::: {.fragment}
+**Real-world example**: Fraud detection system
+- **Layer 1**: Rules-based filters (transparent, fast)
+- **Layer 2**: Logistic regression (interpretable)
+- **Layer 3**: Random Forest (final check, high accuracy)
+- **Human review**: Uncertain cases
+:::
+
+## Emerging Trends {.smaller}
+
+::: {.fragment}
+**What's next for tree-based models**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Algorithmic Advances
+- **LightGBM**: Even faster than XGBoost
+- **CatBoost**: Better handling of categorical features
+- **NGBoost**: Probabilistic predictions with uncertainty
+- **AutoML**: Automated end to end modeling pipeline
+:::
+
+::: {.fragment}
+### Interpretability Tools
+- **SHAP values**: Unified framework for model explanations
+- **LIME**: Local interpretable approximations
+- **TreeSHAP**: Fast SHAP for trees
+- **Counterfactual explanations**: "What if" analysis
+:::
+:::
+
+::: {.fragment}
+::: callout-note
+**For next week**: We'll explore unsupervised learning—clustering, PCA, and dimension reduction techniques for discovering patterns without labels!
+:::
+:::
+
+## Key Takeaways {.smaller}
+
+::: {.fragment}
+1. **Decision trees partition feature space** through recursive binary splits, creating interpretable rules
+:::
+
+::: {.fragment}
+2. **Single trees overfit easily** (high variance), making them unstable across different samples
+:::
+
+::: {.fragment}
+3. **Random Forests reduce variance** by averaging many diverse trees (bootstrap + feature randomness)
+:::
+
+::: {.fragment}
+4. **Gradient Boosting reduces bias** by sequentially learning from mistakes (XGBoost is the standard)
+:::
+
+::: {.fragment}
+5. **Variable importance shows what matters**, partial dependence shows how features affect predictions
+:::
+
+::: {.fragment}
+6. **Trees handle non-linearity and interactions automatically**, but sacrifice interpretability
+:::
+
+::: {.fragment}
+7. **Start with Random Forest** (robust, easy), try XGBoost if you need maximum accuracy
+:::
+
+::: {.fragment}
+8. **Always check for bias** and validate fairness across protected groups
+:::
+
+::: {.fragment}
+**Looking ahead**:
+
+- **Week 10** (Dec 1): AI-augmented policy analysis, LLM APIs
+- **Final Exam** (Dec 3): In-class, cumulative
+- **Assignment 3** due Sat Dec 6 (final project report)
+:::
+
+## Course Evaluations: A Collective Action Problem {.smaller}
+
+::: {.fragment}
+**Challenge**: Course evaluations have low response rates, yet they're critical for improving teaching
+:::
+
+::: {.fragment}
+**Incentive structure**: If ≥90% of the class completes evaluations by [deadline], **everyone** gets +0.5% added to their final grade
+:::
+
+::: {.fragment}
+**"Wait, the course is curved—does this help me?"**
+
+Yes! Here's why:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### How It Works
+- +0.5% added to your **raw score** before curving
+- Think of it as **catastrophe insurance**
+:::
+
+::: {.fragment}
+### The Policy Design
+- **Positive externality**: Your response helps everyone
+- **Coordination game**: Need 90% cooperation (Nash equilibrium at high participation)
+- **Low individual cost**: ~5 minutes
+- **Collective benefit**: Buffer against grade anxiety + better course feedback
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**Game theory insight**: Not responding costs **both you AND your classmates** the 0.5% buffer. Your self-interest aligns with the group's interest—classic coordination game where cooperation dominates!
+:::
+:::
+
+## Questions?
+
+::: {.fragment}
+**Remember**: Tree-based models are among the most powerful tools in applied machine learning. They automatically discover non-linear relationships and interactions, making them ideal for complex policy data—but always balance accuracy with interpretability and fairness!
+:::
+
+---
+
