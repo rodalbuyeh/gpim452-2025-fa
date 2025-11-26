@@ -1,0 +1,1580 @@
+---
+title: "Unsupervised Learning and Dimensionality Reduction"
+subtitle: "Finding Hidden Patterns Without Labels"
+author: "Rod Albuyeh"
+date: "11/26/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(patchwork)
+library(cluster)
+library(factoextra)
+library(ggfortify)
+library(GGally)
+set.seed(42)
+```
+
+```{css echo=FALSE}
+.reveal {
+  font-size: 32px;
+}
+
+.reveal h2 {
+  font-size: 1.3em;
+}
+
+.reveal p, .reveal li {
+  font-size: 0.9em;
+}
+
+.reveal pre code {
+  font-size: 0.85em;
+}
+
+.reveal .slides {
+  text-align: center;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Distinguish** between supervised and unsupervised learning approaches
+- **Apply** k-means and hierarchical clustering to discover groups in policy data
+- **Interpret** principal component analysis (PCA) for dimensionality reduction
+- **Evaluate** clustering quality using appropriate metrics
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Unsupervised learning discovers hidden patterns and structure in data without labeled outcomes—essential for exploration, segmentation, and understanding complex policy landscapes before building predictive models.
+:::
+:::
+
+# Part I: What Is Unsupervised Learning?
+
+## Supervised vs Unsupervised: The Fundamental Difference {.smaller}
+
+::: {.fragment}
+**Everything we've learned so far has been supervised learning**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Supervised Learning
+**We have labels**: $(y_i, \mathbf{x}_i)$
+
+**Examples**:
+- Predict program enrollment (yes/no)
+- Predict poverty rate (continuous)
+- Classify fraud (fraud/legitimate)
+
+**Goal**: Learn $\hat{f}(\mathbf{x})$ to predict $y$
+
+**Evaluation**: Compare predictions to actual labels
+:::
+
+::: {.fragment}
+### Unsupervised Learning
+**No labels**: just $(\mathbf{x}_i)$
+
+**Examples**:
+- Group similar counties
+- Find policy archetypes
+- Reduce 100 survey questions to 5 themes
+
+**Goal**: Discover structure, patterns, groups
+
+**Evaluation**: No "ground truth"—must use domain knowledge + internal metrics
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Critical difference**: Unsupervised learning is exploratory. There's no single "right answer"—just useful patterns that help us understand the data!
+:::
+:::
+
+## Why Unsupervised Learning Matters in Policy {.smaller}
+
+::: {.fragment}
+**Real-world policy scenarios where unsupervised learning shines**:
+:::
+
+::: {.fragment}
+**1. Segmentation for Targeted Interventions**
+- **Problem**: 3,000 counties, limited resources, which ones are similar?
+- **Unsupervised approach**: Cluster counties by demographics/economics/health
+- **Outcome**: "Counties in Cluster 3 need job training, Cluster 5 needs healthcare access"
+:::
+
+::: {.fragment}
+**2. Simplifying Complex Survey Data**
+- **Problem**: 200 questions measuring "community well-being"
+- **Unsupervised approach**: PCA to find 5-10 underlying dimensions
+- **Outcome**: "Questions reduce to: Economic Security, Health Access, Social Capital, Education, Safety"
+:::
+
+::: {.fragment}
+**3. Discovering Policy Typologies**
+- **Problem**: What types of cities exist based on policy choices?
+- **Unsupervised approach**: Cluster cities by their policy portfolios
+- **Outcome**: Identify "Progressive Urban," "Conservative Suburban," "Mixed Rural" archetypes
+:::
+
+::: {.fragment}
+**4. Anomaly Detection**
+- **Problem**: Find unusual patterns in government spending
+- **Unsupervised approach**: Identify outliers that don't fit normal clusters
+- **Outcome**: Flag potential fraud or data entry errors
+:::
+
+## The Two Main Families {.smaller}
+
+::: {.fragment}
+**Unsupervised learning splits into two major approaches**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Clustering
+**Goal**: Group similar observations together
+
+**Questions answered**:
+- Which observations are alike?
+- How many distinct groups exist?
+- What characterizes each group?
+
+**Methods**:
+- k-means clustering
+- Hierarchical clustering
+- DBSCAN, Gaussian Mixture Models
+
+**Output**: Group assignments (e.g., "County 1 is in Cluster 3")
+:::
+
+::: {.fragment}
+### Dimensionality Reduction
+**Goal**: Simplify many variables into fewer dimensions
+
+**Questions answered**:
+- What underlying factors drive variation?
+- Can we visualize high-dimensional data?
+- Which variables are redundant?
+
+**Methods**:
+- Principal Component Analysis (PCA)
+- Autoencoders
+- Factor Analysis
+
+**Output**: New variables (e.g., "PC1 captures 45% of variation")
+:::
+:::
+
+::: {.fragment}
+**Today**: We'll dive deep into k-means, hierarchical clustering, and PCA—the foundational techniques.
+:::
+
+# Part II: Clustering - Finding Natural Groups
+
+## The Clustering Problem {.smaller}
+
+::: {.fragment}
+**Setup**: You have n observations with p features, but no labels. How do you find groups?
+:::
+
+::: {.fragment}
+**Intuition**: Observations in the same group should be more similar to each other than to observations in other groups
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create synthetic policy data with clear clusters
+set.seed(123)
+n_counties <- 150
+
+# Create three separate cluster groups
+cluster1 <- tibble(
+  median_income = rnorm(50, 80000, 10000),
+  unemployment = rnorm(50, 3.5, 0.8),
+  cluster = "1"
+)
+
+cluster2 <- tibble(
+  median_income = rnorm(50, 35000, 8000),
+  unemployment = rnorm(50, 8.5, 1.2),
+  cluster = "2"
+)
+
+cluster3 <- tibble(
+  median_income = rnorm(50, 60000, 10000),
+  unemployment = rnorm(50, 5.5, 1.0),
+  cluster = "3"
+)
+
+# Combine and create labels
+cluster_data <- bind_rows(cluster1, cluster2, cluster3) %>%
+  mutate(
+    cluster_label = factor(case_when(
+      cluster == "1" ~ "Urban\n(High Income, Low Unemployment)",
+      cluster == "2" ~ "Rural\n(Low Income, High Unemployment)",
+      cluster == "3" ~ "Suburban\n(Medium Income, Medium Unemployment)"
+    ))
+  )
+
+ggplot(cluster_data, aes(x = median_income, y = unemployment, color = cluster_label)) +
+  geom_point(size = 3, alpha = 0.7) +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  scale_color_viridis_d(name = "True Groups\n(unknown in practice)") +
+  labs(title = "County Economic Profiles: Natural Groupings",
+       subtitle = "Can we discover these 3 groups automatically?",
+       x = "Median Household Income",
+       y = "Unemployment Rate") +
+  theme_minimal() +
+  theme(legend.position = "right",
+        legend.text = element_text(size = 9))
+```
+
+::: {.fragment}
+**The challenge**: In real data, we don't know the true groups. We need algorithms to discover them!
+:::
+
+## k-Means Clustering: The Algorithm {.smaller}
+
+::: {.fragment}
+**k-means** is the most popular clustering algorithm. It's simple, fast, and often works well.
+:::
+
+::: {.fragment}
+**The algorithm (Lloyd's algorithm)**:
+
+1. **Choose k**: Decide how many clusters you want
+2. **Initialize**: Randomly place k "centroids" (cluster centers)
+3. **Assign**: Assign each observation to nearest centroid
+4. **Update**: Move each centroid to the mean of its assigned points
+5. **Repeat steps 3-4** until centroids stop moving (convergence)
+:::
+
+::: {.fragment}
+**Objective**: Minimize within-cluster sum of squares (WCSS)
+
+$$\text{WCSS} = \sum_{k=1}^K \sum_{i \in C_k} \|\mathbf{x}_i - \boldsymbol{\mu}_k\|^2$$
+
+Where:
+- $C_k$ = set of observations assigned to cluster $k$
+- $i \in C_k$ = "for all observations $i$ in cluster $k$"
+- $\boldsymbol{\mu}_k$ = centroid (mean) of cluster $k$
+- $\|\mathbf{x}_i - \boldsymbol{\mu}_k\|^2$ = squared distance from observation $i$ to its cluster center
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: k-means finds clusters by making observations within each cluster as close to their center as possible!
+:::
+:::
+
+## k-Means: Visual Walkthrough {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 7
+
+# Demonstrate k-means iterations with deliberately poor initialization
+set.seed(456)
+sample_data <- cluster_data %>%
+  select(median_income, unemployment) %>%
+  sample_n(90) %>%
+  as.matrix()
+
+# Start with TERRIBLE initial centers (far from the actual clusters)
+# These are in completely wrong regions of the space
+init_centers <- matrix(c(
+  30000, 4.0,    # Center 1: far left, low unemployment (wrong!)
+  55000, 11.0,   # Center 2: middle, very high unemployment (wrong!)
+  85000, 7.0     # Center 3: far right, high unemployment (wrong!)
+), ncol = 2, byrow = TRUE)
+
+# Manually compute k-means iterations to show the actual process
+# Iteration 0: Store initial (bad) centers
+iter0_centers <- init_centers
+
+# Iteration 1: Assign points to nearest center, then compute new centers
+distances <- as.matrix(dist(rbind(sample_data, init_centers)))
+distances <- distances[1:nrow(sample_data), (nrow(sample_data)+1):ncol(distances)]
+iter1_clusters <- apply(distances, 1, which.min)
+iter1_centers <- t(sapply(1:3, function(k) {
+  if (sum(iter1_clusters == k) > 0) {
+    colMeans(sample_data[iter1_clusters == k, , drop = FALSE])
+  } else {
+    init_centers[k, ]
+  }
+}))
+
+# Iteration 2: Reassign and recompute
+distances2 <- as.matrix(dist(rbind(sample_data, iter1_centers)))
+distances2 <- distances2[1:nrow(sample_data), (nrow(sample_data)+1):ncol(distances2)]
+iter2_clusters <- apply(distances2, 1, which.min)
+iter2_centers <- t(sapply(1:3, function(k) {
+  if (sum(iter2_clusters == k) > 0) {
+    colMeans(sample_data[iter2_clusters == k, , drop = FALSE])
+  } else {
+    iter1_centers[k, ]
+  }
+}))
+
+# Final: Converged solution (for comparison)
+sample_data_df <- as_tibble(sample_data)
+km_final <- kmeans(sample_data_df, centers = 3, nstart = 25, iter.max = 100)
+final_clusters <- km_final$cluster
+final_centers <- km_final$centers
+
+# Convert to tibbles for plotting
+sample_data <- as_tibble(sample_data)
+iter0_centers <- as_tibble(iter0_centers)
+iter1_centers <- as_tibble(iter1_centers)
+iter2_centers <- as_tibble(iter2_centers)
+final_centers <- as_tibble(final_centers)
+colnames(iter0_centers) <- colnames(iter1_centers) <- colnames(iter2_centers) <- c("median_income", "unemployment")
+
+# Create visualization panels for 4 stages
+plot_data_iter0 <- sample_data %>%
+  mutate(cluster = factor(iter1_clusters),  # Use iter1 assignments
+         stage = "Iter 0: Bad Start")
+
+plot_data_iter1 <- sample_data %>%
+  mutate(cluster = factor(iter1_clusters),
+         stage = "Iter 1: First Move")
+
+plot_data_iter2 <- sample_data %>%
+  mutate(cluster = factor(iter2_clusters),
+         stage = "Iter 2: Improving")
+
+plot_data_final <- sample_data %>%
+  mutate(cluster = factor(final_clusters),
+         stage = "Converged")
+
+plot_data_all <- bind_rows(plot_data_iter0, plot_data_iter1, plot_data_iter2, plot_data_final) %>%
+  mutate(stage = factor(stage, levels = c("Iter 0: Bad Start", 
+                                          "Iter 1: First Move", 
+                                          "Iter 2: Improving",
+                                          "Converged")))
+
+centers_data <- bind_rows(
+  iter0_centers %>% mutate(stage = "Iter 0: Bad Start"),
+  iter1_centers %>% mutate(stage = "Iter 1: First Move"),
+  iter2_centers %>% mutate(stage = "Iter 2: Improving"),
+  final_centers %>% mutate(stage = "Converged")
+) %>%
+  mutate(stage = factor(stage, levels = c("Iter 0: Bad Start",
+                                          "Iter 1: First Move",
+                                          "Iter 2: Improving",
+                                          "Converged")))
+
+ggplot(plot_data_all, aes(x = median_income, y = unemployment, color = cluster)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  geom_point(data = centers_data, aes(x = median_income, y = unemployment),
+             shape = 4, size = 6, stroke = 2, color = "black") +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  scale_color_viridis_d() +
+  facet_wrap(~stage, ncol = 4) +
+  labs(title = "k-Means Algorithm: Iterative Convergence from Terrible Initialization",
+       subtitle = "Black X marks show centroids moving from completely wrong positions (left) to optimal locations (right)",
+       x = "Median Household Income",
+       y = "Unemployment Rate") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        strip.text = element_text(size = 10, face = "bold"))
+```
+
+::: {.fragment}
+**Notice**: Starting with all three centers clustered together (poor initialization), they progressively spread out and move toward the true cluster centers. This shows why k-means uses `nstart = 25` to try multiple random initializations!
+:::
+
+## k-Means in Action: County Clustering {.smaller}
+
+```{r}
+# Prepare data for clustering
+county_features <- cluster_data %>%
+  select(median_income, unemployment) %>%
+  scale()  # Standardize features (critical for k-means!)
+
+# Fit k-means with k=3
+set.seed(42)
+kmeans_result <- kmeans(county_features, centers = 3, nstart = 25)
+
+# Add cluster assignments back to original data
+cluster_data <- cluster_data %>%
+  mutate(assigned_cluster = factor(kmeans_result$cluster))
+
+# Examine cluster centers (in original scale)
+cluster_centers <- cluster_data %>%
+  group_by(assigned_cluster) %>%
+  summarise(
+    median_income = mean(median_income),
+    unemployment = mean(unemployment),
+    n_counties = n()
+  )
+
+knitr::kable(cluster_centers, 
+             digits = 0,
+             col.names = c("Cluster", "Avg Income", "Avg Unemployment (%)", "# Counties"),
+             caption = "k-Means Cluster Profiles")
+```
+
+::: {.fragment}
+**Interpretation**: k-means successfully identified three distinct county types!
+:::
+
+## Visualizing k-Means Results {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create cluster centers in original scale
+centers_df <- as_tibble(kmeans_result$centers) %>%
+  mutate(
+    median_income = median_income * sd(cluster_data$median_income) + mean(cluster_data$median_income),
+    unemployment = unemployment * sd(cluster_data$unemployment) + mean(cluster_data$unemployment),
+    assigned_cluster = factor(1:3)
+  )
+
+ggplot(cluster_data, aes(x = median_income, y = unemployment, 
+                        color = assigned_cluster, shape = assigned_cluster)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_point(data = centers_df, aes(x = median_income, y = unemployment),
+             size = 8, shape = 4, stroke = 2, color = "black") +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  scale_color_viridis_d(name = "Cluster", labels = c("1: Urban", "2: Rural", "3: Suburban")) +
+  scale_shape_discrete(name = "Cluster", labels = c("1: Urban", "2: Rural", "3: Suburban")) +
+  labs(title = "k-Means Clustering Results: County Economic Profiles",
+       subtitle = "Black X marks show cluster centers (centroids)",
+       x = "Median Household Income",
+       y = "Unemployment Rate") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Policy application**: Now we can design different interventions for each cluster type!
+:::
+
+## The Crucial Question: How Many Clusters (k)? {.smaller}
+
+::: {.fragment}
+**Problem**: k-means requires YOU to choose k upfront. But how do you know the "right" k?
+:::
+
+::: {.fragment}
+**Bad news**: There's no single "correct" answer—depends on your goals!
+:::
+
+::: {.fragment}
+**Good news**: We have methods to guide the choice:
+:::
+
+::: {.fragment}
+**1. Elbow Method**: Plot within-cluster sum of squares (WCSS) vs k
+
+- WCSS always decreases as k increases
+- Look for "elbow" where adding more clusters gives diminishing returns
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Calculate WCSS for different k values
+wcss_values <- map_dbl(1:10, function(k) {
+  km <- kmeans(county_features, centers = k, nstart = 25)
+  km$tot.withinss
+})
+
+elbow_data <- tibble(
+  k = 1:10,
+  wcss = wcss_values
+)
+
+ggplot(elbow_data, aes(x = k, y = wcss)) +
+  geom_line(size = 1.2, color = "steelblue") +
+  geom_point(size = 3, color = "steelblue") +
+  geom_vline(xintercept = 3, linetype = "dashed", color = "red", alpha = 0.6) +
+  annotate("text", x = 3.3, y = max(elbow_data$wcss) * 0.8, 
+           label = "Elbow at k=3", color = "red", hjust = 0, size = 5) +
+  scale_x_continuous(breaks = 1:10) +
+  labs(title = "Elbow Method: Choosing k",
+       subtitle = "Look for the 'elbow' where improvement slows",
+       x = "Number of Clusters (k)",
+       y = "Within-Cluster Sum of Squares (WCSS)") +
+  theme_minimal()
+```
+
+::: {.fragment}
+**Here**: Clear elbow at k=3, suggesting 3 clusters is appropriate!
+:::
+
+
+## k-Means: Strengths and Limitations {.smaller}
+
+::: {layout-ncol=2}
+### Strengths ✓
+::: {.fragment}
+- **Fast**: Scales to large datasets (millions of points)
+- **Simple**: Easy to understand and implement
+- **Guaranteed convergence**: Always finds a solution
+- **Works well** for spherical, well-separated clusters
+- **Memory efficient**: Only stores centers
+:::
+
+### Limitations ✗
+::: {.fragment}
+- **Must choose k** upfront (no automatic selection)
+- **Sensitive to initialization** (run with multiple starts)
+- **Assumes spherical clusters** (equal variance)
+- **Sensitive to outliers** (outliers pull centroids)
+- **Requires feature scaling** (different units problematic)
+- **Hard cluster assignment** (each point gets exactly one cluster)
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Critical preprocessing**: ALWAYS standardize features before k-means! Otherwise, variables with larger scales dominate the distance calculations.
+:::
+:::
+
+## Beyond k-Means: Hierarchical Clustering {.smaller}
+
+::: {.fragment}
+**Problem with k-means**: Must choose k upfront. What if we want to explore multiple levels of grouping?
+:::
+
+::: {.fragment}
+**Hierarchical clustering** builds a tree (dendrogram) showing nested clusters at all levels!
+:::
+
+::: {.fragment}
+**Two approaches**:
+
+1. **Agglomerative (bottom-up)**: Start with each point as its own cluster, merge similar ones
+2. **Divisive (top-down)**: Start with all points in one cluster, split recursively
+:::
+
+::: {.fragment}
+**Agglomerative algorithm** (most common):
+
+1. Start: Each observation is its own cluster (n clusters)
+2. Find the two closest clusters
+3. Merge them into one cluster
+4. Repeat steps 2-3 until only one cluster remains
+5. Result: A tree showing all possible clusterings!
+:::
+
+::: {.fragment}
+**Key choice**: How do we measure "closeness" between clusters (linkage)?
+:::
+
+## Linkage Methods {.smaller}
+
+::: {.fragment}
+**When merging clusters A and B, how do we define their distance?**
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Single Linkage
+Distance = minimum distance between any two points
+
+$$d(A, B) = \min_{i \in A, j \in B} d(i, j)$$
+
+**Tends to**: Create long, stringy clusters (chaining)
+:::
+
+::: {.fragment}
+### Complete Linkage
+Distance = maximum distance between any two points
+
+$$d(A, B) = \max_{i \in A, j \in B} d(i, j)$$
+
+**Tends to**: Create compact, spherical clusters
+:::
+
+::: {.fragment}
+### Average Linkage
+Distance = average of all pairwise distances
+
+$$d(A, B) = \frac{1}{|A||B|}\sum_{i \in A, j \in B} d(i, j)$$
+
+**Tends to**: Balance between single and complete
+:::
+
+::: {.fragment}
+### Ward's Method
+Minimize within-cluster variance (like k-means objective)
+
+**Tends to**: Create equal-sized clusters (most popular!)
+:::
+:::
+
+## Hierarchical Clustering in Action {.smaller}
+
+```{r}
+# Perform hierarchical clustering
+hc_result <- hclust(dist(county_features), method = "ward.D2")
+
+# Cut tree to get 3 clusters
+hc_clusters <- cutree(hc_result, k = 3)
+
+# Add to data
+cluster_data <- cluster_data %>%
+  mutate(hc_cluster = factor(hc_clusters))
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 6
+
+# Plot dendrogram
+fviz_dend(hc_result, k = 3, 
+          cex = 0.5,
+          color_labels_by_k = TRUE,
+          rect = TRUE,
+          rect_border = "steelblue",
+          rect_fill = TRUE,
+          main = "Hierarchical Clustering Dendrogram (Ward's Method)",
+          xlab = "Counties",
+          ylab = "Height (Distance)",
+          sub = "Red boxes show the 3 clusters when tree is cut at height ≈ 6")
+```
+
+::: {.fragment}
+**Reading the dendrogram**: Height shows how different clusters are. Lower merges = more similar.
+:::
+
+## Comparing k-Means vs Hierarchical {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+
+# Compare the two clustering methods
+p1 <- ggplot(cluster_data, aes(x = median_income, y = unemployment, 
+                               color = assigned_cluster)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  scale_color_viridis_d(name = "Cluster") +
+  labs(title = "k-Means Clustering",
+       x = "Median Income", y = "Unemployment Rate") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+p2 <- ggplot(cluster_data, aes(x = median_income, y = unemployment,
+                               color = hc_cluster)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  scale_color_viridis_d(name = "Cluster") +
+  labs(title = "Hierarchical Clustering (Ward)",
+       x = "Median Income", y = "Unemployment Rate") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+p1 + p2
+```
+
+::: {.fragment}
+**Notice**: Both methods find similar groups, but boundaries differ slightly. This is normal!
+:::
+
+## When to Use Each Method {.smaller}
+
+```{r}
+#| echo: false
+
+comparison_table <- tibble(
+  Aspect = c("Speed", "Scalability", "Choose k", "Cluster Shape", 
+             "Interpretability", "Deterministic", "When to Use"),
+  `k-Means` = c(
+    "Fast (O(nkp))",
+    "Millions of points",
+    "Must specify upfront",
+    "Assumes spherical",
+    "Moderate (centers)",
+    "No (random init)",
+    "Large datasets, known k, spherical clusters"
+  ),
+  `Hierarchical` = c(
+    "Slower (O(n² log n))",
+    "Thousands of points max",
+    "Can explore all k",
+    "Any shape",
+    "High (dendrogram)",
+    "Yes (deterministic)",
+    "Small datasets, explore structure, need dendrogram"
+  )
+)
+
+knitr::kable(comparison_table, caption = "k-Means vs Hierarchical Clustering")
+```
+
+::: {.fragment}
+::: callout-tip
+**Practical advice**: Try k-means first (fast, scales well). Use hierarchical clustering for smaller datasets when you want to explore the hierarchy or create visualizations for stakeholders.
+:::
+:::
+
+# Part III: Principal Component Analysis (PCA)
+
+## The Dimensionality Problem {.smaller}
+
+::: {.fragment}
+**Scenario**: You have survey data with 50 questions measuring community well-being
+:::
+
+::: {.fragment}
+**Challenges**:
+
+- 50 dimensions are hard to visualize
+- Many questions are correlated (ask similar things)
+- Hard to interpret what "matters most"
+- Models may overfit with so many features
+:::
+
+::: {.fragment}
+**Question**: Can we reduce 50 dimensions to 5-10 **without losing much information**?
+:::
+
+::: {.fragment}
+**Answer**: Yes! **Principal Component Analysis (PCA)**
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: PCA finds new variables (principal components) that capture the maximum variance in the data. The first few components often capture most of the information!
+:::
+:::
+
+## What PCA Does: Geometric Intuition {.smaller}
+
+::: {.fragment}
+**PCA finds new coordinate axes that align with the directions of maximum variance**:
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Create correlated 2D data for visualization
+set.seed(789)
+n <- 100
+x1 <- rnorm(n)
+x2 <- 0.8 * x1 + rnorm(n, 0, 0.3)
+
+pca_demo_data <- tibble(x1, x2)
+pca_result_demo <- prcomp(pca_demo_data, scale = TRUE)
+
+# Extract PC directions
+pc1_direction <- pca_result_demo$rotation[, 1]
+pc2_direction <- pca_result_demo$rotation[, 2]
+
+# Create arrows for PC directions
+arrow_length <- 3
+arrows <- tibble(
+  x = c(0, 0),
+  y = c(0, 0),
+  xend = c(pc1_direction[1] * arrow_length, pc2_direction[1] * arrow_length),
+  yend = c(pc1_direction[2] * arrow_length, pc2_direction[2] * arrow_length),
+  PC = c("PC1 (87% variance)", "PC2 (13% variance)")
+)
+
+ggplot(pca_demo_data, aes(x = x1, y = x2)) +
+  geom_point(alpha = 0.5, size = 2) +
+  geom_segment(data = arrows, aes(x = x, y = y, xend = xend, yend = yend, color = PC),
+               arrow = arrow(length = unit(0.3, "inches"), type = "closed"),
+               size = 1.5) +
+  scale_color_manual(values = c("PC1 (87% variance)" = "red", 
+                                "PC2 (13% variance)" = "blue"),
+                     name = "Principal Components") +
+  coord_equal() +
+  labs(title = "PCA Finds Directions of Maximum Variance",
+       subtitle = "PC1 (red) captures most variation, PC2 (blue) captures remaining variation",
+       x = "Original Variable 1", y = "Original Variable 2") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+::: {.fragment}
+**Key property**: Principal components are **orthogonal** (uncorrelated) to each other!
+:::
+
+## PCA: The Mathematics {.smaller}
+
+::: {.fragment}
+**PCA finds new variables (principal components) as linear combinations of original variables**:
+:::
+
+::: {.fragment}
+$$\text{PC}_1 = w_{11}X_1 + w_{12}X_2 + \cdots + w_{1p}X_p$$
+$$\text{PC}_2 = w_{21}X_1 + w_{22}X_2 + \cdots + w_{2p}X_p$$
+$$\vdots$$
+$$\text{PC}_p = w_{p1}X_1 + w_{p2}X_2 + \cdots + w_{pp}X_p$$
+:::
+
+::: {.fragment}
+**Constraints**:
+
+1. **PC1 has maximum variance** among all possible linear combinations
+2. **PC2 has maximum variance** among all combinations orthogonal to PC1
+3. **PC3 has maximum variance** among all combinations orthogonal to PC1 and PC2
+4. ... and so on
+
+Each component is a **weighted average** of the original features!
+:::
+
+::: {.fragment}
+**Technical note**: The weights ($w_{ij}$) come from the eigenvectors of the covariance matrix. PCA is fundamentally an eigenvalue decomposition!
+:::
+
+## PCA on Real Policy Data {.smaller}
+
+::: {.fragment}
+**Example**: County-level data with **20 socioeconomic variables**
+
+This is where PCA shines - too many dimensions to visualize or interpret!
+:::
+
+```{r}
+# Create high-dimensional county dataset (20 variables!)
+set.seed(999)
+n_counties_pca <- 150
+
+county_data <- tibble(
+  county_id = 1:n_counties_pca,
+  # Economic indicators
+  median_income = rnorm(n_counties_pca, 55000, 15000),
+  unemployment_rate = rnorm(n_counties_pca, 5.5, 2),
+  poverty_rate = rnorm(n_counties_pca, 12, 4),
+  gini_index = rnorm(n_counties_pca, 0.45, 0.05),
+  median_home_value = rnorm(n_counties_pca, 250000, 80000),
+  
+  # Demographics
+  median_age = rnorm(n_counties_pca, 38, 8),
+  percent_white = rnorm(n_counties_pca, 65, 20),
+  percent_hispanic = rnorm(n_counties_pca, 18, 12),
+  percent_black = rnorm(n_counties_pca, 13, 10),
+  population_density = rexp(n_counties_pca, rate = 1/500),
+  
+  # Education
+  percent_college = rnorm(n_counties_pca, 35, 10),
+  percent_hs_grad = rnorm(n_counties_pca, 88, 6),
+  per_pupil_spending = rnorm(n_counties_pca, 12000, 3000),
+  
+  # Health
+  life_expectancy = rnorm(n_counties_pca, 78, 3),
+  percent_insured = rnorm(n_counties_pca, 90, 5),
+  obesity_rate = rnorm(n_counties_pca, 30, 6),
+  
+  # Infrastructure
+  broadband_access = rnorm(n_counties_pca, 82, 12),
+  commute_time_mins = rnorm(n_counties_pca, 25, 8),
+  
+  # Political
+  voter_turnout = rnorm(n_counties_pca, 65, 10),
+  dem_vote_share = rnorm(n_counties_pca, 48, 15)
+) %>%
+  mutate(
+    # Create realistic correlations
+    unemployment_rate = pmax(1, 15 - 0.0001 * median_income + unemployment_rate),
+    percent_college = pmax(10, 10 + 0.0003 * median_income + percent_college),
+    poverty_rate = pmax(0, 30 - 0.0002 * median_income + poverty_rate),
+    median_home_value = pmax(50000, median_home_value + 2 * median_income),
+    life_expectancy = pmax(70, life_expectancy + 0.00005 * median_income),
+    broadband_access = pmax(40, pmin(98, broadband_access + 0.0002 * population_density)),
+    obesity_rate = pmax(15, obesity_rate - 0.0001 * median_income)
+  )
+
+# Show structure
+county_data %>% 
+  select(1:6) %>%
+  head(3)
+```
+
+::: {.fragment}
+**Challenge**: How do we understand patterns in 20-dimensional space? 🤯
+:::
+
+## Performing PCA {.smaller}
+
+```{r}
+# Standardize and run PCA
+county_features_pca <- county_data %>%
+  select(-county_id) %>%
+  scale()
+
+pca_result <- prcomp(county_features_pca)
+
+# Variance explained by each component
+variance_explained <- tibble(
+  PC = paste0("PC", 1:length(pca_result$sdev)),
+  variance = pca_result$sdev^2,
+  prop_variance = variance / sum(variance),
+  cumulative_variance = cumsum(prop_variance)
+)
+
+# Show first 8 components (enough to see the pattern)
+knitr::kable(head(variance_explained, 8), 
+             digits = 3,
+             col.names = c("Component", "Variance", "Prop. Variance", "Cumulative"),
+             caption = "Variance Explained by Principal Components (first 8 of 20)")
+```
+
+::: {.fragment}
+**Key finding**: First 5 components capture ~60% of variance. First 10 capture ~85%!
+
+We've reduced 20 dimensions to 5 while retaining most information.
+:::
+
+## Visualizing Variance Explained {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+
+# Scree plot (first 10 components for clarity)
+variance_plot <- variance_explained %>%
+  head(10) %>%
+  mutate(PC = factor(PC, levels = PC))
+
+p1 <- ggplot(variance_plot, aes(x = PC, y = prop_variance)) +
+  geom_col(fill = "steelblue", alpha = 0.8) +
+  geom_line(aes(group = 1), color = "red", size = 1) +
+  geom_point(color = "red", size = 3) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Scree Plot: Variance by Component",
+       subtitle = "Clear 'elbow' after PC1 suggests keeping 1 component",
+       x = "Principal Component",
+       y = "Proportion of Variance Explained") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0))
+
+# Cumulative variance
+p2 <- ggplot(variance_plot, aes(x = PC, y = cumulative_variance)) +
+  geom_col(fill = "darkgreen", alpha = 0.8) +
+  geom_line(aes(group = 1), color = "red", size = 1) +
+  geom_point(color = "red", size = 3) +
+  geom_hline(yintercept = 0.8, linetype = "dashed", color = "blue", alpha = 0.6) +
+  annotate("text", x = 7, y = 0.82, label = "80% threshold", color = "blue", size = 4) +
+  scale_y_continuous(labels = percent_format(), limits = c(0, 1)) +
+  labs(title = "Cumulative Variance Explained",
+       subtitle = "First 6 PCs capture ~50%",
+       x = "Principal Component",
+       y = "Cumulative Proportion") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0))
+
+p1 + p2
+```
+
+::: {.fragment}
+**Decision**: We have to pick the first N components that capture enough variance, how far do we go?
+:::
+
+## Interpreting Principal Components: Loadings {.smaller}
+
+::: {.fragment}
+**Question**: What do the principal components *mean*? 
+:::
+
+::: {.fragment}
+**Answer**: Look at the **loadings** (weights) on each original variable!
+:::
+
+```{r}
+# Extract and display loadings for first 3 PCs
+loadings <- as_tibble(pca_result$rotation[, 1:3], rownames = "Variable") %>%
+  rename(PC1 = PC1, PC2 = PC2, PC3 = PC3) %>%
+  arrange(desc(abs(PC1)))
+
+knitr::kable(head(loadings, 12), 
+             digits = 3,
+             caption = "Top 12 PCA Loadings: How Original Variables Map to Components")
+```
+
+
+## Visualizing Loadings (Biplot) {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 7
+
+# Create biplot with selected key variables (avoid clutter with 20 variables)
+key_vars <- c("median_income", "unemployment_rate", "poverty_rate", 
+              "percent_college", "population_density", "life_expectancy",
+              "median_home_value", "broadband_access")
+
+# Get loadings for key variables
+key_loadings <- pca_result$rotation[key_vars, 1:2] * 4  # Scale arrows for visibility
+
+# PC scores for counties
+pc_scores <- as_tibble(pca_result$x[, 1:2])
+
+ggplot(pc_scores, aes(x = PC1, y = PC2)) +
+  geom_point(alpha = 0.4, size = 2, color = "gray50") +
+  # Add loading arrows
+  geom_segment(data = as_tibble(key_loadings, rownames = "Variable"),
+               aes(x = 0, y = 0, xend = PC1, xend = PC2),
+               arrow = arrow(length = unit(0.3, "cm")),
+               color = "red", size = 1, alpha = 0.7) +
+  geom_text(data = as_tibble(key_loadings, rownames = "Variable"),
+            aes(x = PC1, y = PC2, label = Variable),
+            color = "darkred", size = 3.5, fontface = "bold",
+            nudge_x = 0.5, nudge_y = 0.3) +
+  labs(title = "PCA Biplot: Counties in PC1-PC2 Space",
+       subtitle = "Red arrows show key variables driving the principal components (8 of 20 shown)",
+       x = paste0("PC1 (", round(variance_explained$prop_variance[1] * 100, 1), "% variance)"),
+       y = paste0("PC2 (", round(variance_explained$prop_variance[2] * 100, 1), "% variance)")) +
+  theme_minimal()
+```
+
+::: {.fragment}
+**Reading the biplot**: 
+
+- Each point is a county in the reduced 2D space
+- Arrows show original variables; longer arrows = stronger contribution to PCs
+- Variables pointing in same direction are correlated
+:::
+
+## Using PCA for Visualization {.smaller}
+
+::: {.fragment}
+**One of PCA's best uses**: Visualize high-dimensional data in 2D or 3D!
+:::
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+# Add PC scores back to original data
+county_data_with_pcs <- county_data %>%
+  bind_cols(as_tibble(pca_result$x[, 1:3])) %>%
+  mutate(
+    income_category = case_when(
+      median_income < 45000 ~ "Low Income",
+      median_income < 65000 ~ "Middle Income",
+      TRUE ~ "High Income"
+    ),
+    income_category = factor(income_category, 
+                            levels = c("Low Income", "Middle Income", "High Income"))
+  )
+
+ggplot(county_data_with_pcs, aes(x = PC1, y = PC2, color = income_category, size = population_density)) +
+  geom_point(alpha = 0.7) +
+  scale_color_manual(values = c("Low Income" = "coral", 
+                                "Middle Income" = "steelblue",
+                                "High Income" = "darkgreen"),
+                     name = "Income Category") +
+  scale_size_continuous(name = "Population\nDensity", range = c(1, 6)) +
+  labs(title = "Counties Visualized in Principal Component Space",
+       subtitle = "20 dimensions reduced to 2 for easy visualization",
+       x = paste0("PC1: Economic Prosperity (", round(variance_explained$prop_variance[1] * 100, 1), "%)"),
+       y = paste0("PC2: Urbanization (", round(variance_explained$prop_variance[2] * 100, 1), "%)")) +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Insight**: Clear separation by income in PC1, with urban/rural distinction in PC2!
+:::
+
+## PCA: Strengths and Limitations {.smaller}
+
+::: {layout-ncol=2}
+### Strengths ✓
+::: {.fragment}
+- **Reduces dimensionality** while preserving variance
+- **Reveals correlation structure** in data
+- **Enables visualization** of high-dimensional data
+- **No labels needed** (unsupervised)
+- **Removes multicollinearity** (PCs are uncorrelated)
+- **Data compression** (store fewer numbers)
+- **Feature engineering** (use PCs as features in models)
+:::
+
+### Limitations ✗
+::: {.fragment}
+- **Assumes linearity** (linear combinations only)
+- **Sensitive to scale** (must standardize!)
+- **Hard to interpret** (what is "PC3"?)
+- **Loses original feature meaning**
+- **Assumes Gaussian structure** works best
+- **Not robust to outliers**
+- **No sparsity** (all variables contribute to all PCs)
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Critical preprocessing**: ALWAYS standardize features before PCA! Variables with larger scales will dominate the principal components.
+:::
+:::
+
+## When to Use PCA in Policy Work {.smaller}
+
+::: {.fragment}
+**PCA is useful for**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Good Use Cases
+**1. Survey dimension reduction**
+- 100 survey questions → 10 underlying themes
+- Example: Well-being survey
+
+**2. Visualization**
+- Plot high-dimensional data in 2D
+- Example: County comparison dashboard
+
+**3. Noise reduction**
+- Remove low-variance components
+- Example: Sensor data preprocessing
+
+**4. Multicollinearity**
+- Create uncorrelated features for regression
+- Example: Economic indicators
+:::
+
+::: {.fragment}
+### When NOT to Use
+**1. Need interpretability**
+- PCs are hard to explain to stakeholders
+- Use domain-specific indices instead
+
+**2. Categorical variables**
+- PCA assumes continuous variables
+- Use Multiple Correspondence Analysis (MCA)
+
+**3. Non-linear structure**
+- PCA only finds linear combinations
+- Try kernel PCA or autoencoders for non-linear reduction
+
+**4. Sparse data (many zeros)**
+- Standard PCA doesn't handle well
+- Use sparse PCA or matrix factorization
+:::
+:::
+
+## Alternative Dimensionality Reduction Methods {.smaller}
+
+::: {.fragment}
+**PCA isn't the only option**:
+:::
+
+::: {.fragment}
+```{r}
+#| echo: false
+
+dim_red_methods <- tibble(
+  Method = c("PCA", "Factor Analysis", "ICA", "Multidimensional Scaling", "t-SNE", "UMAP"),
+  `Best For` = c(
+    "Linear structure, data compression, feature engineering",
+    "Identifying latent factors (psychology/surveys)",
+    "Independent sources (signal processing)",
+    "Preserving pairwise distances (e.g., city proximity)",
+    "2D/3D visualization only (non-linear)",
+    "2D/3D visualization only (faster than t-SNE)"
+  ),
+  Speed = c("Fast", "Medium", "Medium", "Slow", "Slow", "Fast"),
+  `Can Use for Modeling` = c("Yes", "Yes", "Yes", "Yes", "No (viz only)", "No (viz only)"),
+  Notes = c(
+    "Maximizes variance",
+    "Latent variables",
+    "Statistical independence",
+    "Multidimensional Scaling",
+    "Stochastic, non-linear",
+    "Better global structure"
+  )
+)
+
+knitr::kable(dim_red_methods, caption = "Dimensionality Reduction vs Visualization Methods")
+```
+:::
+
+::: {.fragment}
+::: callout-important
+**Critical distinction**: t-SNE and UMAP are **visualization-only** techniques that reduce to 2D/3D for plotting. They're stochastic, non-invertible, and don't preserve distances globally—you can't use their outputs as features in downstream models. PCA, Factor Analysis, and ICA produce general-purpose reduced dimensions suitable for modeling.
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**For policy work**: Use **PCA** when you need interpretable dimensions for modeling. Use **t-SNE/UMAP** only for creating exploratory 2D visualizations of complex data.
+:::
+:::
+
+# Part IV: Combining Clustering and PCA
+
+## The Power of Combination {.smaller}
+
+::: {.fragment}
+**Common workflow**: Use PCA THEN cluster on the principal components!
+:::
+
+::: {.fragment}
+**Why this works well**:
+
+1. **PCA removes noise** → cleaner clustering
+2. **PCA removes correlation** → better distance metrics
+3. **Fewer dimensions** → faster clustering
+4. **Visualize in 2D** → see clusters clearly
+:::
+
+```{r}
+# Cluster on first 3 principal components
+set.seed(42)
+pcs_for_clustering <- pca_result$x[, 1:3]
+kmeans_on_pcs <- kmeans(pcs_for_clustering, centers = 4, nstart = 25)
+
+# Add cluster assignments
+county_data_with_pcs <- county_data_with_pcs %>%
+  mutate(cluster = factor(kmeans_on_pcs$cluster))
+```
+
+## Visualizing Clusters in PC Space {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+ggplot(county_data_with_pcs, aes(x = PC1, y = PC2, color = cluster, shape = cluster)) +
+  geom_point(size = 4, alpha = 0.8) +
+  stat_ellipse(aes(group = cluster), type = "norm", level = 0.7, size = 1) +
+  scale_color_viridis_d(name = "Cluster") +
+  scale_shape_manual(values = c(16, 17, 15, 18), name = "Cluster") +
+  labs(title = "k-Means Clustering on Principal Components",
+       subtitle = "Clustering in reduced PC space often works better than in original space",
+       x = "PC1: Economic Prosperity",
+       y = "PC2: Urbanization") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+::: {.fragment}
+**Result**: Clear, interpretable clusters in the 2D PC space!
+:::
+
+# Part V: Practical Guidelines and Best Practices
+
+## Complete Unsupervised Learning Workflow {.smaller}
+
+::: {.fragment}
+**Recommended step-by-step process**:
+:::
+
+::: {.fragment}
+**1. Exploratory Data Analysis**
+```r
+# Check distributions, correlations, outliers
+summary(data)
+cor(data) %>% corrplot()
+```
+:::
+
+::: {.fragment}
+**2. Preprocessing**
+```r
+# Handle missing data, remove outliers, standardize
+data_clean <- data %>%
+  drop_na() %>%
+  mutate(across(where(is.numeric), scale))
+```
+:::
+
+::: {.fragment}
+**3. Dimensionality Assessment**
+```r
+# If p > 10-20, consider PCA first
+pca_result <- prcomp(data_clean)
+# Keep components explaining 80-90% variance
+```
+:::
+
+::: {.fragment}
+**4. Choose Clustering Method**
+```r
+# Try multiple k values, compare metrics
+fviz_nbclust(data_clean, kmeans, method = "silhouette")
+```
+:::
+
+## Validation and Interpretation {.smaller}
+
+::: {.fragment}
+**5. Cluster Validation**
+:::
+
+::: {.fragment}
+- **Internal metrics**: Silhouette, within-cluster SS, Dunn index
+- **Stability**: Do clusters persist across bootstrap samples?
+- **Separability**: Are clusters well-separated?
+:::
+
+::: {.fragment}
+**6. Domain Validation**
+:::
+
+::: {.fragment}
+- **Profile clusters**: What characterizes each group?
+- **Check face validity**: Do clusters make sense to domain experts?
+- **Compare to known groupings**: Do clusters align with existing taxonomies?
+:::
+
+::: {.fragment}
+**7. Communication**
+:::
+
+::: {.fragment}
+- **Visualize in 2D**: Use PCA or t-SNE for stakeholder-friendly plots
+- **Name clusters**: Give meaningful labels ("Urban Thriving," not "Cluster 3")
+- **Provide profiles**: Show average characteristics of each cluster
+- **Show examples**: Highlight representative members of each cluster
+:::
+
+## Common Pitfalls to Avoid {.smaller}
+
+::: {layout-ncol=2}
+### Technical Mistakes
+::: {.fragment}
+1. **Not standardizing** features
+   - Different scales distort distances
+   
+2. **Using raw data with outliers**
+   - Outliers pull centroids, distort PCs
+   
+3. **Ignoring correlations**
+   - Correlated features dominate distance
+   
+4. **Choosing k arbitrarily**
+   - Use elbow, silhouette, domain knowledge
+   
+5. **Running k-means once**
+   - Use `nstart = 25` for multiple initializations
+:::
+
+### Interpretation Mistakes
+::: {.fragment}
+6. **Over-interpreting PCs**
+   - PC3 with 5% variance is mostly noise
+   
+7. **Treating clusters as "truth"**
+   - Clusters are useful abstractions, not natural law
+   
+8. **Ignoring within-cluster variation**
+   - Not all members perfectly fit their cluster
+   
+9. **Forgetting context**
+   - Numbers don't replace domain expertise
+   
+10. **Not validating results**
+    - Always check if clusters make sense
+:::
+:::
+
+## Real-World Policy Application: Putting It All Together {.smaller}
+
+::: {.fragment}
+**Case Study**: State education policy segmentation
+:::
+
+::: {.fragment}
+**Goal**: Group US states by education system characteristics to design targeted federal programs
+:::
+
+::: {.fragment}
+**Data**: 50 states × 20 variables (spending, outcomes, demographics, policies)
+:::
+
+::: {.fragment}
+**Workflow**:
+
+1. **PCA**: Reduce 20 variables to 5 PCs (85% variance)
+   - PC1: "Resource level" (spending, teacher salaries)
+   - PC2: "Student demographics" (poverty, diversity)
+   - PC3: "Performance" (test scores, graduation)
+   
+2. **Clustering**: k-means on PCs, k=5 clusters
+   - Use silhouette to validate k=5
+   
+3. **Profiling**: Characterize each cluster
+   - Cluster 1: "High-resource, high-performing"
+   - Cluster 2: "Low-resource, diverse student body"
+   - etc.
+   
+4. **Policy design**: Tailor interventions to each cluster type
+:::
+
+## Ethical Considerations in Unsupervised Learning {.smaller}
+
+::: {.fragment}
+**Unsupervised learning isn't neutral**!
+:::
+
+::: {.fragment}
+**Potential harms**:
+
+1. **Reinforcing stereotypes**
+   - Clusters may reflect historical discrimination
+   
+2. **Unequal treatment**
+   - Different interventions for different clusters
+   - Ensure equitable access to resources
+   
+3. **Loss of individuality**
+   - Treating everyone in a cluster the same
+   - Allow opt-out or appeals
+   
+4. **Opaque decision-making**
+   - Hard to explain why someone is in Cluster 3
+   - Document methodology, allow inspection
+:::
+
+::: {.fragment}
+::: callout-important
+**Policy principle**: Clustering should inform, not determine, decisions about individuals. Always combine algorithmic groupings with human judgment!
+:::
+:::
+
+## Advanced Topics: What's Next {.smaller}
+
+::: {.fragment}
+**Beyond the basics**:
+:::
+
+::: {.fragment}
+**Trend: Deep learning for unsupervised learning**
+
+- Variational autoencoders (VAEs)
+- Contrastive learning (SimCLR)
+- Self-supervised learning
+- Foundation models (pre-training without labels)
+:::
+
+## Looking Ahead to Final Week {.smaller}
+
+::: {.fragment}
+**Week 10 (next class - Dec 1)**: AI-Augmented Policy Analysis
+:::
+
+::: {.fragment}
+- Integrating LLM APIs into data workflows
+- Using AI assistants for code generation and debugging
+- Prompt engineering for data analysis tasks
+- Ethical use of AI tools in research
+- Modern development environments (Cursor, GitHub Copilot)
+:::
+
+::: {.fragment}
+**Final Exam (Dec 3)**: In-class, cumulative, difficult.
+
+:::
+
+::: {.fragment}
+**Assignment 3 Due (Dec 6 at 8:00 AM)**: Final project report
+- Labor Action Tracker predictions
+- Model selection and evaluation
+- Policy recommendations
+- ≤4 pages/1500 words
+:::
+
+## Key Takeaways {.smaller}
+
+::: {.fragment}
+1. **Unsupervised learning discovers patterns without labels**—essential for exploration and segmentation
+:::
+
+::: {.fragment}
+2. **k-means clustering** is fast and scalable but requires choosing k and assumes spherical clusters
+:::
+
+::: {.fragment}
+3. **Hierarchical clustering** shows nested structure via dendrograms but doesn't scale to large datasets
+:::
+
+::: {.fragment}
+4. **PCA reduces dimensionality** by finding directions of maximum variance—great for visualization and noise reduction
+:::
+
+::: {.fragment}
+5. **Combining PCA + clustering** often works better than clustering in original high-dimensional space
+:::
+
+::: {.fragment}
+6. **Always standardize** features before clustering or PCA!
+:::
+
+::: {.fragment}
+7. **Validation is subjective**—use internal metrics + domain knowledge + stakeholder input
+:::
+
+::: {.fragment}
+8. **Clusters are abstractions**, not truth—use them to inform decisions, not make them automatically
+:::
+
+## Questions?
+
+::: {.fragment}
+**Remember**: Unsupervised learning is a powerful exploratory tool. It helps us understand structure in complex policy data, but the insights must always be validated with domain expertise and used responsibly in decision-making!
+:::
+
+::: {.fragment}
+**Next class**: We'll explore how modern AI tools (LLMs, GitHub Copilot, Cursor) can augment your data science workflow—and how to use them ethically and effectively!
+:::
+
+---
+

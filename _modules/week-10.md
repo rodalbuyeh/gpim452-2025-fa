@@ -4,7 +4,7 @@
     days:
       - date: 2025-12-01
         events:
-          "**LEC 10**{: .label .label-lecture } Integrating AI APIs and Enhanced Development Environments":
+          "**LEC 11**{: .label .label-lecture } Integrating AI APIs and Enhanced Development Environments":
 
       - date: 2025-12-03
         events:
