@@ -1,0 +1,1832 @@
+---
+title: "AI-Augmented Policy Analysis"
+subtitle: "Integrating LLM APIs into Data Workflows"
+author: "Rod Albuyeh"
+date: "12/01/2025"
+format:
+  revealjs:
+    theme: [default, simple]
+    css: styles.css
+    slide-number: true
+    progress: true
+    overview: true
+    controls: true
+    transition: fade
+    auto-animate: true
+    incremental: true
+    code-overflow: wrap
+    code-line-numbers: false
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup, include=TRUE, echo=FALSE, results=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 6)
+library(tidyverse)
+library(scales)
+library(httr)
+library(jsonlite)
+set.seed(42)
+```
+
+```{css echo=FALSE}
+.reveal {
+  font-size: 32px;
+}
+
+.reveal h2 {
+  font-size: 1.3em;
+}
+
+.reveal p, .reveal li {
+  font-size: 0.9em;
+}
+
+.reveal pre code {
+  font-size: 0.85em;
+}
+
+.reveal .slides {
+  text-align: center;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+```
+
+## Today's Learning Goals {.smaller}
+
+::: {.fragment}
+By the end of this session, you'll be able to:
+:::
+
+::: {.fragment}
+- **Explain** the structure of LLM API requests (system prompts, user prompts, completions)
+- **Design** effective prompts for data analysis tasks
+- **Integrate** LLM APIs into programmatic workflows
+- **Evaluate** when AI augmentation adds value vs. when traditional methods suffice
+:::
+
+::: {.fragment}
+::: callout-note
+**Key insight**: Large language models aren't just chatbots—they're programmable APIs that can automate previously impossible tasks like generating code, summarizing documents, extracting structured data from text, and reasoning over complex policy scenarios.
+:::
+:::
+
+# Part I: From Chatbots to APIs
+
+## The LLM Revolution in Context {.smaller}
+
+::: {.fragment}
+**What changed in 2022-2023?**
+:::
+
+::: {.fragment}
+**Before** (traditional NLP):
+
+- Rule-based systems (regex, keyword matching)
+- Task-specific models trained on labeled data
+- Limited to predefined operations
+- Required ML expertise to deploy
+
+**Example**: Extract organization names → Train custom model on 10,000+ labeled examples
+:::
+
+::: {.fragment}
+**After** (LLMs):
+
+- General-purpose language understanding
+- Zero-shot or few-shot learning
+- Natural language instructions
+- API call = instant deployment
+
+**Example**: Extract organization names → "Extract all organization names from this text: {text}"
+:::
+
+## LLMs as Programmable Intelligence {.smaller}
+
+::: {.fragment}
+**Key conceptual shift**: LLMs are not just smart chatbots—they're **APIs for language-based computation**
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Traditional API
+```python
+# Weather API
+response = requests.get(
+  "api.weather.com/current",
+  params={"city": "San Diego"}
+)
+temp = response.json()["temp"]
+```
+
+**Returns**: Structured data  
+**Input**: Structured parameters  
+**Task**: Predefined function
+:::
+
+::: {.fragment}
+### LLM API
+```python
+# Language API
+response = openai.chat.completions.create(
+  model="gpt-4",
+  messages=[{
+    "role": "user",
+    "content": "Summarize this policy doc"
+  }]
+)
+summary = response.choices[0].message.content
+```
+
+**Returns**: Generated text  
+**Input**: Natural language  
+**Task**: Whatever you describe!
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Radical difference**: You define the task through language, not code. This enables non-programmers to build sophisticated workflows!
+:::
+:::
+
+## Real-World Policy Use Cases {.smaller}
+
+::: {.fragment}
+**Tasks that were previously impossible or prohibitively expensive**:
+:::
+
+::: {.fragment}
+**1. Document Analysis at Scale**
+- Summarize 10,000 public comments on proposed regulations
+- Extract key themes from city council meeting transcripts
+- Classify legislation by policy area from bill text
+
+**Before**: Hire teams of human coders, weeks of work  
+**Now**: API calls, hours of compute time
+:::
+
+::: {.fragment}
+**2. Code Generation for Data Cleaning**
+- "Generate Python code to geocode these addresses"
+- "Write SQL to join these three tables on county FIPS codes"
+- "Create a function to parse messy date formats"
+
+**Before**: Google/StackOverflow → trial and error  
+**Now**: Describe what you want → working code (often)
+:::
+
+::: {.fragment}
+**3. Structured Data Extraction**
+- Extract (organization, amount, date) from grant announcements
+- Parse unstructured survey responses into categories
+- Convert PDFs of tables into clean CSV files
+
+**Before**: Manual data entry or complex regex  
+**Now**: "Extract the following fields: ..."
+:::
+
+# Part II: Understanding the Completion API
+
+## The Basic Structure of an LLM API Call {.smaller}
+
+::: {.fragment}
+**Every LLM API request has the same fundamental structure**:
+:::
+
+::: {.fragment}
+```python
+response = openai.chat.completions.create(
+  model="gpt-4",              # Which LLM to use
+  messages=[                  # Conversation history
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "What is the capital of France?"}
+  ],
+  temperature=0.7,            # Randomness (0=deterministic, 1=creative)
+  max_tokens=500,             # Maximum response length
+  top_p=1.0,                  # Nucleus sampling parameter
+  frequency_penalty=0.0,      # Penalize repetition
+  presence_penalty=0.0        # Penalize topics already mentioned
+)
+
+# Extract the generated text
+answer = response.choices[0].message.content
+```
+:::
+
+::: {.fragment}
+**Key components**:
+
+1. **Model**: `gpt-4`, `gpt-3.5-turbo`, `claude-3-opus`, etc.
+2. **Messages**: The conversation (system + user + assistant)
+3. **Parameters**: Control generation behavior
+4. **Response**: Generated text + metadata
+:::
+
+## The Three Roles: System, User, Assistant {.smaller}
+
+::: {.fragment}
+**Messages have three possible roles**:
+:::
+
+::: {layout-ncol=3}
+::: {.fragment}
+### System
+**Purpose**: Set behavior/context
+
+**When**: Once at start
+
+**Example**:
+```json
+{
+  "role": "system",
+  "content": "You are an expert 
+  data scientist specializing 
+  in policy analysis. Provide 
+  concise, technical answers 
+  with code examples."
+}
+```
+
+**Think of it as**: Instructions to the AI about how to behave
+:::
+
+::: {.fragment}
+### User
+**Purpose**: Your questions/requests
+
+**When**: Every turn
+
+**Example**:
+```json
+{
+  "role": "user",
+  "content": "How do I handle 
+  missing data in a regression 
+  analysis of county-level 
+  poverty rates?"
+}
+```
+
+**Think of it as**: What you're asking
+:::
+
+::: {.fragment}
+### Assistant
+**Purpose**: AI's responses
+
+**When**: In conversation history
+
+**Example**:
+```json
+{
+  "role": "assistant",
+  "content": "For county 
+  poverty rates, I recommend: 
+  1. Check missingness pattern
+  2. Use multiple imputation
+  3. Consider..."
+}
+```
+
+**Think of it as**: What the AI said previously
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**Key insight**: The `system` and `user` messages are where you do **prompt engineering** to control the AI's behavior, expertise level, output format, and constraints!
+:::
+:::
+
+## System Prompts: Your Secret Weapon {.smaller}
+
+::: {.fragment}
+**The system prompt sets the stage for everything that follows**
+:::
+
+::: {.fragment}
+**Bad system prompt** (generic):
+```python
+messages = [
+  {"role": "system", "content": "You are a helpful assistant."},
+  {"role": "user", "content": "Analyze this survey data."}
+]
+```
+
+**Result**: Vague, generic response about survey analysis
+:::
+
+::: {.fragment}
+**Good system prompt** (specific):
+```python
+messages = [
+  {
+    "role": "system", 
+    "content": """You are a senior data scientist at a policy think tank.
+    
+    Your task: Analyze survey data and provide actionable policy recommendations.
+    
+    Always:
+    - State assumptions explicitly
+    - Provide statistical justification
+    - Consider equity implications
+    - Format output as: Summary → Analysis → Recommendations
+    
+    Never:
+    - Make causal claims from correlational data
+    - Ignore missing data patterns
+    - Provide code without explaining the approach"""
+  },
+  {"role": "user", "content": "Analyze this survey data: [data]"}
+]
+```
+
+**Result**: Structured, policy-focused analysis with guardrails!
+:::
+
+## System Prompt Design Patterns {.smaller}
+
+::: {.fragment}
+**Effective system prompts follow these patterns**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### 1. Role Assignment
+```
+"You are an expert in [domain] with 
+[X years] experience in [specialty]."
+```
+
+**Why it works**: Activates relevant training data, sets expertise level
+
+**Example**: "You are a public health researcher specializing in health equity and causal inference."
+:::
+
+::: {.fragment}
+### 2. Task Specification
+```
+"Your task is to [specific goal] by 
+[method], focusing on [constraints]."
+```
+
+**Why it works**: Narrows scope, prevents tangents
+
+**Example**: "Your task is to extract (organization, grant_amount, date) from text, returning ONLY valid JSON."
+:::
+
+::: {.fragment}
+### 3. Output Format
+```
+"Always respond in [format]. Structure: 
+[template]. Use [style]."
+```
+
+**Why it works**: Enables programmatic parsing
+
+**Example**: "Always respond in valid JSON with keys: 'summary', 'findings', 'next_steps'. No markdown formatting."
+:::
+
+::: {.fragment}
+### 4. Constraints & Guardrails
+```
+"Never [bad behavior]. Always [good 
+behavior]. If [condition], then [action]."
+```
+
+**Why it works**: Prevents common failure modes
+
+**Example**: "Never claim causation from observational data. Always note when sample sizes are too small for reliable inference. If asked to extrapolate beyond data, state this explicitly."
+:::
+:::
+
+## Example: Policy Brief Generator {.smaller}
+
+::: {.fragment}
+**Use case**: Automatically generate policy briefs from statistical analysis
+:::
+
+```python
+system_prompt = """You are a senior policy analyst at a government research agency.
+
+TASK: Convert statistical analysis results into policy briefs for non-technical audiences.
+
+INPUT FORMAT: You will receive analysis results including:
+- Dataset description
+- Statistical findings (estimates, p-values, confidence intervals)
+- Model diagnostics
+
+OUTPUT FORMAT: Generate a policy brief with exactly these sections:
+1. KEY FINDING (2-3 sentences, no jargon)
+2. EVIDENCE (cite specific statistics, explain what they mean)
+3. LIMITATIONS (sample size, data quality, causal vs. correlational)
+4. POLICY IMPLICATIONS (actionable recommendations)
+5. NEXT STEPS (what additional analysis is needed)
+
+STYLE:
+- Use active voice
+- Avoid statistical jargon (use "likely" not "p < 0.05")
+- Quantify uncertainty ("moderately confident" vs. "highly confident")
+- Consider equity: who benefits? who might be harmed?
+
+NEVER:
+- Overstate certainty
+- Make causal claims from correlational data
+- Ignore confounding variables
+- Recommend policy changes without acknowledging trade-offs"""
+
+user_prompt = f"""
+Dataset: County-level poverty rates (n=3,142 counties)
+Finding: Counties with $10K higher median income have 2.3 percentage points 
+lower poverty (95% CI: [1.8, 2.8], p < 0.001, R² = 0.62)
+Limitations: Observational data, potential omitted variable bias
+"""
+
+messages = [
+  {"role": "system", "content": system_prompt},
+  {"role": "user", "content": user_prompt}
+]
+```
+
+## The Completion Response Structure {.smaller}
+
+::: {.fragment}
+**What you get back from the API**:
+:::
+
+```python
+# Make the API call
+response = openai.chat.completions.create(
+  model="gpt-4",
+  messages=messages,
+  temperature=0.3,  # Lower = more deterministic
+  max_tokens=800
+)
+
+# Response structure (simplified)
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "created": 1701234567,
+  "model": "gpt-4-0613",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "KEY FINDING:\nCounties with higher median incomes..."
+      },
+      "finish_reason": "stop"  # or "length" if hit max_tokens
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 245,
+    "completion_tokens": 387,
+    "total_tokens": 632
+  }
+}
+
+# Extract the text
+output = response.choices[0].message.content
+```
+
+## Key Parameters for Controlling Generation {.smaller}
+
+::: {.fragment}
+**Five main parameters control how the LLM generates text**:
+:::
+
+::: {.fragment}
+1. **Temperature**: How random/creative?
+2. **Max Tokens**: How long?
+3. **Top-p**: Alternative randomness control
+4. **Frequency Penalty**: Discourage word repetition
+5. **Presence Penalty**: Encourage topic diversity
+:::
+
+::: {.fragment}
+::: callout-note
+**We'll go through each one with examples**—these are critical for getting consistent, useful outputs!
+:::
+:::
+
+## Parameter 1: Temperature {.smaller}
+
+::: {.fragment}
+**What it does**: Controls randomness in token selection
+:::
+
+::: {.fragment}
+**How it works**: At each step, the model assigns probabilities to possible next tokens. Temperature adjusts these probabilities:
+
+- **Low (0.0)**: Always picks highest probability token → deterministic
+- **High (1.5+)**: Flattens probabilities → more random sampling
+:::
+
+::: {.fragment}
+**Visual analogy** (choosing ice cream):
+
+- `temp=0.0`: Always pick vanilla (100% certain, never varies)
+- `temp=0.7`: Usually vanilla (70%), sometimes chocolate (20%), rarely strawberry (10%)
+- `temp=1.5`: Much more random—strawberry is now 30% likely!
+:::
+
+::: {.fragment}
+::: {layout-ncol=2}
+### Use Low (0.0 - 0.3)
+- Code generation (want correct syntax)
+- Data extraction (want consistency)
+- Fact retrieval (want accuracy)
+- Structured output (want valid JSON)
+
+### Use High (0.7 - 1.2)
+- Creative writing
+- Brainstorming alternatives
+- Exploring different phrasings
+- Generating diverse examples
+:::
+:::
+
+## Parameter 2: Max Tokens {.smaller}
+
+::: {.fragment}
+**What it does**: Limits response length (prevents runaway generation)
+:::
+
+::: {.fragment}
+**Token math**:
+
+- 1 token ≈ 0.75 words (English)
+- 1,000 tokens ≈ 750 words
+- "Antidisestablishmentarianism" = 6-7 tokens
+:::
+
+::: {.fragment}
+**Context window limits** (prompt + response):
+
+- GPT-5: 256K tokens (~192K words)
+- GPT-4o / GPT-4 Turbo: 128K tokens (~96K words)
+- Claude Sonnet 4.5: 1M tokens (~750K words) 🤯
+- Claude Opus 4.5: 200K tokens (~150K words)
+
+**Critical**: Prompt tokens + Completion tokens ≤ Context Limit
+:::
+
+::: {.fragment}
+**Strategy**: Request only what you need (saves money!)
+
+- Short summaries: 200-500 tokens
+- Code snippets: 300-1000 tokens
+- Full analysis: 1500+ tokens
+- Policy brief: 500-1000 tokens
+:::
+
+## Parameter 3: Top-p (Nucleus Sampling) {.smaller}
+
+::: {.fragment}
+**What it does**: Alternative way to control randomness (instead of temperature)
+:::
+
+::: {.fragment}
+**How it works**: Limit sampling to top tokens whose cumulative probability = p
+
+- `top_p=0.1`: Only sample from top 10% most likely tokens (very focused)
+- `top_p=0.9`: Sample from top 90% (broader, more creative)
+- `top_p=1.0`: Consider all tokens (full distribution)
+:::
+
+::: {.fragment}
+**Concrete example**: Choosing next token
+
+Token probabilities:
+- "the" = 40%
+- "a" = 30%
+- "this" = 15%
+- "that" = 10%
+- others = 5%
+
+**With `top_p=0.7`**: Only choose from "the" (40%) + "a" (30%) = 70% cumulative, ignore rest  
+**With `top_p=1.0`**: All tokens in play
+:::
+
+::: {.fragment}
+::: callout-important
+**Important**: Use temperature **OR** top_p, not both! They do similar things differently. Most people just use temperature and leave `top_p=1.0`.
+:::
+:::
+
+## Parameter 4: Frequency Penalty {.smaller}
+
+::: {.fragment}
+**What it does**: Penalizes tokens based on **how many times** they've already appeared in the response
+:::
+
+::: {.fragment}
+**Range**: -2.0 to 2.0 (positive values discourage repetition)
+:::
+
+::: {.fragment}
+**How it works**: 
+- Each time a token appears, reduce its probability for next appearance
+- Penalty is **proportional** to frequency (appear 5× → 5× bigger penalty than appearing 1×)
+:::
+
+::: {.fragment}
+**Example scenario**: Model keeps saying "furthermore" repeatedly
+
+- After 1st use: probability reduced by 1×
+- After 5th use: probability reduced by 5×
+- Forces model to use alternatives: "moreover", "additionally", "in addition"
+:::
+
+::: {.fragment}
+**Use cases**:
+
+- `frequency_penalty=0.5`: Reduce repetitive phrases ("very very very important" → "very important")
+- `frequency_penalty=1.0`: Strong diversity (good for generating varied lists)
+- `frequency_penalty=1.5`: Maximum variety (each word used only once if possible)
+:::
+
+## Parameter 5: Presence Penalty {.smaller}
+
+::: {.fragment}
+**What it does**: Penalizes tokens that have appeared **at all** (regardless of how many times)
+:::
+
+::: {.fragment}
+**Range**: -2.0 to 2.0 (positive values encourage new topics)
+:::
+
+::: {.fragment}
+**How it works**:
+- **Binary**: Token either appeared (penalty) or didn't (no penalty)
+- Penalty is **same** whether token appeared 1× or 100×
+- Encourages exploring new topics/concepts
+:::
+
+::: {.fragment}
+**Example**: Writing about "climate policy"
+
+- **Without penalty**: Might keep discussing "carbon emissions" repeatedly
+- **With `presence_penalty=1.0`**: After mentioning "carbon emissions" once, model encouraged to discuss other aspects (adaptation, renewable energy, equity, justice)
+:::
+
+::: {.fragment}
+**Use cases**:
+
+- `presence_penalty=0.5`: Encourage topic diversity
+- `presence_penalty=1.5`: Force model to discuss new concepts (good for comprehensive brainstorming)
+:::
+
+## Frequency vs. Presence: The Key Difference {.smaller}
+
+::: {.fragment}
+**These sound similar but work very differently!**
+:::
+
+::: {.fragment}
+::: {layout-ncol=2}
+### Frequency Penalty
+**Addresses**: Word/phrase repetition
+
+**Effect**: "Stop saying the same **word** over and over"
+
+**Example problem**:
+```
+"The policy is very very very 
+important. It's very critical 
+and very urgent."
+```
+
+**Solution**: `frequency_penalty=1.0`
+```
+"The policy is very important. 
+It's critical and urgent."
+```
+
+### Presence Penalty
+**Addresses**: Topic repetition
+
+**Effect**: "Talk about **new topics**, not the same topic repeatedly"
+
+**Example problem**:
+```
+"Carbon emissions cause warming.
+Emissions hurt the planet.
+Reducing emissions is key."
+```
+
+**Solution**: `presence_penalty=1.0`
+```
+"Carbon emissions cause warming.
+Renewable energy offers solutions.
+Adaptation strategies protect communities."
+```
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**Rule of thumb**: Use **frequency penalty** for varied language, **presence penalty** for comprehensive coverage of different aspects!
+:::
+:::
+
+# Part III: Integrating LLMs into Workflows
+
+## The Before and After {.smaller}
+
+::: {.fragment}
+**Scenario**: Classify 5,000 public comments on a proposed policy by sentiment and topic
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Before LLMs (Manual)
+```r
+# 1. Sample comments for coding
+sample <- comments %>% sample_n(500)
+
+# 2. Human coders label samples
+# (takes 2-3 weeks, costs $5,000+)
+
+# 3. Train supervised model
+model <- train_classifier(
+  labeled_data = sample
+)
+
+# 4. Apply to remaining data
+predictions <- predict(
+  model, 
+  comments
+)
+
+# 5. Manual validation
+# (another week)
+```
+
+**Cost**: $5K-10K, 4-6 weeks  
+**Accuracy**: 75-85% (varies by coder agreement)  
+**Limitation**: Fixed categories, requires retraining for new topics
+:::
+
+::: {.fragment}
+### After LLMs (Automated)
+```r
+classify_comment <- function(text) {
+  response <- openai$chat$completions$create(
+    model = "gpt-4",
+    messages = list(
+      list(role = "system", content = 
+        "Classify public comments. Return JSON:
+        {sentiment: positive|negative|neutral,
+         topics: [list],
+         key_concerns: [list]}"),
+      list(role = "user", content = text)
+    ),
+    temperature = 0.1  # Deterministic
+  )
+  
+  fromJSON(response$choices[[1]]$message$content)
+}
+
+# Apply to all comments
+results <- comments %>%
+  mutate(
+    classification = map(text, classify_comment)
+  ) %>%
+  unnest_wider(classification)
+```
+
+**Cost**: $50-200 (API fees), 1-2 days  
+**Accuracy**: 80-90% (comparable or better)  
+**Advantage**: Flexible schema, no training needed
+:::
+:::
+
+## Workflow Pattern 1: Structured Data Extraction {.smaller}
+
+::: {.fragment}
+**Use case**: Extract structured information from unstructured text
+:::
+
+::: {.fragment}
+**Example**: Parse grant award announcements into a database
+:::
+
+```r
+extract_grant_info <- function(announcement_text) {
+  
+  system_prompt <- "Extract grant information from announcements.
+  
+  Return ONLY valid JSON (no markdown):
+  {
+    \"organization\": \"exact name\",
+    \"amount\": numeric value in dollars,
+    \"date_awarded\": \"YYYY-MM-DD\",
+    \"purpose\": \"brief description\",
+    \"program\": \"grant program name\"
+  }
+  
+  If a field is not mentioned, use null."
+  
+  response <- openai$chat$completions$create(
+    model = "gpt-4",
+    messages = list(
+      list(role = "system", content = system_prompt),
+      list(role = "user", content = announcement_text)
+    ),
+    temperature = 0.0,  # Deterministic extraction
+    response_format = list(type = "json_object")  # Force JSON
+  )
+  
+  # Parse JSON response
+  fromJSON(response$choices[[1]]$message$content)
+}
+
+# Apply to many announcements
+grant_database <- announcements %>%
+  mutate(
+    extracted = map(announcement_text, extract_grant_info)
+  ) %>%
+  unnest_wider(extracted)
+```
+
+## Workflow Pattern 2: Code Generation {.smaller}
+
+::: {.fragment}
+**Use case**: Generate data cleaning/analysis code from natural language
+:::
+
+```r
+generate_cleaning_code <- function(data_description, task_description) {
+  
+  system_prompt <- "You are an expert R programmer.
+  
+  Generate production-quality R code (tidyverse style) for data cleaning tasks.
+  
+  REQUIREMENTS:
+  - Use tidyverse functions
+  - Include error handling (tryCatch)
+  - Add comments explaining each step
+  - Use meaningful variable names
+  - Return ONLY the code (no markdown formatting)
+  
+  TEST: Code must run without errors on the described data structure."
+  
+  user_prompt <- glue::glue("
+  Data structure: {data_description}
+  
+  Task: {task_description}
+  
+  Generate R code to accomplish this task.
+  ")
+  
+  response <- openai$chat$completions$create(
+    model = "gpt-4",
+    messages = list(
+      list(role = "system", content = system_prompt),
+      list(role = "user", content = user_prompt)
+    ),
+    temperature = 0.2
+  )
+  
+  # Return generated code
+  response$choices[[1]]$message$content
+}
+
+# Example usage
+code <- generate_cleaning_code(
+  data_description = "
+    Dataframe 'counties' with columns: 
+    - fips (character, sometimes has leading zeros)
+    - population (character with commas)
+    - median_income (character, includes '$' and ',')
+  ",
+  task_description = "
+    Convert all columns to correct types, handle missing values 
+    (coded as 'N/A', 'NULL', or '--'), and create a clean tibble
+  "
+)
+
+# Review and execute
+cat(code)
+# Then: eval(parse(text = code))
+```
+
+## Workflow Pattern 3: Batch Processing with Error Handling {.smaller}
+
+::: {.fragment}
+**Real-world challenge**: APIs fail, rate limits exist, costs add up
+:::
+
+```r
+safe_llm_call <- function(text, retries = 3, delay = 2) {
+  
+  # Wrapper with error handling and retries
+  for(attempt in 1:retries) {
+    tryCatch({
+      
+      # Rate limiting (respect API limits)
+      Sys.sleep(delay)  
+      
+      response <- openai$chat$completions$create(
+        model = "gpt-3.5-turbo",  # Cheaper for simple tasks
+        messages = list(
+          list(role = "system", content = "Summarize in 2 sentences."),
+          list(role = "user", content = text)
+        ),
+        max_tokens = 100,
+        temperature = 0.3
+      )
+      
+      # Success - return result
+      return(response$choices[[1]]$message$content)
+      
+    }, error = function(e) {
+      
+      # Log error
+      message(glue::glue("Attempt {attempt} failed: {e$message}"))
+      
+      # If rate limit, wait longer
+      if(grepl("rate_limit", e$message)) {
+        Sys.sleep(delay * 2^attempt)  # Exponential backoff
+      }
+      
+      # If last attempt, return NA
+      if(attempt == retries) {
+        warning(glue::glue("Failed after {retries} attempts"))
+        return(NA_character_)
+      }
+    })
+  }
+}
+
+# Apply to many documents with progress tracking
+library(purrr)
+
+results <- documents %>%
+  mutate(
+    summary = map_chr(
+      text, 
+      possibly(safe_llm_call, otherwise = NA_character_),
+      .progress = TRUE  # Show progress bar
+    ),
+    failed = is.na(summary)
+  )
+
+# Check success rate
+cat(glue::glue("
+  Success: {sum(!results$failed)} / {nrow(results)}
+  Failure rate: {scales::percent(mean(results$failed))}
+"))
+```
+
+## Cost and Performance Considerations {.smaller}
+
+::: {.fragment}
+**LLM APIs aren't free—you need to budget and optimize**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Pricing (as of Dec 2025)
+**OpenAI GPT-5**:
+- Input: $1.25 / 1M tokens
+- Output: $10 / 1M tokens
+
+**Claude Sonnet 4.5**:
+- Input: $3 / 1M tokens
+- Output: $15 / 1M tokens
+
+**Claude Haiku 4.5** (budget):
+- Input: $1 / 1M tokens
+- Output: $5 / 1M tokens
+
+**Example**: Classify 10,000 comments
+- Avg 100 tokens input, 50 output
+- GPT-5: ~$6.25
+- Claude Haiku: ~$3.50
+
+**Costs add up at scale!**
+:::
+
+::: {.fragment}
+### Optimization Strategies
+
+**1. Model selection**
+- GPT-3.5 for simple tasks
+- GPT-4 only when needed
+- Fine-tuned models for specific domains
+
+**2. Prompt efficiency**
+- Shorter prompts = lower costs
+- Remove unnecessary context
+- Use few-shot only when needed
+
+**3. Caching**
+- Store results for identical inputs
+- Don't re-process unchanged data
+
+**4. Batch operations**
+- Process in chunks
+- Parallelize when possible
+- Monitor rate limits
+
+**5. Fallback strategies**
+- Start with heuristics
+- Use LLM only for edge cases
+- Human review for high-stakes decisions
+:::
+:::
+
+## When NOT to Use LLMs {.smaller}
+
+::: {.fragment}
+**LLMs are powerful but not always the right tool**:
+:::
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Don't Use LLMs For:
+
+**1. Simple pattern matching**
+- Regex is faster and cheaper
+- Example: Extract emails, phone numbers
+
+**2. Deterministic computations**
+- Use traditional code
+- Example: Calculate statistics, apply formulas
+
+**3. High-stakes decisions alone**
+- LLMs make mistakes
+- Example: Medical diagnosis, legal judgments
+
+**4. Real-time, low-latency tasks**
+- API calls take 1-10 seconds
+- Example: Interactive dashboards
+
+**5. When you need guarantees**
+- LLMs are probabilistic
+- Example: Financial calculations, legal compliance
+
+**6. Private/sensitive data (without precautions)**
+- API calls may be logged
+- Example: PII, confidential documents
+:::
+
+::: {.fragment}
+### Use Traditional Methods For:
+
+**Pattern matching**:
+```r
+# Extract emails (regex is perfect)
+str_extract_all(text, "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b")
+```
+
+**Calculations**:
+```r
+# Statistical analysis (use R!)
+lm(outcome ~ predictor, data = df) %>% summary()
+```
+
+**Exact lookups**:
+```r
+# Database queries (SQL is precise)
+dbGetQuery(con, "SELECT * FROM counties WHERE fips = '06073'")
+```
+
+**Real-time inference**:
+```r
+# Pre-trained local model (milliseconds)
+predict(random_forest_model, new_data)
+```
+:::
+:::
+
+::: {.fragment}
+::: callout-important
+**Decision rule**: Use LLMs for tasks requiring **language understanding**, **context reasoning**, or **unstructured input**. Use traditional code for **deterministic operations**, **structured data**, and **speed-critical tasks**.
+:::
+:::
+
+# Part IV: Retrieval-Augmented Generation (RAG)
+
+## Why RAG? Two Key Problems {.smaller}
+
+::: {.fragment}
+### Problem 1: Knowledge Cutoff
+**LLMs only know what they were trained on**
+- GPT-5 training data cuts off at some point in 2024
+- No knowledge of:
+  - Your organization's internal documents
+  - Recent news, policies, or research
+  - Proprietary data or databases
+  - Real-time information
+:::
+
+::: {.fragment}
+### Problem 2: Context Window Limits
+Even with large context windows, you can't fit everything:
+- Claude Sonnet 4.5: 1M tokens (~750K words)
+- Sounds huge, but...
+
+**Policy scenario**: Analyze all public comments on a regulation
+- 5,000 comments × 200 words each
+- Total: 1 million words ≈ 1.3M tokens
+
+**Problem**: Can't fit in context window!
+
+**Naive solution**: Summarize → lose important details  
+**Better solution**: Retrieval-Augmented Generation (RAG)
+:::
+
+## What is RAG? {.smaller}
+
+::: {.fragment}
+**RAG combines retrieval (search) with generation (LLM)**:
+:::
+
+::: {.fragment}
+**Traditional LLM**:
+```
+Question → LLM → Answer
+```
+
+**Problem**: LLM only knows what's in its training data (outdated, generic)
+:::
+
+::: {.fragment}
+**RAG Pipeline**:
+```
+Question → Retrieve relevant docs → LLM + Retrieved context → Answer
+```
+
+**Advantage**: LLM can answer using YOUR specific documents!
+:::
+
+::: {.fragment}
+::: {layout-ncol=2}
+### How It Works
+1. **Index** documents (convert to embeddings)
+2. **Retrieve** most relevant chunks for query
+3. **Augment** prompt with retrieved context
+4. **Generate** answer using context + LLM
+
+### Benefits
+- Use current, domain-specific knowledge
+- Ground answers in source documents
+- Scale to millions of documents
+- Cite sources in responses
+:::
+:::
+
+## RAG Architecture {.smaller}
+
+::: {.columns}
+::: {.column width="50%"}
+### 🏗️ Setup Phase (Once)
+::: {.fragment}
+1. **Chunk documents** into smaller pieces
+2. **Generate embeddings** for each chunk
+3. **Store in vector database** (e.g., Pinecone, ChromaDB)
+:::
+:::
+
+::: {.column width="50%"}
+### 🔄 Query Phase (Every request)
+::: {.fragment}
+4. **User asks a question**
+5. **Embed the question** (same model)
+6. **Search vector DB** for similar chunks
+7. **Inject top-k chunks** into LLM prompt
+8. **LLM generates answer** using retrieved context
+:::
+:::
+:::
+
+::: {.fragment}
+### Key Insight
+**RAG = Smart Search + LLM Generation**
+
+- Instead of putting *everything* in the prompt, we **retrieve** only what's relevant
+- LLM generates answer **grounded in** the retrieved documents
+- Can cite sources and handle massive document collections
+:::
+
+## RAG Benefits and Limitations {.smaller}
+
+::: {layout-ncol=2}
+### Benefits ✓
+
+::: {.fragment}
+**1. Current information**
+- Use today's data, not 2-year-old training cutoff
+- Update knowledge by adding new docs
+
+**2. Domain-specific expertise**
+- Ground in YOUR organization's policies
+- Incorporate specialized knowledge
+
+**3. Source attribution**
+- Cite specific documents
+- Enable verification
+
+**4. Privacy & control**
+- Keep sensitive data in your database
+- Don't rely on LLM training data
+
+**5. Scalability**
+- Handle millions of documents
+- Only retrieve relevant subset
+:::
+
+### Limitations ✗
+
+::: {.fragment}
+**1. Retrieval quality matters**
+- Bad search → bad context → bad answer
+- Requires good embeddings & ranking
+
+**2. Additional complexity**
+- Need vector database
+- Manage embeddings & indexing
+- Monitor retrieval quality
+
+**3. Increased latency**
+- Retrieval adds time
+- Embedding generation costs
+
+**4. Context window still limited**
+- Can only use top-k chunks
+- May miss relevant information
+
+**5. Hallucination risk**
+- LLM may still make things up
+- Misinterpret retrieved context
+:::
+:::
+
+::: {.fragment}
+::: callout-tip
+**When to use RAG**: Large document collections, need source citations, information changes frequently, domain-specific knowledge required.
+:::
+:::
+
+## RAG in Policy Analysis {.smaller}
+
+::: {.fragment}
+**Real-world policy applications**:
+:::
+
+::: {.fragment}
+**1. Legislation Analysis**
+- Index: All state bills from past 10 years
+- Query: "Which states passed paid family leave in 2022-2023?"
+- Benefit: Get specific bills with citations
+
+**2. Public Comment Analysis**
+- Index: 10,000+ comments on proposed regulation
+- Query: "What are small businesses' main concerns?"
+- Benefit: Surface themes with supporting quotes
+
+**3. Evidence Synthesis**
+- Index: Research papers, reports, evaluations
+- Query: "What's the evidence on job training program effectiveness?"
+- Benefit: Literature review with source tracking
+
+**4. Internal Knowledge Management**
+- Index: Your org's reports, memos, analyses
+- Query: "How did we analyze similar data in 2019?"
+- Benefit: Institutional memory without manual searching
+:::
+
+## Advanced RAG Techniques {.smaller}
+
+::: {.fragment}
+**Beyond basic RAG**:
+:::
+
+::: {fragment}
+**1. Hybrid Search**
+- Combine vector similarity (semantic) + keyword search (exact matches)
+- Best of both worlds
+
+**2. Reranking**
+- Initial retrieval gets top-50
+- Reranker model picks best 5
+- Improves precision
+
+**3. Query Expansion**
+- LLM generates similar queries
+- Retrieve for all variants
+- Broader coverage
+
+**4. Hierarchical Retrieval**
+- First: Find relevant documents
+- Second: Find relevant chunks within docs
+- Better context targeting
+
+**5. Agentic RAG**
+- LLM decides what to retrieve
+- Iterative: retrieve → read → retrieve more
+- More sophisticated reasoning
+:::
+
+# Part V: Practical Considerations
+
+## The Iteration Loop: Prompt Engineering {.smaller}
+
+::: {.fragment}
+**Creating effective prompts is an iterative process**:
+:::
+
+::: {fragment}
+**Cycle**:
+```
+1. Write initial prompt
+2. Test on examples
+3. Identify failure modes
+4. Refine prompt
+5. Repeat until acceptable performance
+```
+:::
+
+::: {.fragment}
+**Example iteration** (data extraction task):
+
+**Version 1** (too vague):
+```
+"Extract the key information from this text."
+```
+→ Result: Inconsistent, misses fields
+
+**Version 2** (add structure):
+```
+"Extract: organization, amount, date. Return as JSON."
+```
+→ Result: Better, but still ambiguous dates
+
+**Version 3** (add examples + constraints):
+```
+"Extract grant information. Return JSON with these exact keys:
+- organization (string, exact name as written)
+- amount (number, in dollars, no currency symbols)
+- date_awarded (string, format YYYY-MM-DD)
+
+Examples:
+Input: 'ABC Foundation awarded $50,000 to XYZ Org on March 15, 2024'
+Output: {\"organization\": \"XYZ Org\", \"amount\": 50000, \"date_awarded\": \"2024-03-15\"}
+
+If field is missing, use null. If date is ambiguous, use null."
+```
+→ Result: Reliable, parseable output!
+:::
+
+## Testing and Validation {.smaller}
+
+::: {.fragment}
+**LLMs are probabilistic—you MUST validate**:
+:::
+
+::: {.fragment}
+**1. Create a test set**
+```r
+# Manually label 50-100 examples with ground truth
+test_cases <- tibble(
+  input = c(...),
+  expected_output = c(...)
+)
+```
+
+**2. Measure performance**
+```r
+results <- test_cases %>%
+  mutate(
+    predicted = map_chr(input, your_llm_function),
+    correct = predicted == expected_output
+  )
+
+accuracy <- mean(results$correct)
+```
+
+**3. Analyze failures**
+```r
+failures <- results %>%
+  filter(!correct) %>%
+  select(input, expected_output, predicted)
+
+# What patterns do you see?
+# - Length of input?
+# - Specific formats?
+# - Edge cases?
+```
+
+**4. Iterate on prompt**
+- Add examples of failure cases
+- Add explicit constraints
+- Adjust temperature
+:::
+
+## Error Handling and Fallbacks {.smaller}
+
+::: {.fragment}
+**Production workflows need robust error handling**:
+:::
+
+```r
+robust_llm_call <- function(text, fallback_value = NA) {
+  
+  # 1. Input validation
+  if(is.na(text) || nchar(text) == 0) {
+    return(fallback_value)
+  }
+  
+  # 2. Try LLM call with retries
+  result <- tryCatch({
+    
+    response <- openai$chat$completions$create(
+      model = "gpt-4",
+      messages = list(
+        list(role = "system", content = "..."),
+        list(role = "user", content = text)
+      ),
+      timeout = 30  # Fail fast if API is slow
+    )
+    
+    # 3. Parse and validate output
+    output <- response$choices[[1]]$message$content
+    
+    # Check output format
+    if(is_valid_output(output)) {
+      return(output)
+    } else {
+      warning("Invalid output format, using fallback")
+      return(fallback_value)
+    }
+    
+  }, error = function(e) {
+    
+    # 4. Log error for debugging
+    log_error(glue::glue("LLM call failed: {e$message}"))
+    
+    # 5. Use fallback strategy
+    if(grepl("rate_limit", e$message)) {
+      # Queue for retry later
+      add_to_retry_queue(text)
+    }
+    
+    return(fallback_value)
+  })
+  
+  return(result)
+}
+```
+
+## Monitoring and Costs {.smaller}
+
+::: {.fragment}
+**Track costs and quality in production**:
+:::
+
+```r
+# Create logging wrapper
+llm_call_with_logging <- function(text, task_type) {
+  
+  start_time <- Sys.time()
+  
+  response <- openai$chat$completions$create(
+    model = "gpt-4",
+    messages = list(
+      list(role = "system", content = "..."),
+      list(role = "user", content = text)
+    )
+  )
+  
+  end_time <- Sys.time()
+  
+  # Log metadata
+  log_entry <- tibble(
+    timestamp = start_time,
+    task_type = task_type,
+    model = "gpt-4",
+    input_tokens = response$usage$prompt_tokens,
+    output_tokens = response$usage$completion_tokens,
+    total_tokens = response$usage$total_tokens,
+    latency_seconds = as.numeric(end_time - start_time, units = "secs"),
+    cost_usd = calculate_cost(response$usage, model = "gpt-4")
+  )
+  
+  # Append to log file or database
+  write_csv(log_entry, "llm_usage_log.csv", append = TRUE)
+  
+  return(response$choices[[1]]$message$content)
+}
+
+# Analyze costs
+usage_summary <- read_csv("llm_usage_log.csv") %>%
+  group_by(task_type) %>%
+  summarise(
+    total_calls = n(),
+    total_cost = sum(cost_usd),
+    avg_latency = mean(latency_seconds),
+    total_tokens = sum(total_tokens)
+  )
+```
+
+## Privacy and Security Considerations {.smaller}
+
+::: {.fragment}
+**Important questions before sending data to LLM APIs**:
+:::
+
+::: {fragment}
+**1. What happens to your data?**
+
+- **OpenAI**: API data is NOT used for training (policy since March 2023, still current)
+- **Anthropic (Claude)**: API data not used for training
+- **Other providers**: Check terms of service carefully
+- **Enterprise plans**: Often include additional data retention and privacy guarantees
+
+**2. Can you use sensitive data?**
+
+- **Public data**: Generally safe
+- **PII (names, SSNs, addresses)**: Redact before sending
+- **Confidential documents**: Check your organization's policies
+- **Health data (HIPAA)**: Use BAA-compliant services only
+
+**3. Mitigation strategies**:
+
+```r
+# Anonymize before sending
+anonymize_text <- function(text) {
+  text %>%
+    str_replace_all("\\b[A-Z][a-z]+ [A-Z][a-z]+\\b", "[NAME]") %>%  # Names
+    str_replace_all("\\b\\d{3}-\\d{2}-\\d{4}\\b", "[SSN]") %>%      # SSNs
+    str_replace_all("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b", "[EMAIL]")
+}
+
+# Use on-premise/self-hosted models for sensitive data
+# - LLaMA 2/3 (Meta)
+# - Mistral
+# - Claude via AWS Bedrock (with data controls)
+```
+:::
+
+## When to Build vs. Buy {.smaller}
+
+::: {layout-ncol=2}
+::: {.fragment}
+### Use API Services When:
+
+**1. Getting started**
+- Fastest time to value
+- No infrastructure needed
+- Latest models immediately
+
+**2. Variable/unpredictable load**
+- Pay only for what you use
+- No idle compute costs
+
+**3. Need latest capabilities**
+- GPT-4, Claude 3 etc.
+- Continuous improvements
+
+**4. Small-medium scale**
+- <1M requests/month
+- Cost-effective at this scale
+
+**Example cost**: 100K API calls at $0.01/call = $1,000/month
+:::
+
+::: {.fragment}
+### Self-Host When:
+
+**1. Very high volume**
+- >10M requests/month
+- API costs prohibitive
+
+**2. Privacy requirements**
+- HIPAA, confidential data
+- Air-gapped environments
+
+**3. Latency critical**
+- Need <100ms response
+- Local inference faster
+
+**4. Customization needed**
+- Fine-tuning on proprietary data
+- Model modifications
+
+**5. Long-term cost optimization**
+- Fixed inference costs
+- Deprecation risk mitigation
+
+**Example cost**: Self-hosted GPU server = $2-5K/month (fixed), economical at high volume
+:::
+:::
+
+# Part VI: Live Demonstration
+
+---
+
+# Part VII: Looking Forward
+
+## The Future of AI in Policy Analysis {.smaller}
+
+::: {.fragment}
+**Trends to watch**:
+:::
+
+::: {.fragment}
+**1. Multimodal Models**
+- Process text + images + tables simultaneously
+- Example: Analyze charts and figures from PDFs
+- GPT, Claude, Gemini already do this
+
+**2. Longer Context Windows**
+- Future: Entire books, datasets in context
+
+**3. Specialized Policy Models**
+- Fine-tuned on government documents
+- Better understanding of policy language
+- Domain-specific reasoning
+
+**4. Agentic Workflows**
+- LLMs that use tools (run code, query databases, search web)
+- Multi-step reasoning without human intervention
+- Example: "Analyze this data and create a report" → Done!
+
+**5. Improved Reliability**
+- Better at following instructions precisely
+- Reduced hallucinations
+- Calibrated uncertainty (knows when unsure)
+:::
+
+## Emerging Capabilities: Agents and Tools {.smaller}
+
+::: {.fragment}
+**Next frontier: LLMs that can use tools**
+:::
+
+::: {.fragment}
+**Function calling example** (OpenAI API):
+
+```python
+# Define tools the LLM can use
+tools = [
+  {
+    "type": "function",
+    "function": {
+      "name": "query_database",
+      "description": "Query county-level data",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "metric": {"type": "string", "enum": ["poverty_rate", "median_income"]},
+          "state": {"type": "string"}
+        }
+      }
+    }
+  }
+]
+
+# LLM decides which tool to call
+response = openai.chat.completions.create(
+  model="gpt-4",
+  messages=[{"role": "user", "content": "What's the poverty rate in California counties?"}],
+  tools=tools
+)
+
+# If LLM wants to call a function:
+if response.choices[0].message.tool_calls:
+  function_call = response.choices[0].message.tool_calls[0]
+  
+  # Execute the function
+  result = query_database(
+    metric=function_call.function.arguments['metric'],
+    state=function_call.function.arguments['state']
+  )
+  
+  # Send result back to LLM for final answer
+  final_response = openai.chat.completions.create(
+    model="gpt-4",
+    messages=[
+      {"role": "user", "content": "What's the poverty rate in California counties?"},
+      response.choices[0].message,
+      {"role": "function", "name": "query_database", "content": str(result)}
+    ]
+  )
+```
+
+**Result**: LLM autonomously queries your data and interprets results!
+:::
+
+## Ethical Considerations and Best Practices {.smaller}
+
+::: {.fragment}
+**As you integrate AI into policy work, remember**:
+:::
+
+::: {.fragment}
+**1. Validation**
+- Never trust LLM output blindly
+- Human review for high-stakes decisions
+- Test systematically on edge cases
+
+**2. Bias and Fairness**
+- LLMs inherit biases from training data
+- Test for disparate impact across groups
+- Consider whose perspectives are represented
+
+**3. Privacy**
+- Anonymize before sending to APIs
+- Know your data retention policies
+- Use appropriate security controls
+
+**4. Appropriate Use**
+- LLMs augment, don't replace, human judgment
+- Best for analysis support, not final decisions
+- Combine with domain expertise
+:::
+
+::: {.fragment}
+::: callout-important
+**Remember**: You are responsible for the outputs, not the LLM. AI is a tool that amplifies your capabilities—but you're still the decision-maker.
+:::
+:::
+
+## Key Takeaways {.smaller}
+
+::: {.fragment}
+**1. LLM APIs are programmable intelligence**—control behavior through system prompts, not just chat
+:::
+
+::: {.fragment}
+**2. Completion structure** has three roles: system (instructions), user (requests), assistant (responses)
+:::
+
+::: {.fragment}
+**3. System prompts** are your secret weapon—specify role, task, format, and constraints
+:::
+
+::: {.fragment}
+**4. LLMs enable previously impossible workflows**—structured extraction, code generation, document analysis at scale
+:::
+
+::: {.fragment}
+**5. RAG extends LLM knowledge**—combine retrieval with generation for grounded, source-aware answers
+:::
+
+::: {.fragment}
+**6. Production requires rigor**—error handling, testing, cost monitoring, privacy controls
+:::
+
+::: {.fragment}
+**7. Use LLMs for language tasks**, traditional code for deterministic operations
+:::
+
+::: {.fragment}
+**8. Always validate**—LLMs are powerful but probabilistic; human oversight is essential
+:::
+
+## Preparing for the Final Exam {.smaller}
+
+::: {.fragment}
+**Final Exam: Wednesday, December 3 (in class)**
+:::
+
+::: {.fragment}
+**Format**:
+- In-class, written exam
+- Cumulative: all lecture topics from Weeks 1-9
+- Mix of conceptual, computational, and applied questions
+- One 3"×5" hand-written note card allowed
+:::
+
+::: {.fragment}
+**Keep learning—this is just the beginning**:
+
+The skills you've built here aren't just professional tools—they're a *practice*, a way of thinking about problems and building solutions. The best analysts, policymakers, and researchers I know are relentless autodidacts who never stopped being curious.
+
+- **Separate practice from profession**: Code on weekends. Read papers for fun. Build things no one asked you to build.
+- **Follow the frontier**: AI moves fast. Subscribe to research blogs (Anthropic, OpenAI research), follow practitioners on social media, join communities.
+- **Teach to learn**: Explain what you know to others. Write blog posts. Answer questions on forums. Teaching forces clarity.
+- **Embrace productive struggle**: You *will* get stuck. That's not failure—that's where learning happens. Debug patiently. Ask for help. Try again.
+- **Stay ethically grounded**: As these tools get more powerful, your judgment becomes more important, not less. Keep asking "should we?" not just "can we?"
+
+You don't need permission or credentials to keep growing. You just need curiosity and commitment. **Keep pushing yourself.**
+:::
+
+## Questions?
+
+## Thank you
+
+---
+
