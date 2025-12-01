@@ -20,7 +20,7 @@ nav_order: 1
 
 
 
-[Jump to the current week](#week-9-ai-augmented-policy-analysis){: .btn }
+[Jump to the current week](#week-10-ai-augmented-policy-analysis){: .btn }
 
 
 {% for module in site.modules %}
