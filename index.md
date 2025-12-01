@@ -17,12 +17,10 @@ nav_order: 1
 
 <!-- Below, you can open "static" versions of each lecture by clicking the ✏️ emojis and watch podcasts by clicking the 🎥 emojis. -->
 
-{: .success }
-Students may elect to have one lab exercise scored as a perfect score (100%), regardless of actual performance. This election must be made by the end of week 9 and cannot be changed. Send Rod your election via email. 
 
 
 
-[Jump to the current week](#week-4-gathering-and-wrangling-data){: .btn }
+[Jump to the current week](#week-9-ai-augmented-policy-analysis){: .btn }
 
 
 {% for module in site.modules %}

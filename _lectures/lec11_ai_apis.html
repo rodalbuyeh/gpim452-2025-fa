@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="lec11_ai_apis_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lec11_ai_apis_files/libs/quarto-html/tabby.min.js"></script>
+<script src="lec11_ai_apis_files/libs/quarto-html/popper.min.js"></script>
+<script src="lec11_ai_apis_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="lec11_ai_apis_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lec11_ai_apis_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="lec11_ai_apis_files/libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.24">
+
+  <meta name="author" content="Rod Albuyeh">
+  <meta name="dcterms.date" content="2025-12-01">
+  <title>AI-Augmented Policy Analysis</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="lec11_ai_apis_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="lec11_ai_apis_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="lec11_ai_apis_files/libs/revealjs/dist/theme/quarto-7262fb28817f0fdf3c802d565bf43787.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="lec11_ai_apis_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="lec11_ai_apis_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="lec11_ai_apis_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="lec11_ai_apis_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">AI-Augmented Policy Analysis</h1>
+  <p class="subtitle">Integrating LLM APIs into Data Workflows</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Rod Albuyeh 
+</div>
+</div>
+</div>
+
+  <p class="date">2025-12-01</p>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<style type="text/css">
+.reveal {
+  font-size: 32px;
+}
+
+.reveal h2 {
+  font-size: 1.3em;
+}
+
+.reveal p, .reveal li {
+  font-size: 0.9em;
+}
+
+.reveal pre code {
+  font-size: 0.85em;
+}
+
+.reveal .slides {
+  text-align: center;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+</style>
+</div>
+</section>
+<section id="todays-learning-goals" class="slide level2 smaller">
+<h2>Today’s Learning Goals</h2>
+<div class="fragment">
+<p>By the end of this session, you’ll be able to:</p>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment"><strong>Explain</strong> the structure of LLM API requests (system prompts, user prompts, completions)</li>
+<li class="fragment"><strong>Design</strong> effective prompts for data analysis tasks</li>
+<li class="fragment"><strong>Integrate</strong> LLM APIs into programmatic workflows</li>
+<li class="fragment"><strong>Evaluate</strong> when AI augmentation adds value vs.&nbsp;when traditional methods suffice</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Key insight</strong>: Large language models aren’t just chatbots—they’re programmable APIs that can automate previously impossible tasks like generating code, summarizing documents, extracting structured data from text, and reasoning over complex policy scenarios.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<section id="part-i-from-chatbots-to-apis" class="title-slide slide level1 center">
+<h1>Part I: From Chatbots to APIs</h1>
+
+</section>
+<section id="the-llm-revolution-in-context" class="slide level2 smaller">
+<h2>The LLM Revolution in Context</h2>
+<div class="fragment">
+<p><strong>What changed in 2022-2023?</strong></p>
+</div>
+<div class="fragment">
+<p><strong>Before</strong> (traditional NLP):</p>
+<ul>
+<li class="fragment">Rule-based systems (regex, keyword matching)</li>
+<li class="fragment">Task-specific models trained on labeled data</li>
+<li class="fragment">Limited to predefined operations</li>
+<li class="fragment">Required ML expertise to deploy</li>
+</ul>
+<p><strong>Example</strong>: Extract organization names → Train custom model on 10,000+ labeled examples</p>
+</div>
+<div class="fragment">
+<p><strong>After</strong> (LLMs):</p>
+<ul>
+<li class="fragment">General-purpose language understanding</li>
+<li class="fragment">Zero-shot or few-shot learning</li>
+<li class="fragment">Natural language instructions</li>
+<li class="fragment">API call = instant deployment</li>
+</ul>
+<p><strong>Example</strong>: Extract organization names → “Extract all organization names from this text: {text}”</p>
+</div>
+</section>
+<section id="llms-as-programmable-intelligence" class="slide level2 smaller">
+<h2>LLMs as Programmable Intelligence</h2>
+<div class="fragment">
+<p><strong>Key conceptual shift</strong>: LLMs are not just smart chatbots—they’re <strong>APIs for language-based computation</strong></p>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="traditional-api">Traditional API</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Weather API</span></span>
+<span id="cb1-2"><a href="" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(</span>
+<span id="cb1-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"api.weather.com/current"</span>,</span>
+<span id="cb1-4"><a href="" aria-hidden="true" tabindex="-1"></a>  params<span class="op">=</span>{<span class="st">"city"</span>: <span class="st">"San Diego"</span>}</span>
+<span id="cb1-5"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-6"><a href="" aria-hidden="true" tabindex="-1"></a>temp <span class="op">=</span> response.json()[<span class="st">"temp"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Returns</strong>: Structured data<br>
+<strong>Input</strong>: Structured parameters<br>
+<strong>Task</strong>: Predefined function</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="llm-api">LLM API</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Language API</span></span>
+<span id="cb2-2"><a href="" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> openai.chat.completions.create(</span>
+<span id="cb2-3"><a href="" aria-hidden="true" tabindex="-1"></a>  model<span class="op">=</span><span class="st">"gpt-4"</span>,</span>
+<span id="cb2-4"><a href="" aria-hidden="true" tabindex="-1"></a>  messages<span class="op">=</span>[{</span>
+<span id="cb2-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
+<span id="cb2-6"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"content"</span>: <span class="st">"Summarize this policy doc"</span></span>
+<span id="cb2-7"><a href="" aria-hidden="true" tabindex="-1"></a>  }]</span>
+<span id="cb2-8"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> response.choices[<span class="dv">0</span>].message.content</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Returns</strong>: Generated text<br>
+<strong>Input</strong>: Natural language<br>
+<strong>Task</strong>: Whatever you describe!</p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Radical difference</strong>: You define the task through language, not code. This enables non-programmers to build sophisticated workflows!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="real-world-policy-use-cases" class="slide level2 smaller">
+<h2>Real-World Policy Use Cases</h2>
+<div class="fragment">
+<p><strong>Tasks that were previously impossible or prohibitively expensive</strong>:</p>
+</div>
+<div class="fragment">
+<p><strong>1. Document Analysis at Scale</strong> - Summarize 10,000 public comments on proposed regulations - Extract key themes from city council meeting transcripts - Classify legislation by policy area from bill text</p>
+<p><strong>Before</strong>: Hire teams of human coders, weeks of work<br>
+<strong>Now</strong>: API calls, hours of compute time</p>
+</div>
+<div class="fragment">
+<p><strong>2. Code Generation for Data Cleaning</strong> - “Generate Python code to geocode these addresses” - “Write SQL to join these three tables on county FIPS codes” - “Create a function to parse messy date formats”</p>
+<p><strong>Before</strong>: Google/StackOverflow → trial and error<br>
+<strong>Now</strong>: Describe what you want → working code (often)</p>
+</div>
+<div class="fragment">
+<p><strong>3. Structured Data Extraction</strong> - Extract (organization, amount, date) from grant announcements - Parse unstructured survey responses into categories - Convert PDFs of tables into clean CSV files</p>
+<p><strong>Before</strong>: Manual data entry or complex regex<br>
+<strong>Now</strong>: “Extract the following fields: …”</p>
+</div>
+</section></section>
+<section>
+<section id="part-ii-understanding-the-completion-api" class="title-slide slide level1 center">
+<h1>Part II: Understanding the Completion API</h1>
+
+</section>
+<section id="the-basic-structure-of-an-llm-api-call" class="slide level2 smaller">
+<h2>The Basic Structure of an LLM API Call</h2>
+<div class="fragment">
+<p><strong>Every LLM API request has the same fundamental structure</strong>:</p>
+</div>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> openai.chat.completions.create(</span>
+<span id="cb3-2"><a href="" aria-hidden="true" tabindex="-1"></a>  model<span class="op">=</span><span class="st">"gpt-4"</span>,              <span class="co"># Which LLM to use</span></span>
+<span id="cb3-3"><a href="" aria-hidden="true" tabindex="-1"></a>  messages<span class="op">=</span>[                  <span class="co"># Conversation history</span></span>
+<span id="cb3-4"><a href="" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"You are a helpful assistant."</span>},</span>
+<span id="cb3-5"><a href="" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"What is the capital of France?"</span>}</span>
+<span id="cb3-6"><a href="" aria-hidden="true" tabindex="-1"></a>  ],</span>
+<span id="cb3-7"><a href="" aria-hidden="true" tabindex="-1"></a>  temperature<span class="op">=</span><span class="fl">0.7</span>,            <span class="co"># Randomness (0=deterministic, 1=creative)</span></span>
+<span id="cb3-8"><a href="" aria-hidden="true" tabindex="-1"></a>  max_tokens<span class="op">=</span><span class="dv">500</span>,             <span class="co"># Maximum response length</span></span>
+<span id="cb3-9"><a href="" aria-hidden="true" tabindex="-1"></a>  top_p<span class="op">=</span><span class="fl">1.0</span>,                  <span class="co"># Nucleus sampling parameter</span></span>
+<span id="cb3-10"><a href="" aria-hidden="true" tabindex="-1"></a>  frequency_penalty<span class="op">=</span><span class="fl">0.0</span>,      <span class="co"># Penalize repetition</span></span>
+<span id="cb3-11"><a href="" aria-hidden="true" tabindex="-1"></a>  presence_penalty<span class="op">=</span><span class="fl">0.0</span>        <span class="co"># Penalize topics already mentioned</span></span>
+<span id="cb3-12"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-13"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the generated text</span></span>
+<span id="cb3-15"><a href="" aria-hidden="true" tabindex="-1"></a>answer <span class="op">=</span> response.choices[<span class="dv">0</span>].message.content</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<p><strong>Key components</strong>:</p>
+<ol type="1">
+<li class="fragment"><strong>Model</strong>: <code>gpt-4</code>, <code>gpt-3.5-turbo</code>, <code>claude-3-opus</code>, etc.</li>
+<li class="fragment"><strong>Messages</strong>: The conversation (system + user + assistant)</li>
+<li class="fragment"><strong>Parameters</strong>: Control generation behavior</li>
+<li class="fragment"><strong>Response</strong>: Generated text + metadata</li>
+</ol>
+</div>
+</section>
+<section id="the-three-roles-system-user-assistant" class="slide level2 smaller">
+<h2>The Three Roles: System, User, Assistant</h2>
+<div class="fragment">
+<p><strong>Messages have three possible roles</strong>:</p>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="3">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<h3 id="system">System</h3>
+<p><strong>Purpose</strong>: Set behavior/context</p>
+<p><strong>When</strong>: Once at start</p>
+<p><strong>Example</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb4-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"role"</span><span class="fu">:</span> <span class="st">"system"</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"content"</span><span class="fu">:</span> <span class="st">"You are an expert </span></span>
+<span id="cb4-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  data scientist specializing </span></span>
+<span id="cb4-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  in policy analysis. Provide </span></span>
+<span id="cb4-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  concise, technical answers </span></span>
+<span id="cb4-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  with code examples."</span></span>
+<span id="cb4-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Think of it as</strong>: Instructions to the AI about how to behave</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<h3 id="user">User</h3>
+<p><strong>Purpose</strong>: Your questions/requests</p>
+<p><strong>When</strong>: Every turn</p>
+<p><strong>Example</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb5-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"role"</span><span class="fu">:</span> <span class="st">"user"</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"content"</span><span class="fu">:</span> <span class="st">"How do I handle </span></span>
+<span id="cb5-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  missing data in a regression </span></span>
+<span id="cb5-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  analysis of county-level </span></span>
+<span id="cb5-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  poverty rates?"</span></span>
+<span id="cb5-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Think of it as</strong>: What you’re asking</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<h3 id="assistant">Assistant</h3>
+<p><strong>Purpose</strong>: AI’s responses</p>
+<p><strong>When</strong>: In conversation history</p>
+<p><strong>Example</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb6-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"role"</span><span class="fu">:</span> <span class="st">"assistant"</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"content"</span><span class="fu">:</span> <span class="st">"For county </span></span>
+<span id="cb6-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  poverty rates, I recommend: </span></span>
+<span id="cb6-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  1. Check missingness pattern</span></span>
+<span id="cb6-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  2. Use multiple imputation</span></span>
+<span id="cb6-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  3. Consider..."</span></span>
+<span id="cb6-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Think of it as</strong>: What the AI said previously</p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Key insight</strong>: The <code>system</code> and <code>user</code> messages are where you do <strong>prompt engineering</strong> to control the AI’s behavior, expertise level, output format, and constraints!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="system-prompts-your-secret-weapon" class="slide level2 smaller">
+<h2>System Prompts: Your Secret Weapon</h2>
+<div class="fragment">
+<p><strong>The system prompt sets the stage for everything that follows</strong></p>
+</div>
+<div class="fragment">
+<p><strong>Bad system prompt</strong> (generic):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [</span>
+<span id="cb7-2"><a href="" aria-hidden="true" tabindex="-1"></a>  {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"You are a helpful assistant."</span>},</span>
+<span id="cb7-3"><a href="" aria-hidden="true" tabindex="-1"></a>  {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"Analyze this survey data."</span>}</span>
+<span id="cb7-4"><a href="" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Result</strong>: Vague, generic response about survey analysis</p>
+</div>
+<div class="fragment">
+<p><strong>Good system prompt</strong> (specific):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [</span>
+<span id="cb8-2"><a href="" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb8-3"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"role"</span>: <span class="st">"system"</span>, </span>
+<span id="cb8-4"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"content"</span>: <span class="st">"""You are a senior data scientist at a policy think tank.</span></span>
+<span id="cb8-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb8-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    Your task: Analyze survey data and provide actionable policy recommendations.</span></span>
+<span id="cb8-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb8-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    Always:</span></span>
+<span id="cb8-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - State assumptions explicitly</span></span>
+<span id="cb8-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - Provide statistical justification</span></span>
+<span id="cb8-11"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - Consider equity implications</span></span>
+<span id="cb8-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - Format output as: Summary → Analysis → Recommendations</span></span>
+<span id="cb8-13"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb8-14"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    Never:</span></span>
+<span id="cb8-15"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - Make causal claims from correlational data</span></span>
+<span id="cb8-16"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - Ignore missing data patterns</span></span>
+<span id="cb8-17"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - Provide code without explaining the approach"""</span></span>
+<span id="cb8-18"><a href="" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb8-19"><a href="" aria-hidden="true" tabindex="-1"></a>  {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"Analyze this survey data: [data]"</span>}</span>
+<span id="cb8-20"><a href="" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Result</strong>: Structured, policy-focused analysis with guardrails!</p>
+</div>
+</section>
+<section id="system-prompt-design-patterns" class="slide level2 smaller">
+<h2>System Prompt Design Patterns</h2>
+<div class="fragment">
+<p><strong>Effective system prompts follow these patterns</strong>:</p>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="role-assignment">1. Role Assignment</h3>
+<pre><code>"You are an expert in [domain] with 
+[X years] experience in [specialty]."</code></pre>
+<p><strong>Why it works</strong>: Activates relevant training data, sets expertise level</p>
+<p><strong>Example</strong>: “You are a public health researcher specializing in health equity and causal inference.”</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="task-specification">2. Task Specification</h3>
+<pre><code>"Your task is to [specific goal] by 
+[method], focusing on [constraints]."</code></pre>
+<p><strong>Why it works</strong>: Narrows scope, prevents tangents</p>
+<p><strong>Example</strong>: “Your task is to extract (organization, grant_amount, date) from text, returning ONLY valid JSON.”</p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="output-format">3. Output Format</h3>
+<pre><code>"Always respond in [format]. Structure: 
+[template]. Use [style]."</code></pre>
+<p><strong>Why it works</strong>: Enables programmatic parsing</p>
+<p><strong>Example</strong>: “Always respond in valid JSON with keys: ‘summary’, ‘findings’, ‘next_steps’. No markdown formatting.”</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="constraints-guardrails">4. Constraints &amp; Guardrails</h3>
+<pre><code>"Never [bad behavior]. Always [good 
+behavior]. If [condition], then [action]."</code></pre>
+<p><strong>Why it works</strong>: Prevents common failure modes</p>
+<p><strong>Example</strong>: “Never claim causation from observational data. Always note when sample sizes are too small for reliable inference. If asked to extrapolate beyond data, state this explicitly.”</p>
+</div>
+</div>
+</div>
+</section>
+<section id="example-policy-brief-generator" class="slide level2 smaller">
+<h2>Example: Policy Brief Generator</h2>
+<div class="fragment">
+<p><strong>Use case</strong>: Automatically generate policy briefs from statistical analysis</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="" aria-hidden="true" tabindex="-1"></a>system_prompt <span class="op">=</span> <span class="st">"""You are a senior policy analyst at a government research agency.</span></span>
+<span id="cb13-2"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">TASK: Convert statistical analysis results into policy briefs for non-technical audiences.</span></span>
+<span id="cb13-4"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">INPUT FORMAT: You will receive analysis results including:</span></span>
+<span id="cb13-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Dataset description</span></span>
+<span id="cb13-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Statistical findings (estimates, p-values, confidence intervals)</span></span>
+<span id="cb13-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Model diagnostics</span></span>
+<span id="cb13-9"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">OUTPUT FORMAT: Generate a policy brief with exactly these sections:</span></span>
+<span id="cb13-11"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">1. KEY FINDING (2-3 sentences, no jargon)</span></span>
+<span id="cb13-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">2. EVIDENCE (cite specific statistics, explain what they mean)</span></span>
+<span id="cb13-13"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">3. LIMITATIONS (sample size, data quality, causal vs. correlational)</span></span>
+<span id="cb13-14"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">4. POLICY IMPLICATIONS (actionable recommendations)</span></span>
+<span id="cb13-15"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">5. NEXT STEPS (what additional analysis is needed)</span></span>
+<span id="cb13-16"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">STYLE:</span></span>
+<span id="cb13-18"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Use active voice</span></span>
+<span id="cb13-19"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Avoid statistical jargon (use "likely" not "p &lt; 0.05")</span></span>
+<span id="cb13-20"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Quantify uncertainty ("moderately confident" vs. "highly confident")</span></span>
+<span id="cb13-21"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Consider equity: who benefits? who might be harmed?</span></span>
+<span id="cb13-22"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">NEVER:</span></span>
+<span id="cb13-24"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Overstate certainty</span></span>
+<span id="cb13-25"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Make causal claims from correlational data</span></span>
+<span id="cb13-26"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Ignore confounding variables</span></span>
+<span id="cb13-27"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">- Recommend policy changes without acknowledging trade-offs"""</span></span>
+<span id="cb13-28"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="" aria-hidden="true" tabindex="-1"></a>user_prompt <span class="op">=</span> <span class="ss">f"""</span></span>
+<span id="cb13-30"><a href="" aria-hidden="true" tabindex="-1"></a><span class="ss">Dataset: County-level poverty rates (n=3,142 counties)</span></span>
+<span id="cb13-31"><a href="" aria-hidden="true" tabindex="-1"></a><span class="ss">Finding: Counties with $10K higher median income have 2.3 percentage points </span></span>
+<span id="cb13-32"><a href="" aria-hidden="true" tabindex="-1"></a><span class="ss">lower poverty (95% CI: [1.8, 2.8], p &lt; 0.001, R² = 0.62)</span></span>
+<span id="cb13-33"><a href="" aria-hidden="true" tabindex="-1"></a><span class="ss">Limitations: Observational data, potential omitted variable bias</span></span>
+<span id="cb13-34"><a href="" aria-hidden="true" tabindex="-1"></a><span class="ss">"""</span></span>
+<span id="cb13-35"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [</span>
+<span id="cb13-37"><a href="" aria-hidden="true" tabindex="-1"></a>  {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: system_prompt},</span>
+<span id="cb13-38"><a href="" aria-hidden="true" tabindex="-1"></a>  {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_prompt}</span>
+<span id="cb13-39"><a href="" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="the-completion-response-structure" class="slide level2 smaller">
+<h2>The Completion Response Structure</h2>
+<div class="fragment">
+<p><strong>What you get back from the API</strong>:</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the API call</span></span>
+<span id="cb14-2"><a href="" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> openai.chat.completions.create(</span>
+<span id="cb14-3"><a href="" aria-hidden="true" tabindex="-1"></a>  model<span class="op">=</span><span class="st">"gpt-4"</span>,</span>
+<span id="cb14-4"><a href="" aria-hidden="true" tabindex="-1"></a>  messages<span class="op">=</span>messages,</span>
+<span id="cb14-5"><a href="" aria-hidden="true" tabindex="-1"></a>  temperature<span class="op">=</span><span class="fl">0.3</span>,  <span class="co"># Lower = more deterministic</span></span>
+<span id="cb14-6"><a href="" aria-hidden="true" tabindex="-1"></a>  max_tokens<span class="op">=</span><span class="dv">800</span></span>
+<span id="cb14-7"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-8"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Response structure (simplified)</span></span>
+<span id="cb14-10"><a href="" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb14-11"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"id"</span>: <span class="st">"chatcmpl-abc123"</span>,</span>
+<span id="cb14-12"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"object"</span>: <span class="st">"chat.completion"</span>,</span>
+<span id="cb14-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"created"</span>: <span class="dv">1701234567</span>,</span>
+<span id="cb14-14"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"model"</span>: <span class="st">"gpt-4-0613"</span>,</span>
+<span id="cb14-15"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"choices"</span>: [</span>
+<span id="cb14-16"><a href="" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb14-17"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="st">"index"</span>: <span class="dv">0</span>,</span>
+<span id="cb14-18"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="st">"message"</span>: {</span>
+<span id="cb14-19"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="st">"role"</span>: <span class="st">"assistant"</span>,</span>
+<span id="cb14-20"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="st">"content"</span>: <span class="st">"KEY FINDING:</span><span class="ch">\n</span><span class="st">Counties with higher median incomes..."</span></span>
+<span id="cb14-21"><a href="" aria-hidden="true" tabindex="-1"></a>      },</span>
+<span id="cb14-22"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="st">"finish_reason"</span>: <span class="st">"stop"</span>  <span class="co"># or "length" if hit max_tokens</span></span>
+<span id="cb14-23"><a href="" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-24"><a href="" aria-hidden="true" tabindex="-1"></a>  ],</span>
+<span id="cb14-25"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"usage"</span>: {</span>
+<span id="cb14-26"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"prompt_tokens"</span>: <span class="dv">245</span>,</span>
+<span id="cb14-27"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"completion_tokens"</span>: <span class="dv">387</span>,</span>
+<span id="cb14-28"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"total_tokens"</span>: <span class="dv">632</span></span>
+<span id="cb14-29"><a href="" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-30"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-31"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-32"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the text</span></span>
+<span id="cb14-33"><a href="" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> response.choices[<span class="dv">0</span>].message.content</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="key-parameters-for-controlling-generation" class="slide level2 smaller">
+<h2>Key Parameters for Controlling Generation</h2>
+<div class="fragment">
+<p><strong>Five main parameters control how the LLM generates text</strong>:</p>
+</div>
+<div class="fragment">
+<ol type="1">
+<li class="fragment"><strong>Temperature</strong>: How random/creative?</li>
+<li class="fragment"><strong>Max Tokens</strong>: How long?</li>
+<li class="fragment"><strong>Top-p</strong>: Alternative randomness control</li>
+<li class="fragment"><strong>Frequency Penalty</strong>: Discourage word repetition</li>
+<li class="fragment"><strong>Presence Penalty</strong>: Encourage topic diversity</li>
+</ol>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>We’ll go through each one with examples</strong>—these are critical for getting consistent, useful outputs!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="parameter-1-temperature" class="slide level2 smaller">
+<h2>Parameter 1: Temperature</h2>
+<div class="fragment">
+<p><strong>What it does</strong>: Controls randomness in token selection</p>
+</div>
+<div class="fragment">
+<p><strong>How it works</strong>: At each step, the model assigns probabilities to possible next tokens. Temperature adjusts these probabilities:</p>
+<ul>
+<li class="fragment"><strong>Low (0.0)</strong>: Always picks highest probability token → deterministic</li>
+<li class="fragment"><strong>High (1.5+)</strong>: Flattens probabilities → more random sampling</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Visual analogy</strong> (choosing ice cream):</p>
+<ul>
+<li class="fragment"><code>temp=0.0</code>: Always pick vanilla (100% certain, never varies)</li>
+<li class="fragment"><code>temp=0.7</code>: Usually vanilla (70%), sometimes chocolate (20%), rarely strawberry (10%)</li>
+<li class="fragment"><code>temp=1.5</code>: Much more random—strawberry is now 30% likely!</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Use Low (0.0 - 0.3)</strong></p>
+<ul>
+<li class="fragment">Code generation (want correct syntax)</li>
+<li class="fragment">Data extraction (want consistency)</li>
+<li class="fragment">Fact retrieval (want accuracy)</li>
+<li class="fragment">Structured output (want valid JSON)</li>
+</ul>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Use High (0.7 - 1.2)</strong></p>
+<ul>
+<li class="fragment">Creative writing</li>
+<li class="fragment">Brainstorming alternatives</li>
+<li class="fragment">Exploring different phrasings</li>
+<li class="fragment">Generating diverse examples</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="parameter-2-max-tokens" class="slide level2 smaller">
+<h2>Parameter 2: Max Tokens</h2>
+<div class="fragment">
+<p><strong>What it does</strong>: Limits response length (prevents runaway generation)</p>
+</div>
+<div class="fragment">
+<p><strong>Token math</strong>:</p>
+<ul>
+<li class="fragment">1 token ≈ 0.75 words (English)</li>
+<li class="fragment">1,000 tokens ≈ 750 words</li>
+<li class="fragment">“Antidisestablishmentarianism” = 6-7 tokens</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Context window limits</strong> (prompt + response):</p>
+<ul>
+<li class="fragment">GPT-5: 256K tokens (~192K words)</li>
+<li class="fragment">GPT-4o / GPT-4 Turbo: 128K tokens (~96K words)</li>
+<li class="fragment">Claude Sonnet 4.5: 1M tokens (~750K words) 🤯</li>
+<li class="fragment">Claude Opus 4.5: 200K tokens (~150K words)</li>
+</ul>
+<p><strong>Critical</strong>: Prompt tokens + Completion tokens ≤ Context Limit</p>
+</div>
+<div class="fragment">
+<p><strong>Strategy</strong>: Request only what you need (saves money!)</p>
+<ul>
+<li class="fragment">Short summaries: 200-500 tokens</li>
+<li class="fragment">Code snippets: 300-1000 tokens</li>
+<li class="fragment">Full analysis: 1500+ tokens</li>
+<li class="fragment">Policy brief: 500-1000 tokens</li>
+</ul>
+</div>
+</section>
+<section id="parameter-3-top-p-nucleus-sampling" class="slide level2 smaller">
+<h2>Parameter 3: Top-p (Nucleus Sampling)</h2>
+<div class="fragment">
+<p><strong>What it does</strong>: Alternative way to control randomness (instead of temperature)</p>
+</div>
+<div class="fragment">
+<p><strong>How it works</strong>: Limit sampling to top tokens whose cumulative probability = p</p>
+<ul>
+<li class="fragment"><code>top_p=0.1</code>: Only sample from top 10% most likely tokens (very focused)</li>
+<li class="fragment"><code>top_p=0.9</code>: Sample from top 90% (broader, more creative)</li>
+<li class="fragment"><code>top_p=1.0</code>: Consider all tokens (full distribution)</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Concrete example</strong>: Choosing next token</p>
+<p>Token probabilities: - “the” = 40% - “a” = 30% - “this” = 15% - “that” = 10% - others = 5%</p>
+<p><strong>With <code>top_p=0.7</code></strong>: Only choose from “the” (40%) + “a” (30%) = 70% cumulative, ignore rest<br>
+<strong>With <code>top_p=1.0</code></strong>: All tokens in play</p>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Important</strong>: Use temperature <strong>OR</strong> top_p, not both! They do similar things differently. Most people just use temperature and leave <code>top_p=1.0</code>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="parameter-4-frequency-penalty" class="slide level2 smaller">
+<h2>Parameter 4: Frequency Penalty</h2>
+<div class="fragment">
+<p><strong>What it does</strong>: Penalizes tokens based on <strong>how many times</strong> they’ve already appeared in the response</p>
+</div>
+<div class="fragment">
+<p><strong>Range</strong>: -2.0 to 2.0 (positive values discourage repetition)</p>
+</div>
+<div class="fragment">
+<p><strong>How it works</strong>: - Each time a token appears, reduce its probability for next appearance - Penalty is <strong>proportional</strong> to frequency (appear 5× → 5× bigger penalty than appearing 1×)</p>
+</div>
+<div class="fragment">
+<p><strong>Example scenario</strong>: Model keeps saying “furthermore” repeatedly</p>
+<ul>
+<li class="fragment">After 1st use: probability reduced by 1×</li>
+<li class="fragment">After 5th use: probability reduced by 5×</li>
+<li class="fragment">Forces model to use alternatives: “moreover”, “additionally”, “in addition”</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Use cases</strong>:</p>
+<ul>
+<li class="fragment"><code>frequency_penalty=0.5</code>: Reduce repetitive phrases (“very very very important” → “very important”)</li>
+<li class="fragment"><code>frequency_penalty=1.0</code>: Strong diversity (good for generating varied lists)</li>
+<li class="fragment"><code>frequency_penalty=1.5</code>: Maximum variety (each word used only once if possible)</li>
+</ul>
+</div>
+</section>
+<section id="parameter-5-presence-penalty" class="slide level2 smaller">
+<h2>Parameter 5: Presence Penalty</h2>
+<div class="fragment">
+<p><strong>What it does</strong>: Penalizes tokens that have appeared <strong>at all</strong> (regardless of how many times)</p>
+</div>
+<div class="fragment">
+<p><strong>Range</strong>: -2.0 to 2.0 (positive values encourage new topics)</p>
+</div>
+<div class="fragment">
+<p><strong>How it works</strong>: - <strong>Binary</strong>: Token either appeared (penalty) or didn’t (no penalty) - Penalty is <strong>same</strong> whether token appeared 1× or 100× - Encourages exploring new topics/concepts</p>
+</div>
+<div class="fragment">
+<p><strong>Example</strong>: Writing about “climate policy”</p>
+<ul>
+<li class="fragment"><strong>Without penalty</strong>: Might keep discussing “carbon emissions” repeatedly</li>
+<li class="fragment"><strong>With <code>presence_penalty=1.0</code></strong>: After mentioning “carbon emissions” once, model encouraged to discuss other aspects (adaptation, renewable energy, equity, justice)</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Use cases</strong>:</p>
+<ul>
+<li class="fragment"><code>presence_penalty=0.5</code>: Encourage topic diversity</li>
+<li class="fragment"><code>presence_penalty=1.5</code>: Force model to discuss new concepts (good for comprehensive brainstorming)</li>
+</ul>
+</div>
+</section>
+<section id="frequency-vs.-presence-the-key-difference" class="slide level2 smaller">
+<h2>Frequency vs.&nbsp;Presence: The Key Difference</h2>
+<div class="fragment">
+<p><strong>These sound similar but work very differently!</strong></p>
+</div>
+<div class="fragment">
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Frequency Penalty</strong></p>
+<p><strong>Addresses</strong>: Word/phrase repetition</p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Effect</strong>: “Stop saying the same <strong>word</strong> over and over”</p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Example problem</strong>:</p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<pre><code>"The policy is very very very 
+important. It's very critical 
+and very urgent."</code></pre>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Solution</strong>: <code>frequency_penalty=1.0</code></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<pre><code>"The policy is very important. 
+It's critical and urgent."</code></pre>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Presence Penalty</strong></p>
+<p><strong>Addresses</strong>: Topic repetition</p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Effect</strong>: “Talk about <strong>new topics</strong>, not the same topic repeatedly”</p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Example problem</strong>:</p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<pre><code>"Carbon emissions cause warming.
+Emissions hurt the planet.
+Reducing emissions is key."</code></pre>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Solution</strong>: <code>presence_penalty=1.0</code></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<pre><code>"Carbon emissions cause warming.
+Renewable energy offers solutions.
+Adaptation strategies protect communities."</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Rule of thumb</strong>: Use <strong>frequency penalty</strong> for varied language, <strong>presence penalty</strong> for comprehensive coverage of different aspects!</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="part-iii-integrating-llms-into-workflows" class="title-slide slide level1 center">
+<h1>Part III: Integrating LLMs into Workflows</h1>
+
+</section>
+<section id="the-before-and-after" class="slide level2 smaller">
+<h2>The Before and After</h2>
+<div class="fragment">
+<p><strong>Scenario</strong>: Classify 5,000 public comments on a proposed policy by sentiment and topic</p>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="before-llms-manual">Before LLMs (Manual)</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Sample comments for coding</span></span>
+<span id="cb19-2"><a href="" aria-hidden="true" tabindex="-1"></a>sample <span class="ot">&lt;-</span> comments <span class="sc">%&gt;%</span> <span class="fu">sample_n</span>(<span class="dv">500</span>)</span>
+<span id="cb19-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Human coders label samples</span></span>
+<span id="cb19-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># (takes 2-3 weeks, costs $5,000+)</span></span>
+<span id="cb19-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Train supervised model</span></span>
+<span id="cb19-8"><a href="" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">train_classifier</span>(</span>
+<span id="cb19-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">labeled_data =</span> sample</span>
+<span id="cb19-10"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-11"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Apply to remaining data</span></span>
+<span id="cb19-13"><a href="" aria-hidden="true" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">predict</span>(</span>
+<span id="cb19-14"><a href="" aria-hidden="true" tabindex="-1"></a>  model, </span>
+<span id="cb19-15"><a href="" aria-hidden="true" tabindex="-1"></a>  comments</span>
+<span id="cb19-16"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-17"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-18"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Manual validation</span></span>
+<span id="cb19-19"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># (another week)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Cost</strong>: $5K-10K, 4-6 weeks<br>
+<strong>Accuracy</strong>: 75-85% (varies by coder agreement)<br>
+<strong>Limitation</strong>: Fixed categories, requires retraining for new topics</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="after-llms-automated">After LLMs (Automated)</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="" aria-hidden="true" tabindex="-1"></a>classify_comment <span class="ot">&lt;-</span> <span class="cf">function</span>(text) {</span>
+<span id="cb20-2"><a href="" aria-hidden="true" tabindex="-1"></a>  response <span class="ot">&lt;-</span> openai<span class="sc">$</span>chat<span class="sc">$</span>completions<span class="sc">$</span><span class="fu">create</span>(</span>
+<span id="cb20-3"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"gpt-4"</span>,</span>
+<span id="cb20-4"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">messages =</span> <span class="fu">list</span>(</span>
+<span id="cb20-5"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"system"</span>, <span class="at">content =</span> </span>
+<span id="cb20-6"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Classify public comments. Return JSON:</span></span>
+<span id="cb20-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">        {sentiment: positive|negative|neutral,</span></span>
+<span id="cb20-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">         topics: [list],</span></span>
+<span id="cb20-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">         key_concerns: [list]}"</span>),</span>
+<span id="cb20-10"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"user"</span>, <span class="at">content =</span> text)</span>
+<span id="cb20-11"><a href="" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb20-12"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">temperature =</span> <span class="fl">0.1</span>  <span class="co"># Deterministic</span></span>
+<span id="cb20-13"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-14"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-15"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromJSON</span>(response<span class="sc">$</span>choices[[<span class="dv">1</span>]]<span class="sc">$</span>message<span class="sc">$</span>content)</span>
+<span id="cb20-16"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-17"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply to all comments</span></span>
+<span id="cb20-19"><a href="" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> comments <span class="sc">%&gt;%</span></span>
+<span id="cb20-20"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-21"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">classification =</span> <span class="fu">map</span>(text, classify_comment)</span>
+<span id="cb20-22"><a href="" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb20-23"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(classification)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Cost</strong>: $50-200 (API fees), 1-2 days<br>
+<strong>Accuracy</strong>: 80-90% (comparable or better)<br>
+<strong>Advantage</strong>: Flexible schema, no training needed</p>
+</div>
+</div>
+</div>
+</section>
+<section id="workflow-pattern-1-structured-data-extraction" class="slide level2 smaller">
+<h2>Workflow Pattern 1: Structured Data Extraction</h2>
+<div class="fragment">
+<p><strong>Use case</strong>: Extract structured information from unstructured text</p>
+</div>
+<div class="fragment">
+<p><strong>Example</strong>: Parse grant award announcements into a database</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="" aria-hidden="true" tabindex="-1"></a>extract_grant_info <span class="ot">&lt;-</span> <span class="cf">function</span>(announcement_text) {</span>
+<span id="cb21-2"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-3"><a href="" aria-hidden="true" tabindex="-1"></a>  system_prompt <span class="ot">&lt;-</span> <span class="st">"Extract grant information from announcements.</span></span>
+<span id="cb21-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb21-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  Return ONLY valid JSON (no markdown):</span></span>
+<span id="cb21-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  {</span></span>
+<span id="cb21-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span><span class="sc">\"</span><span class="st">organization</span><span class="sc">\"</span><span class="st">: </span><span class="sc">\"</span><span class="st">exact name</span><span class="sc">\"</span><span class="st">,</span></span>
+<span id="cb21-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span><span class="sc">\"</span><span class="st">amount</span><span class="sc">\"</span><span class="st">: numeric value in dollars,</span></span>
+<span id="cb21-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span><span class="sc">\"</span><span class="st">date_awarded</span><span class="sc">\"</span><span class="st">: </span><span class="sc">\"</span><span class="st">YYYY-MM-DD</span><span class="sc">\"</span><span class="st">,</span></span>
+<span id="cb21-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span><span class="sc">\"</span><span class="st">purpose</span><span class="sc">\"</span><span class="st">: </span><span class="sc">\"</span><span class="st">brief description</span><span class="sc">\"</span><span class="st">,</span></span>
+<span id="cb21-11"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    </span><span class="sc">\"</span><span class="st">program</span><span class="sc">\"</span><span class="st">: </span><span class="sc">\"</span><span class="st">grant program name</span><span class="sc">\"</span></span>
+<span id="cb21-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb21-13"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb21-14"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  If a field is not mentioned, use null."</span></span>
+<span id="cb21-15"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-16"><a href="" aria-hidden="true" tabindex="-1"></a>  response <span class="ot">&lt;-</span> openai<span class="sc">$</span>chat<span class="sc">$</span>completions<span class="sc">$</span><span class="fu">create</span>(</span>
+<span id="cb21-17"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"gpt-4"</span>,</span>
+<span id="cb21-18"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">messages =</span> <span class="fu">list</span>(</span>
+<span id="cb21-19"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"system"</span>, <span class="at">content =</span> system_prompt),</span>
+<span id="cb21-20"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"user"</span>, <span class="at">content =</span> announcement_text)</span>
+<span id="cb21-21"><a href="" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb21-22"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">temperature =</span> <span class="fl">0.0</span>,  <span class="co"># Deterministic extraction</span></span>
+<span id="cb21-23"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">response_format =</span> <span class="fu">list</span>(<span class="at">type =</span> <span class="st">"json_object"</span>)  <span class="co"># Force JSON</span></span>
+<span id="cb21-24"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-25"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-26"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parse JSON response</span></span>
+<span id="cb21-27"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromJSON</span>(response<span class="sc">$</span>choices[[<span class="dv">1</span>]]<span class="sc">$</span>message<span class="sc">$</span>content)</span>
+<span id="cb21-28"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-29"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-30"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply to many announcements</span></span>
+<span id="cb21-31"><a href="" aria-hidden="true" tabindex="-1"></a>grant_database <span class="ot">&lt;-</span> announcements <span class="sc">%&gt;%</span></span>
+<span id="cb21-32"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-33"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">extracted =</span> <span class="fu">map</span>(announcement_text, extract_grant_info)</span>
+<span id="cb21-34"><a href="" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb21-35"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(extracted)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="workflow-pattern-2-code-generation" class="slide level2 smaller">
+<h2>Workflow Pattern 2: Code Generation</h2>
+<div class="fragment">
+<p><strong>Use case</strong>: Generate data cleaning/analysis code from natural language</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="" aria-hidden="true" tabindex="-1"></a>generate_cleaning_code <span class="ot">&lt;-</span> <span class="cf">function</span>(data_description, task_description) {</span>
+<span id="cb22-2"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-3"><a href="" aria-hidden="true" tabindex="-1"></a>  system_prompt <span class="ot">&lt;-</span> <span class="st">"You are an expert R programmer.</span></span>
+<span id="cb22-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb22-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  Generate production-quality R code (tidyverse style) for data cleaning tasks.</span></span>
+<span id="cb22-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb22-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  REQUIREMENTS:</span></span>
+<span id="cb22-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  - Use tidyverse functions</span></span>
+<span id="cb22-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  - Include error handling (tryCatch)</span></span>
+<span id="cb22-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  - Add comments explaining each step</span></span>
+<span id="cb22-11"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  - Use meaningful variable names</span></span>
+<span id="cb22-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  - Return ONLY the code (no markdown formatting)</span></span>
+<span id="cb22-13"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb22-14"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  TEST: Code must run without errors on the described data structure."</span></span>
+<span id="cb22-15"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-16"><a href="" aria-hidden="true" tabindex="-1"></a>  user_prompt <span class="ot">&lt;-</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"</span></span>
+<span id="cb22-17"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  Data structure: {data_description}</span></span>
+<span id="cb22-18"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb22-19"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  Task: {task_description}</span></span>
+<span id="cb22-20"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  </span></span>
+<span id="cb22-21"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  Generate R code to accomplish this task.</span></span>
+<span id="cb22-22"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  "</span>)</span>
+<span id="cb22-23"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-24"><a href="" aria-hidden="true" tabindex="-1"></a>  response <span class="ot">&lt;-</span> openai<span class="sc">$</span>chat<span class="sc">$</span>completions<span class="sc">$</span><span class="fu">create</span>(</span>
+<span id="cb22-25"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"gpt-4"</span>,</span>
+<span id="cb22-26"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">messages =</span> <span class="fu">list</span>(</span>
+<span id="cb22-27"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"system"</span>, <span class="at">content =</span> system_prompt),</span>
+<span id="cb22-28"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"user"</span>, <span class="at">content =</span> user_prompt)</span>
+<span id="cb22-29"><a href="" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb22-30"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">temperature =</span> <span class="fl">0.2</span></span>
+<span id="cb22-31"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-32"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-33"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Return generated code</span></span>
+<span id="cb22-34"><a href="" aria-hidden="true" tabindex="-1"></a>  response<span class="sc">$</span>choices[[<span class="dv">1</span>]]<span class="sc">$</span>message<span class="sc">$</span>content</span>
+<span id="cb22-35"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-36"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-37"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Example usage</span></span>
+<span id="cb22-38"><a href="" aria-hidden="true" tabindex="-1"></a>code <span class="ot">&lt;-</span> <span class="fu">generate_cleaning_code</span>(</span>
+<span id="cb22-39"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_description =</span> <span class="st">"</span></span>
+<span id="cb22-40"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    Dataframe 'counties' with columns: </span></span>
+<span id="cb22-41"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - fips (character, sometimes has leading zeros)</span></span>
+<span id="cb22-42"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - population (character with commas)</span></span>
+<span id="cb22-43"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    - median_income (character, includes '$' and ',')</span></span>
+<span id="cb22-44"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  "</span>,</span>
+<span id="cb22-45"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">task_description =</span> <span class="st">"</span></span>
+<span id="cb22-46"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    Convert all columns to correct types, handle missing values </span></span>
+<span id="cb22-47"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">    (coded as 'N/A', 'NULL', or '--'), and create a clean tibble</span></span>
+<span id="cb22-48"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  "</span></span>
+<span id="cb22-49"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-50"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-51"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Review and execute</span></span>
+<span id="cb22-52"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(code)</span>
+<span id="cb22-53"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Then: eval(parse(text = code))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="workflow-pattern-3-batch-processing-with-error-handling" class="slide level2 smaller">
+<h2>Workflow Pattern 3: Batch Processing with Error Handling</h2>
+<div class="fragment">
+<p><strong>Real-world challenge</strong>: APIs fail, rate limits exist, costs add up</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="" aria-hidden="true" tabindex="-1"></a>safe_llm_call <span class="ot">&lt;-</span> <span class="cf">function</span>(text, <span class="at">retries =</span> <span class="dv">3</span>, <span class="at">delay =</span> <span class="dv">2</span>) {</span>
+<span id="cb23-2"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Wrapper with error handling and retries</span></span>
+<span id="cb23-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(attempt <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>retries) {</span>
+<span id="cb23-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tryCatch</span>({</span>
+<span id="cb23-6"><a href="" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb23-7"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Rate limiting (respect API limits)</span></span>
+<span id="cb23-8"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">Sys.sleep</span>(delay)  </span>
+<span id="cb23-9"><a href="" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb23-10"><a href="" aria-hidden="true" tabindex="-1"></a>      response <span class="ot">&lt;-</span> openai<span class="sc">$</span>chat<span class="sc">$</span>completions<span class="sc">$</span><span class="fu">create</span>(</span>
+<span id="cb23-11"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="at">model =</span> <span class="st">"gpt-3.5-turbo"</span>,  <span class="co"># Cheaper for simple tasks</span></span>
+<span id="cb23-12"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="at">messages =</span> <span class="fu">list</span>(</span>
+<span id="cb23-13"><a href="" aria-hidden="true" tabindex="-1"></a>          <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"system"</span>, <span class="at">content =</span> <span class="st">"Summarize in 2 sentences."</span>),</span>
+<span id="cb23-14"><a href="" aria-hidden="true" tabindex="-1"></a>          <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"user"</span>, <span class="at">content =</span> text)</span>
+<span id="cb23-15"><a href="" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb23-16"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="at">max_tokens =</span> <span class="dv">100</span>,</span>
+<span id="cb23-17"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="at">temperature =</span> <span class="fl">0.3</span></span>
+<span id="cb23-18"><a href="" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb23-19"><a href="" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb23-20"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Success - return result</span></span>
+<span id="cb23-21"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(response<span class="sc">$</span>choices[[<span class="dv">1</span>]]<span class="sc">$</span>message<span class="sc">$</span>content)</span>
+<span id="cb23-22"><a href="" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb23-23"><a href="" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb23-24"><a href="" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb23-25"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Log error</span></span>
+<span id="cb23-26"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">message</span>(glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"Attempt {attempt} failed: {e$message}"</span>))</span>
+<span id="cb23-27"><a href="" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb23-28"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="co"># If rate limit, wait longer</span></span>
+<span id="cb23-29"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(<span class="fu">grepl</span>(<span class="st">"rate_limit"</span>, e<span class="sc">$</span>message)) {</span>
+<span id="cb23-30"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="fu">Sys.sleep</span>(delay <span class="sc">*</span> <span class="dv">2</span><span class="sc">^</span>attempt)  <span class="co"># Exponential backoff</span></span>
+<span id="cb23-31"><a href="" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb23-32"><a href="" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb23-33"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="co"># If last attempt, return NA</span></span>
+<span id="cb23-34"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(attempt <span class="sc">==</span> retries) {</span>
+<span id="cb23-35"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="fu">warning</span>(glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"Failed after {retries} attempts"</span>))</span>
+<span id="cb23-36"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(<span class="cn">NA_character_</span>)</span>
+<span id="cb23-37"><a href="" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb23-38"><a href="" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb23-39"><a href="" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-40"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-41"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-42"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply to many documents with progress tracking</span></span>
+<span id="cb23-43"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb23-44"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-45"><a href="" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> documents <span class="sc">%&gt;%</span></span>
+<span id="cb23-46"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-47"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">summary =</span> <span class="fu">map_chr</span>(</span>
+<span id="cb23-48"><a href="" aria-hidden="true" tabindex="-1"></a>      text, </span>
+<span id="cb23-49"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">possibly</span>(safe_llm_call, <span class="at">otherwise =</span> <span class="cn">NA_character_</span>),</span>
+<span id="cb23-50"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="at">.progress =</span> <span class="cn">TRUE</span>  <span class="co"># Show progress bar</span></span>
+<span id="cb23-51"><a href="" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb23-52"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">failed =</span> <span class="fu">is.na</span>(summary)</span>
+<span id="cb23-53"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-54"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-55"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Check success rate</span></span>
+<span id="cb23-56"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"</span></span>
+<span id="cb23-57"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  Success: {sum(!results$failed)} / {nrow(results)}</span></span>
+<span id="cb23-58"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">  Failure rate: {scales::percent(mean(results$failed))}</span></span>
+<span id="cb23-59"><a href="" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="cost-and-performance-considerations" class="slide level2 smaller">
+<h2>Cost and Performance Considerations</h2>
+<div class="fragment">
+<p><strong>LLM APIs aren’t free—you need to budget and optimize</strong>:</p>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="pricing-as-of-dec-2025">Pricing (as of Dec 2025)</h3>
+<p><strong>OpenAI GPT-5</strong>: - Input: $1.25 / 1M tokens - Output: $10 / 1M tokens</p>
+<p><strong>Claude Sonnet 4.5</strong>: - Input: $3 / 1M tokens - Output: $15 / 1M tokens</p>
+<p><strong>Claude Haiku 4.5</strong> (budget): - Input: $1 / 1M tokens - Output: $5 / 1M tokens</p>
+<p><strong>Example</strong>: Classify 10,000 comments - Avg 100 tokens input, 50 output - GPT-5: ~$6.25 - Claude Haiku: ~$3.50</p>
+<p><strong>Costs add up at scale!</strong></p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="optimization-strategies">Optimization Strategies</h3>
+<p><strong>1. Model selection</strong> - GPT-3.5 for simple tasks - GPT-4 only when needed - Fine-tuned models for specific domains</p>
+<p><strong>2. Prompt efficiency</strong> - Shorter prompts = lower costs - Remove unnecessary context - Use few-shot only when needed</p>
+<p><strong>3. Caching</strong> - Store results for identical inputs - Don’t re-process unchanged data</p>
+<p><strong>4. Batch operations</strong> - Process in chunks - Parallelize when possible - Monitor rate limits</p>
+<p><strong>5. Fallback strategies</strong> - Start with heuristics - Use LLM only for edge cases - Human review for high-stakes decisions</p>
+</div>
+</div>
+</div>
+</section>
+<section id="when-not-to-use-llms" class="slide level2 smaller">
+<h2>When NOT to Use LLMs</h2>
+<div class="fragment">
+<p><strong>LLMs are powerful but not always the right tool</strong>:</p>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="dont-use-llms-for">Don’t Use LLMs For:</h3>
+<p><strong>1. Simple pattern matching</strong> - Regex is faster and cheaper - Example: Extract emails, phone numbers</p>
+<p><strong>2. Deterministic computations</strong> - Use traditional code - Example: Calculate statistics, apply formulas</p>
+<p><strong>3. High-stakes decisions alone</strong> - LLMs make mistakes - Example: Medical diagnosis, legal judgments</p>
+<p><strong>4. Real-time, low-latency tasks</strong> - API calls take 1-10 seconds - Example: Interactive dashboards</p>
+<p><strong>5. When you need guarantees</strong> - LLMs are probabilistic - Example: Financial calculations, legal compliance</p>
+<p><strong>6. Private/sensitive data (without precautions)</strong> - API calls may be logged - Example: PII, confidential documents</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="use-traditional-methods-for">Use Traditional Methods For:</h3>
+<p><strong>Pattern matching</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract emails (regex is perfect)</span></span>
+<span id="cb24-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">str_extract_all</span>(text, <span class="st">"</span><span class="sc">\\</span><span class="st">b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+</span><span class="sc">\\</span><span class="st">.[A-Z|a-z]{2,}</span><span class="sc">\\</span><span class="st">b"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Calculations</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Statistical analysis (use R!)</span></span>
+<span id="cb25-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(outcome <span class="sc">~</span> predictor, <span class="at">data =</span> df) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Exact lookups</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Database queries (SQL is precise)</span></span>
+<span id="cb26-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(con, <span class="st">"SELECT * FROM counties WHERE fips = '06073'"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Real-time inference</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Pre-trained local model (milliseconds)</span></span>
+<span id="cb27-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(random_forest_model, new_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Decision rule</strong>: Use LLMs for tasks requiring <strong>language understanding</strong>, <strong>context reasoning</strong>, or <strong>unstructured input</strong>. Use traditional code for <strong>deterministic operations</strong>, <strong>structured data</strong>, and <strong>speed-critical tasks</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="part-iv-retrieval-augmented-generation-rag" class="title-slide slide level1 center">
+<h1>Part IV: Retrieval-Augmented Generation (RAG)</h1>
+
+</section>
+<section id="why-rag-two-key-problems" class="slide level2 smaller">
+<h2>Why RAG? Two Key Problems</h2>
+<div class="fragment">
+<h3 id="problem-1-knowledge-cutoff">Problem 1: Knowledge Cutoff</h3>
+<p><strong>LLMs only know what they were trained on</strong> - GPT-5 training data cuts off at some point in 2024 - No knowledge of: - Your organization’s internal documents - Recent news, policies, or research - Proprietary data or databases - Real-time information</p>
+</div>
+<div class="fragment">
+<h3 id="problem-2-context-window-limits">Problem 2: Context Window Limits</h3>
+<p>Even with large context windows, you can’t fit everything: - Claude Sonnet 4.5: 1M tokens (~750K words) - Sounds huge, but…</p>
+<p><strong>Policy scenario</strong>: Analyze all public comments on a regulation - 5,000 comments × 200 words each - Total: 1 million words ≈ 1.3M tokens</p>
+<p><strong>Problem</strong>: Can’t fit in context window!</p>
+<p><strong>Naive solution</strong>: Summarize → lose important details<br>
+<strong>Better solution</strong>: Retrieval-Augmented Generation (RAG)</p>
+</div>
+</section>
+<section id="what-is-rag" class="slide level2 smaller">
+<h2>What is RAG?</h2>
+<div class="fragment">
+<p><strong>RAG combines retrieval (search) with generation (LLM)</strong>:</p>
+</div>
+<div class="fragment">
+<p><strong>Traditional LLM</strong>:</p>
+<pre><code>Question → LLM → Answer</code></pre>
+<p><strong>Problem</strong>: LLM only knows what’s in its training data (outdated, generic)</p>
+</div>
+<div class="fragment">
+<p><strong>RAG Pipeline</strong>:</p>
+<pre><code>Question → Retrieve relevant docs → LLM + Retrieved context → Answer</code></pre>
+<p><strong>Advantage</strong>: LLM can answer using YOUR specific documents!</p>
+</div>
+<div class="fragment">
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>How It Works</strong></p>
+<ol type="1">
+<li class="fragment"><strong>Index</strong> documents (convert to embeddings)</li>
+<li class="fragment"><strong>Retrieve</strong> most relevant chunks for query</li>
+<li class="fragment"><strong>Augment</strong> prompt with retrieved context</li>
+<li class="fragment"><strong>Generate</strong> answer using context + LLM</li>
+</ol>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Benefits</strong></p>
+<ul>
+<li class="fragment">Use current, domain-specific knowledge</li>
+<li class="fragment">Ground answers in source documents</li>
+<li class="fragment">Scale to millions of documents</li>
+<li class="fragment">Cite sources in responses</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="rag-architecture" class="slide level2 smaller">
+<h2>RAG Architecture</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="setup-phase-once">🏗️ Setup Phase (Once)</h3>
+<div class="fragment">
+<ol type="1">
+<li class="fragment"><strong>Chunk documents</strong> into smaller pieces</li>
+<li class="fragment"><strong>Generate embeddings</strong> for each chunk</li>
+<li class="fragment"><strong>Store in vector database</strong> (e.g., Pinecone, ChromaDB)</li>
+</ol>
+</div>
+</div><div class="column" style="width:50%;">
+<h3 id="query-phase-every-request">🔄 Query Phase (Every request)</h3>
+<div class="fragment">
+<ol start="4" type="1">
+<li class="fragment"><strong>User asks a question</strong></li>
+<li class="fragment"><strong>Embed the question</strong> (same model)</li>
+<li class="fragment"><strong>Search vector DB</strong> for similar chunks</li>
+<li class="fragment"><strong>Inject top-k chunks</strong> into LLM prompt</li>
+<li class="fragment"><strong>LLM generates answer</strong> using retrieved context</li>
+</ol>
+</div>
+</div></div>
+<div class="fragment">
+<h3 id="key-insight">Key Insight</h3>
+<p><strong>RAG = Smart Search + LLM Generation</strong></p>
+<ul>
+<li class="fragment">Instead of putting <em>everything</em> in the prompt, we <strong>retrieve</strong> only what’s relevant</li>
+<li class="fragment">LLM generates answer <strong>grounded in</strong> the retrieved documents</li>
+<li class="fragment">Can cite sources and handle massive document collections</li>
+</ul>
+</div>
+</section>
+<section id="rag-benefits-and-limitations" class="slide level2 smaller">
+<h2>RAG Benefits and Limitations</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Benefits ✓</strong></p>
+<p><strong>1. Current information</strong> - Use today’s data, not 2-year-old training cutoff - Update knowledge by adding new docs</p>
+<p><strong>2. Domain-specific expertise</strong> - Ground in YOUR organization’s policies - Incorporate specialized knowledge</p>
+<p><strong>3. Source attribution</strong> - Cite specific documents - Enable verification</p>
+<p><strong>4. Privacy &amp; control</strong> - Keep sensitive data in your database - Don’t rely on LLM training data</p>
+<p><strong>5. Scalability</strong> - Handle millions of documents - Only retrieve relevant subset</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Limitations ✗</strong></p>
+<p><strong>1. Retrieval quality matters</strong> - Bad search → bad context → bad answer - Requires good embeddings &amp; ranking</p>
+<p><strong>2. Additional complexity</strong> - Need vector database - Manage embeddings &amp; indexing - Monitor retrieval quality</p>
+<p><strong>3. Increased latency</strong> - Retrieval adds time - Embedding generation costs</p>
+<p><strong>4. Context window still limited</strong> - Can only use top-k chunks - May miss relevant information</p>
+<p><strong>5. Hallucination risk</strong> - LLM may still make things up - Misinterpret retrieved context</p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Tip</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>When to use RAG</strong>: Large document collections, need source citations, information changes frequently, domain-specific knowledge required.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="rag-in-policy-analysis" class="slide level2 smaller">
+<h2>RAG in Policy Analysis</h2>
+<div class="fragment">
+<p><strong>Real-world policy applications</strong>:</p>
+</div>
+<div class="fragment">
+<p><strong>1. Legislation Analysis</strong> - Index: All state bills from past 10 years - Query: “Which states passed paid family leave in 2022-2023?” - Benefit: Get specific bills with citations</p>
+<p><strong>2. Public Comment Analysis</strong> - Index: 10,000+ comments on proposed regulation - Query: “What are small businesses’ main concerns?” - Benefit: Surface themes with supporting quotes</p>
+<p><strong>3. Evidence Synthesis</strong> - Index: Research papers, reports, evaluations - Query: “What’s the evidence on job training program effectiveness?” - Benefit: Literature review with source tracking</p>
+<p><strong>4. Internal Knowledge Management</strong> - Index: Your org’s reports, memos, analyses - Query: “How did we analyze similar data in 2019?” - Benefit: Institutional memory without manual searching</p>
+</div>
+</section>
+<section id="advanced-rag-techniques" class="slide level2 smaller">
+<h2>Advanced RAG Techniques</h2>
+<div class="fragment">
+<p><strong>Beyond basic RAG</strong>:</p>
+</div>
+<div class="{fragment}">
+<p><strong>1. Hybrid Search</strong> - Combine vector similarity (semantic) + keyword search (exact matches) - Best of both worlds</p>
+<p><strong>2. Reranking</strong> - Initial retrieval gets top-50 - Reranker model picks best 5 - Improves precision</p>
+<p><strong>3. Query Expansion</strong> - LLM generates similar queries - Retrieve for all variants - Broader coverage</p>
+<p><strong>4. Hierarchical Retrieval</strong> - First: Find relevant documents - Second: Find relevant chunks within docs - Better context targeting</p>
+<p><strong>5. Agentic RAG</strong> - LLM decides what to retrieve - Iterative: retrieve → read → retrieve more - More sophisticated reasoning</p>
+</div>
+</section></section>
+<section>
+<section id="part-v-practical-considerations" class="title-slide slide level1 center">
+<h1>Part V: Practical Considerations</h1>
+
+</section>
+<section id="the-iteration-loop-prompt-engineering" class="slide level2 smaller">
+<h2>The Iteration Loop: Prompt Engineering</h2>
+<div class="fragment">
+<p><strong>Creating effective prompts is an iterative process</strong>:</p>
+</div>
+<div class="{fragment}">
+<p><strong>Cycle</strong>:</p>
+<pre><code>1. Write initial prompt
+2. Test on examples
+3. Identify failure modes
+4. Refine prompt
+5. Repeat until acceptable performance</code></pre>
+</div>
+<div class="fragment">
+<p><strong>Example iteration</strong> (data extraction task):</p>
+<p><strong>Version 1</strong> (too vague):</p>
+<pre><code>"Extract the key information from this text."</code></pre>
+<p>→ Result: Inconsistent, misses fields</p>
+<p><strong>Version 2</strong> (add structure):</p>
+<pre><code>"Extract: organization, amount, date. Return as JSON."</code></pre>
+<p>→ Result: Better, but still ambiguous dates</p>
+<p><strong>Version 3</strong> (add examples + constraints):</p>
+<pre><code>"Extract grant information. Return JSON with these exact keys:
+- organization (string, exact name as written)
+- amount (number, in dollars, no currency symbols)
+- date_awarded (string, format YYYY-MM-DD)
+
+Examples:
+Input: 'ABC Foundation awarded $50,000 to XYZ Org on March 15, 2024'
+Output: {\"organization\": \"XYZ Org\", \"amount\": 50000, \"date_awarded\": \"2024-03-15\"}
+
+If field is missing, use null. If date is ambiguous, use null."</code></pre>
+<p>→ Result: Reliable, parseable output!</p>
+</div>
+</section>
+<section id="testing-and-validation" class="slide level2 smaller">
+<h2>Testing and Validation</h2>
+<div class="fragment">
+<p><strong>LLMs are probabilistic—you MUST validate</strong>:</p>
+</div>
+<div class="fragment">
+<p><strong>1. Create a test set</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Manually label 50-100 examples with ground truth</span></span>
+<span id="cb34-2"><a href="" aria-hidden="true" tabindex="-1"></a>test_cases <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb34-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">input =</span> <span class="fu">c</span>(...),</span>
+<span id="cb34-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">expected_output =</span> <span class="fu">c</span>(...)</span>
+<span id="cb34-5"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>2. Measure performance</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> test_cases <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb35-3"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">predicted =</span> <span class="fu">map_chr</span>(input, your_llm_function),</span>
+<span id="cb35-4"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">correct =</span> predicted <span class="sc">==</span> expected_output</span>
+<span id="cb35-5"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> <span class="fu">mean</span>(results<span class="sc">$</span>correct)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>3. Analyze failures</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="" aria-hidden="true" tabindex="-1"></a>failures <span class="ot">&lt;-</span> results <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>correct) <span class="sc">%&gt;%</span></span>
+<span id="cb36-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(input, expected_output, predicted)</span>
+<span id="cb36-4"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># What patterns do you see?</span></span>
+<span id="cb36-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># - Length of input?</span></span>
+<span id="cb36-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># - Specific formats?</span></span>
+<span id="cb36-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># - Edge cases?</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>4. Iterate on prompt</strong> - Add examples of failure cases - Add explicit constraints - Adjust temperature</p>
+</div>
+</section>
+<section id="error-handling-and-fallbacks" class="slide level2 smaller">
+<h2>Error Handling and Fallbacks</h2>
+<div class="fragment">
+<p><strong>Production workflows need robust error handling</strong>:</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="" aria-hidden="true" tabindex="-1"></a>robust_llm_call <span class="ot">&lt;-</span> <span class="cf">function</span>(text, <span class="at">fallback_value =</span> <span class="cn">NA</span>) {</span>
+<span id="cb37-2"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Input validation</span></span>
+<span id="cb37-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.na</span>(text) <span class="sc">||</span> <span class="fu">nchar</span>(text) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb37-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(fallback_value)</span>
+<span id="cb37-6"><a href="" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb37-7"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Try LLM call with retries</span></span>
+<span id="cb37-9"><a href="" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
+<span id="cb37-10"><a href="" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-11"><a href="" aria-hidden="true" tabindex="-1"></a>    response <span class="ot">&lt;-</span> openai<span class="sc">$</span>chat<span class="sc">$</span>completions<span class="sc">$</span><span class="fu">create</span>(</span>
+<span id="cb37-12"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="at">model =</span> <span class="st">"gpt-4"</span>,</span>
+<span id="cb37-13"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="at">messages =</span> <span class="fu">list</span>(</span>
+<span id="cb37-14"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"system"</span>, <span class="at">content =</span> <span class="st">"..."</span>),</span>
+<span id="cb37-15"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"user"</span>, <span class="at">content =</span> text)</span>
+<span id="cb37-16"><a href="" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb37-17"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="at">timeout =</span> <span class="dv">30</span>  <span class="co"># Fail fast if API is slow</span></span>
+<span id="cb37-18"><a href="" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-19"><a href="" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-20"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. Parse and validate output</span></span>
+<span id="cb37-21"><a href="" aria-hidden="true" tabindex="-1"></a>    output <span class="ot">&lt;-</span> response<span class="sc">$</span>choices[[<span class="dv">1</span>]]<span class="sc">$</span>message<span class="sc">$</span>content</span>
+<span id="cb37-22"><a href="" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-23"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check output format</span></span>
+<span id="cb37-24"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(<span class="fu">is_valid_output</span>(output)) {</span>
+<span id="cb37-25"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(output)</span>
+<span id="cb37-26"><a href="" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb37-27"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">warning</span>(<span class="st">"Invalid output format, using fallback"</span>)</span>
+<span id="cb37-28"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(fallback_value)</span>
+<span id="cb37-29"><a href="" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb37-30"><a href="" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-31"><a href="" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb37-32"><a href="" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-33"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. Log error for debugging</span></span>
+<span id="cb37-34"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">log_error</span>(glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"LLM call failed: {e$message}"</span>))</span>
+<span id="cb37-35"><a href="" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-36"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 5. Use fallback strategy</span></span>
+<span id="cb37-37"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(<span class="fu">grepl</span>(<span class="st">"rate_limit"</span>, e<span class="sc">$</span>message)) {</span>
+<span id="cb37-38"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Queue for retry later</span></span>
+<span id="cb37-39"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">add_to_retry_queue</span>(text)</span>
+<span id="cb37-40"><a href="" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb37-41"><a href="" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-42"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(fallback_value)</span>
+<span id="cb37-43"><a href="" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb37-44"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-45"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
+<span id="cb37-46"><a href="" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="monitoring-and-costs" class="slide level2 smaller">
+<h2>Monitoring and Costs</h2>
+<div class="fragment">
+<p><strong>Track costs and quality in production</strong>:</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Create logging wrapper</span></span>
+<span id="cb38-2"><a href="" aria-hidden="true" tabindex="-1"></a>llm_call_with_logging <span class="ot">&lt;-</span> <span class="cf">function</span>(text, task_type) {</span>
+<span id="cb38-3"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-4"><a href="" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb38-5"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-6"><a href="" aria-hidden="true" tabindex="-1"></a>  response <span class="ot">&lt;-</span> openai<span class="sc">$</span>chat<span class="sc">$</span>completions<span class="sc">$</span><span class="fu">create</span>(</span>
+<span id="cb38-7"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"gpt-4"</span>,</span>
+<span id="cb38-8"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">messages =</span> <span class="fu">list</span>(</span>
+<span id="cb38-9"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"system"</span>, <span class="at">content =</span> <span class="st">"..."</span>),</span>
+<span id="cb38-10"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">role =</span> <span class="st">"user"</span>, <span class="at">content =</span> text)</span>
+<span id="cb38-11"><a href="" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb38-12"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-13"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-14"><a href="" aria-hidden="true" tabindex="-1"></a>  end_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb38-15"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-16"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Log metadata</span></span>
+<span id="cb38-17"><a href="" aria-hidden="true" tabindex="-1"></a>  log_entry <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb38-18"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">timestamp =</span> start_time,</span>
+<span id="cb38-19"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">task_type =</span> task_type,</span>
+<span id="cb38-20"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"gpt-4"</span>,</span>
+<span id="cb38-21"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">input_tokens =</span> response<span class="sc">$</span>usage<span class="sc">$</span>prompt_tokens,</span>
+<span id="cb38-22"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">output_tokens =</span> response<span class="sc">$</span>usage<span class="sc">$</span>completion_tokens,</span>
+<span id="cb38-23"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_tokens =</span> response<span class="sc">$</span>usage<span class="sc">$</span>total_tokens,</span>
+<span id="cb38-24"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">latency_seconds =</span> <span class="fu">as.numeric</span>(end_time <span class="sc">-</span> start_time, <span class="at">units =</span> <span class="st">"secs"</span>),</span>
+<span id="cb38-25"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">cost_usd =</span> <span class="fu">calculate_cost</span>(response<span class="sc">$</span>usage, <span class="at">model =</span> <span class="st">"gpt-4"</span>)</span>
+<span id="cb38-26"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-27"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-28"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Append to log file or database</span></span>
+<span id="cb38-29"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(log_entry, <span class="st">"llm_usage_log.csv"</span>, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb38-30"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-31"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(response<span class="sc">$</span>choices[[<span class="dv">1</span>]]<span class="sc">$</span>message<span class="sc">$</span>content)</span>
+<span id="cb38-32"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb38-33"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-34"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyze costs</span></span>
+<span id="cb38-35"><a href="" aria-hidden="true" tabindex="-1"></a>usage_summary <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"llm_usage_log.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-36"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(task_type) <span class="sc">%&gt;%</span></span>
+<span id="cb38-37"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb38-38"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_calls =</span> <span class="fu">n</span>(),</span>
+<span id="cb38-39"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_cost =</span> <span class="fu">sum</span>(cost_usd),</span>
+<span id="cb38-40"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_latency =</span> <span class="fu">mean</span>(latency_seconds),</span>
+<span id="cb38-41"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_tokens =</span> <span class="fu">sum</span>(total_tokens)</span>
+<span id="cb38-42"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="privacy-and-security-considerations" class="slide level2 smaller">
+<h2>Privacy and Security Considerations</h2>
+<div class="fragment">
+<p><strong>Important questions before sending data to LLM APIs</strong>:</p>
+</div>
+<div class="{fragment}">
+<p><strong>1. What happens to your data?</strong></p>
+<ul>
+<li class="fragment"><strong>OpenAI</strong>: API data is NOT used for training (policy since March 2023, still current)</li>
+<li class="fragment"><strong>Anthropic (Claude)</strong>: API data not used for training</li>
+<li class="fragment"><strong>Other providers</strong>: Check terms of service carefully</li>
+<li class="fragment"><strong>Enterprise plans</strong>: Often include additional data retention and privacy guarantees</li>
+</ul>
+<p><strong>2. Can you use sensitive data?</strong></p>
+<ul>
+<li class="fragment"><strong>Public data</strong>: Generally safe</li>
+<li class="fragment"><strong>PII (names, SSNs, addresses)</strong>: Redact before sending</li>
+<li class="fragment"><strong>Confidential documents</strong>: Check your organization’s policies</li>
+<li class="fragment"><strong>Health data (HIPAA)</strong>: Use BAA-compliant services only</li>
+</ul>
+<p><strong>3. Mitigation strategies</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Anonymize before sending</span></span>
+<span id="cb39-2"><a href="" aria-hidden="true" tabindex="-1"></a>anonymize_text <span class="ot">&lt;-</span> <span class="cf">function</span>(text) {</span>
+<span id="cb39-3"><a href="" aria-hidden="true" tabindex="-1"></a>  text <span class="sc">%&gt;%</span></span>
+<span id="cb39-4"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_replace_all</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">b[A-Z][a-z]+ [A-Z][a-z]+</span><span class="sc">\\</span><span class="st">b"</span>, <span class="st">"[NAME]"</span>) <span class="sc">%&gt;%</span>  <span class="co"># Names</span></span>
+<span id="cb39-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_replace_all</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">b</span><span class="sc">\\</span><span class="st">d{3}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{4}</span><span class="sc">\\</span><span class="st">b"</span>, <span class="st">"[SSN]"</span>) <span class="sc">%&gt;%</span>      <span class="co"># SSNs</span></span>
+<span id="cb39-6"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_replace_all</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+</span><span class="sc">\\</span><span class="st">.[A-Z|a-z]{2,}</span><span class="sc">\\</span><span class="st">b"</span>, <span class="st">"[EMAIL]"</span>)</span>
+<span id="cb39-7"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-8"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Use on-premise/self-hosted models for sensitive data</span></span>
+<span id="cb39-10"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># - LLaMA 2/3 (Meta)</span></span>
+<span id="cb39-11"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># - Mistral</span></span>
+<span id="cb39-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># - Claude via AWS Bedrock (with data controls)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="when-to-build-vs.-buy" class="slide level2 smaller">
+<h2>When to Build vs.&nbsp;Buy</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="use-api-services-when">Use API Services When:</h3>
+<p><strong>1. Getting started</strong> - Fastest time to value - No infrastructure needed - Latest models immediately</p>
+<p><strong>2. Variable/unpredictable load</strong> - Pay only for what you use - No idle compute costs</p>
+<p><strong>3. Need latest capabilities</strong> - GPT-4, Claude 3 etc. - Continuous improvements</p>
+<p><strong>4. Small-medium scale</strong> - &lt;1M requests/month - Cost-effective at this scale</p>
+<p><strong>Example cost</strong>: 100K API calls at $0.01/call = $1,000/month</p>
+</div>
+<div class="fragment quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<h3 id="self-host-when">Self-Host When:</h3>
+<p><strong>1. Very high volume</strong> - &gt;10M requests/month - API costs prohibitive</p>
+<p><strong>2. Privacy requirements</strong> - HIPAA, confidential data - Air-gapped environments</p>
+<p><strong>3. Latency critical</strong> - Need &lt;100ms response - Local inference faster</p>
+<p><strong>4. Customization needed</strong> - Fine-tuning on proprietary data - Model modifications</p>
+<p><strong>5. Long-term cost optimization</strong> - Fixed inference costs - Deprecation risk mitigation</p>
+<p><strong>Example cost</strong>: Self-hosted GPU server = $2-5K/month (fixed), economical at high volume</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="part-vi-live-demonstration" class="title-slide slide level1 center">
+<h1>Part VI: Live Demonstration</h1>
+
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="part-vii-looking-forward" class="title-slide slide level1 center">
+<h1>Part VII: Looking Forward</h1>
+
+</section>
+<section id="the-future-of-ai-in-policy-analysis" class="slide level2 smaller">
+<h2>The Future of AI in Policy Analysis</h2>
+<div class="fragment">
+<p><strong>Trends to watch</strong>:</p>
+</div>
+<div class="fragment">
+<p><strong>1. Multimodal Models</strong> - Process text + images + tables simultaneously - Example: Analyze charts and figures from PDFs - GPT, Claude, Gemini already do this</p>
+<p><strong>2. Longer Context Windows</strong> - Future: Entire books, datasets in context</p>
+<p><strong>3. Specialized Policy Models</strong> - Fine-tuned on government documents - Better understanding of policy language - Domain-specific reasoning</p>
+<p><strong>4. Agentic Workflows</strong> - LLMs that use tools (run code, query databases, search web) - Multi-step reasoning without human intervention - Example: “Analyze this data and create a report” → Done!</p>
+<p><strong>5. Improved Reliability</strong> - Better at following instructions precisely - Reduced hallucinations - Calibrated uncertainty (knows when unsure)</p>
+</div>
+</section>
+<section id="emerging-capabilities-agents-and-tools" class="slide level2 smaller">
+<h2>Emerging Capabilities: Agents and Tools</h2>
+<div class="fragment">
+<p><strong>Next frontier: LLMs that can use tools</strong></p>
+</div>
+<div class="fragment">
+<p><strong>Function calling example</strong> (OpenAI API):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Define tools the LLM can use</span></span>
+<span id="cb40-2"><a href="" aria-hidden="true" tabindex="-1"></a>tools <span class="op">=</span> [</span>
+<span id="cb40-3"><a href="" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb40-4"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"type"</span>: <span class="st">"function"</span>,</span>
+<span id="cb40-5"><a href="" aria-hidden="true" tabindex="-1"></a>    <span class="st">"function"</span>: {</span>
+<span id="cb40-6"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="st">"name"</span>: <span class="st">"query_database"</span>,</span>
+<span id="cb40-7"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="st">"description"</span>: <span class="st">"Query county-level data"</span>,</span>
+<span id="cb40-8"><a href="" aria-hidden="true" tabindex="-1"></a>      <span class="st">"parameters"</span>: {</span>
+<span id="cb40-9"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="st">"type"</span>: <span class="st">"object"</span>,</span>
+<span id="cb40-10"><a href="" aria-hidden="true" tabindex="-1"></a>        <span class="st">"properties"</span>: {</span>
+<span id="cb40-11"><a href="" aria-hidden="true" tabindex="-1"></a>          <span class="st">"metric"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>, <span class="st">"enum"</span>: [<span class="st">"poverty_rate"</span>, <span class="st">"median_income"</span>]},</span>
+<span id="cb40-12"><a href="" aria-hidden="true" tabindex="-1"></a>          <span class="st">"state"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}</span>
+<span id="cb40-13"><a href="" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb40-14"><a href="" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb40-15"><a href="" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb40-16"><a href="" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb40-17"><a href="" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb40-18"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-19"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># LLM decides which tool to call</span></span>
+<span id="cb40-20"><a href="" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> openai.chat.completions.create(</span>
+<span id="cb40-21"><a href="" aria-hidden="true" tabindex="-1"></a>  model<span class="op">=</span><span class="st">"gpt-4"</span>,</span>
+<span id="cb40-22"><a href="" aria-hidden="true" tabindex="-1"></a>  messages<span class="op">=</span>[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"What's the poverty rate in California counties?"</span>}],</span>
+<span id="cb40-23"><a href="" aria-hidden="true" tabindex="-1"></a>  tools<span class="op">=</span>tools</span>
+<span id="cb40-24"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-25"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-26"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># If LLM wants to call a function:</span></span>
+<span id="cb40-27"><a href="" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> response.choices[<span class="dv">0</span>].message.tool_calls:</span>
+<span id="cb40-28"><a href="" aria-hidden="true" tabindex="-1"></a>  function_call <span class="op">=</span> response.choices[<span class="dv">0</span>].message.tool_calls[<span class="dv">0</span>]</span>
+<span id="cb40-29"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb40-30"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Execute the function</span></span>
+<span id="cb40-31"><a href="" aria-hidden="true" tabindex="-1"></a>  result <span class="op">=</span> query_database(</span>
+<span id="cb40-32"><a href="" aria-hidden="true" tabindex="-1"></a>    metric<span class="op">=</span>function_call.function.arguments[<span class="st">'metric'</span>],</span>
+<span id="cb40-33"><a href="" aria-hidden="true" tabindex="-1"></a>    state<span class="op">=</span>function_call.function.arguments[<span class="st">'state'</span>]</span>
+<span id="cb40-34"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb40-35"><a href="" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb40-36"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Send result back to LLM for final answer</span></span>
+<span id="cb40-37"><a href="" aria-hidden="true" tabindex="-1"></a>  final_response <span class="op">=</span> openai.chat.completions.create(</span>
+<span id="cb40-38"><a href="" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"gpt-4"</span>,</span>
+<span id="cb40-39"><a href="" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb40-40"><a href="" aria-hidden="true" tabindex="-1"></a>      {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"What's the poverty rate in California counties?"</span>},</span>
+<span id="cb40-41"><a href="" aria-hidden="true" tabindex="-1"></a>      response.choices[<span class="dv">0</span>].message,</span>
+<span id="cb40-42"><a href="" aria-hidden="true" tabindex="-1"></a>      {<span class="st">"role"</span>: <span class="st">"function"</span>, <span class="st">"name"</span>: <span class="st">"query_database"</span>, <span class="st">"content"</span>: <span class="bu">str</span>(result)}</span>
+<span id="cb40-43"><a href="" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb40-44"><a href="" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Result</strong>: LLM autonomously queries your data and interprets results!</p>
+</div>
+</section>
+<section id="ethical-considerations-and-best-practices" class="slide level2 smaller">
+<h2>Ethical Considerations and Best Practices</h2>
+<div class="fragment">
+<p><strong>As you integrate AI into policy work, remember</strong>:</p>
+</div>
+<div class="fragment">
+<p><strong>1. Validation</strong> - Never trust LLM output blindly - Human review for high-stakes decisions - Test systematically on edge cases</p>
+<p><strong>2. Bias and Fairness</strong> - LLMs inherit biases from training data - Test for disparate impact across groups - Consider whose perspectives are represented</p>
+<p><strong>3. Privacy</strong> - Anonymize before sending to APIs - Know your data retention policies - Use appropriate security controls</p>
+<p><strong>4. Appropriate Use</strong> - LLMs augment, don’t replace, human judgment - Best for analysis support, not final decisions - Combine with domain expertise</p>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Remember</strong>: You are responsible for the outputs, not the LLM. AI is a tool that amplifies your capabilities—but you’re still the decision-maker.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="key-takeaways" class="slide level2 smaller">
+<h2>Key Takeaways</h2>
+<div class="fragment">
+<p><strong>1. LLM APIs are programmable intelligence</strong>—control behavior through system prompts, not just chat</p>
+</div>
+<div class="fragment">
+<p><strong>2. Completion structure</strong> has three roles: system (instructions), user (requests), assistant (responses)</p>
+</div>
+<div class="fragment">
+<p><strong>3. System prompts</strong> are your secret weapon—specify role, task, format, and constraints</p>
+</div>
+<div class="fragment">
+<p><strong>4. LLMs enable previously impossible workflows</strong>—structured extraction, code generation, document analysis at scale</p>
+</div>
+<div class="fragment">
+<p><strong>5. RAG extends LLM knowledge</strong>—combine retrieval with generation for grounded, source-aware answers</p>
+</div>
+<div class="fragment">
+<p><strong>6. Production requires rigor</strong>—error handling, testing, cost monitoring, privacy controls</p>
+</div>
+<div class="fragment">
+<p><strong>7. Use LLMs for language tasks</strong>, traditional code for deterministic operations</p>
+</div>
+<div class="fragment">
+<p><strong>8. Always validate</strong>—LLMs are powerful but probabilistic; human oversight is essential</p>
+</div>
+</section>
+<section id="preparing-for-the-final-exam" class="slide level2 smaller">
+<h2>Preparing for the Final Exam</h2>
+<div class="fragment">
+<p><strong>Final Exam: Wednesday, December 3 (in class)</strong></p>
+</div>
+<div class="fragment">
+<p><strong>Format</strong>: - In-class, written exam - Cumulative: all lecture topics from Weeks 1-9 - Mix of conceptual, computational, and applied questions - One 3”×5” hand-written note card allowed</p>
+</div>
+<div class="fragment">
+<p><strong>Keep learning—this is just the beginning</strong>:</p>
+<p>The skills you’ve built here aren’t just professional tools—they’re a <em>practice</em>, a way of thinking about problems and building solutions. The best analysts, policymakers, and researchers I know are relentless autodidacts who never stopped being curious.</p>
+<ul>
+<li class="fragment"><strong>Separate practice from profession</strong>: Code on weekends. Read papers for fun. Build things no one asked you to build.</li>
+<li class="fragment"><strong>Follow the frontier</strong>: AI moves fast. Subscribe to research blogs (Anthropic, OpenAI research), follow practitioners on social media, join communities.</li>
+<li class="fragment"><strong>Teach to learn</strong>: Explain what you know to others. Write blog posts. Answer questions on forums. Teaching forces clarity.</li>
+<li class="fragment"><strong>Embrace productive struggle</strong>: You <em>will</em> get stuck. That’s not failure—that’s where learning happens. Debug patiently. Ask for help. Try again.</li>
+<li class="fragment"><strong>Stay ethically grounded</strong>: As these tools get more powerful, your judgment becomes more important, not less. Keep asking “should we?” not just “can we?”</li>
+</ul>
+<p>You don’t need permission or credentials to keep growing. You just need curiosity and commitment. <strong>Keep pushing yourself.</strong></p>
+</div>
+</section>
+<section id="questions" class="slide level2">
+<h2>Questions?</h2>
+</section>
+<section id="thank-you" class="slide level2">
+<h2>Thank you</h2>
+</section>
+<section class="slide level2">
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="lec11_ai_apis_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="lec11_ai_apis_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': false,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: true,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
